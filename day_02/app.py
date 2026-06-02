@@ -7,20 +7,21 @@ import numpy as np
 # --- 1. THEME & MOBILE-RESPONSIVE GRAPHICS LAYOUT ---
 st.set_page_config(layout="wide", page_title="EquiCompare")
 
-# Premium Responsive Stylesheet (Handles Desktop & Mobile Viewports cleanly)
+# Premium Responsive Stylesheet (Locks deep dark theme across desktop & mobile)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
     
-    html, body, [class*="css"] {
+    html, body, [class*="css"], .stApp, [data-testid="stAppViewContainer"] {
         font-family: 'Inter', sans-serif;
+        background-color: #0B0F17 !important; 
+        color: #F3F4F6 !important;
     }
-    .main { background-color: #0B0F17; color: #F3F4F6; }
     header, footer, #MainMenu { visibility: hidden !important; }
     
     /* Structural Section Layout Blocks */
     .intro-section {
-        background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
+        background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%) !important;
         padding: 35px;
         border-radius: 16px;
         border: 1px solid #1E293B;
@@ -28,31 +29,31 @@ st.markdown("""
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
     .blueprint-card {
-        background-color: #0F131C;
+        background-color: #0F131C !important;
         border: 1px solid #1E293B;
         border-radius: 12px;
         padding: 22px;
         height: 100%;
     }
     .page-section {
-        background-color: #0F131C;
+        background-color: #0F131C !important;
         border: 1px solid #1E293B;
         border-radius: 16px;
         padding: 40px;
         margin-bottom: 60px;
     }
     
-    /* Responsive Fluid Typography Classes */
+    /* Responsive Typography */
     .main-title {
         margin: 0 0 15px 0; 
-        color: #FFFFFF; 
+        color: #FFFFFF !important; 
         font-size: 2.4rem; 
         font-weight: 700;
     }
     .main-bullet-list {
         margin: 0; 
         padding-left: 20px; 
-        color: #C7D2FE; 
+        color: #C7D2FE !important; 
         font-size: 1.05rem; 
         font-weight: 400; 
         line-height: 1.6;
@@ -62,21 +63,21 @@ st.markdown("""
     }
     .scroll-footer {
         margin-top: 25px;
-        color: #64748B;
+        color: #64748B !important;
         font-size: 0.85rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         text-align: center;
     }
     .error-inline {
-        color: #F87171;
+        color: #F87171 !important;
         font-size: 0.85rem;
         font-weight: 500;
         margin-top: 4px;
         display: block;
     }
     
-    /* --- CRITICAL PHONE OPTIMIZATION OVERRIDES --- */
+    /* --- PHONE VIEWPORT OVERRIDES --- */
     @media (max-width: 768px) {
         .intro-section {
             padding: 20px 15px !important;
@@ -85,12 +86,10 @@ st.markdown("""
         .main-title {
             font-size: 1.6rem !important;
             line-height: 1.3 !important;
-            text-align: left;
         }
         .main-bullet-list {
             font-size: 0.92rem !important;
             padding-left: 15px !important;
-            line-height: 1.5 !important;
         }
         .page-section {
             padding: 20px 15px !important;
@@ -304,7 +303,6 @@ main_chart = go.Figure()
 color_palette_hex = ['#38BDF8', '#F59E0B', '#E11D48', '#10B981', '#A855F7', '#6366F1']
 color_mapping = {}
 
-# FIXED THE BENCHMARK CONTRACT: Opaque white dashed benchmark lane locked down
 if compare_nifty and nifty_compiled_package is not None:
     main_chart.add_trace(go.Scatter(
         x=nifty_compiled_package['series'].index, y=nifty_compiled_package['series'],
@@ -350,19 +348,19 @@ for date_marker, event_title in market_crises_timeline:
         main_chart.add_vline(x=parsed_dt, line_width=1, line_dash="dot", line_color="#334155")
         main_chart.add_annotation(x=parsed_dt, y=plot_dataframe.max().max() * 0.95, text=f" {event_title}", showarrow=False, xanchor="left", font=dict(color="#64748B", size=10))
 
-# DARK ENVIRONMENT LOCK DOWN: Forcing absolute dark hex coordinates to prevent theme injection overrides
+# VALUE-ERROR FIXED: Stripped old titlefont/tickfont keys. Layout is completely version-stable.
 main_chart.update_layout(
+    template="plotly_dark",
     paper_bgcolor='#0F131C', 
     plot_bgcolor='#0F131C',
     font=dict(color="#F3F4F6"),
     hovermode="x unified", 
-    yaxis=dict(title="Growth Valuation (₹)", gridcolor="#1E293B", tickformat=",.0f", titlefont=dict(color="#F3F4F6"), tickfont=dict(color="#94A3B8")),
-    xaxis=dict(title="Year Horizon Tracks", gridcolor="#1E293B", titlefont=dict(color="#F3F4F6"), tickfont=dict(color="#94A3B8")),
+    yaxis=dict(title="Growth Valuation (₹)", gridcolor="#1E293B", tickformat=",.0f"),
+    xaxis=dict(title="Year Horizon Tracks", gridcolor="#1E293B"),
     margin=dict(l=15, r=110, t=30, b=15), height=600,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, font=dict(color="#F3F4F6"))
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0)
 )
 
-# CRITICAL REPAIR: theme=None blocks Streamlit from forcing a light theme override on mobile
 st.plotly_chart(main_chart, use_container_width=True, theme=None)
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -429,14 +427,13 @@ st.write("Compile a high-resolution, unclipped graphic layout optimized cleanly 
 if st.button("🎴 Generate Shareable Card Asset Layout", use_container_width=True):
     card_canvas = go.Figure()
     
-    # Solid background fill execution (locks image export from ever going white/transparent)
+    # Solid background configuration layer
     card_canvas.add_shape(type="rect", x0=0, y0=0, x1=100, y1=100, fillcolor="#060913", line=dict(color="#1E293B", width=3))
     
-    # FIXED CANVAS TEXT: Moved title higher up and adjusted sizing to completely resolve text overlaps on mobile rendering
+    # Headers positions optimized to eliminate vertical overlaps
     card_canvas.add_annotation(x=4, y=94, text="HISTORICAL INVESTMENT METRICS PROFILE", font=dict(color="#38BDF8", size=16, weight="bold"), showarrow=False, xanchor="left")
     card_canvas.add_annotation(x=96, y=94, text="EQUICOMPARE TERMINAL", font=dict(color="#475569", size=11, weight="bold"), showarrow=False, xanchor="right")
     
-    # Expand step spacing index logic to prevent clipping text completely
     total_assets_count = len(sorted_metrics_list)
     y_start_boundary = 78
     y_spacing_step = 66.0 / max(total_assets_count, 1)
@@ -445,7 +442,6 @@ if st.button("🎴 Generate Shareable Card Asset Layout", use_container_width=Tr
         current_y_pos = y_start_boundary - (idx_m * y_spacing_step)
         asset_text_color = color_mapping.get(name, '#FFFFFF')
         
-        # Core metric row labels rendering
         card_canvas.add_annotation(x=4, y=current_y_pos, text=f"• {name}", font=dict(color=asset_text_color, size=18, weight="bold"), showarrow=False, xanchor="left")
         
         compiled_string_line = (
@@ -463,7 +459,6 @@ if st.button("🎴 Generate Shareable Card Asset Layout", use_container_width=Tr
             font=dict(color="#64748B", size=11.5), showarrow=False, xanchor="left"
         )
 
-    # Clean layout constraints configuration layer
     card_canvas.update_layout(
         xaxis=dict(visible=False, range=[0, 100], autorange=False),
         yaxis=dict(visible=False, range=[0, 100], autorange=False),
@@ -473,7 +468,6 @@ if st.button("🎴 Generate Shareable Card Asset Layout", use_container_width=Tr
         plot_bgcolor="#060913"
     )
     
-    # CRITICAL REPAIR: theme=None enforces pure canvas code settings on the shared card plot view block
     st.plotly_chart(card_canvas, config={'toImageButtonOptions': {'format': 'png', 'filename': 'equicompare_performance_card', 'scale': 2}}, theme=None)
     st.info("Hover above the generated comparison card component and click the camera icon shortcut to download your clean graphic instantly! 📸")
 st.markdown('</div>', unsafe_allow_html=True)
