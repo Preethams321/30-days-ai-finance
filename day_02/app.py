@@ -4,10 +4,10 @@ import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
 
-# --- 1. THEME & GLOBAL GRAPHICS LAYOUT ---
+# --- 1. THEME & MOBILE-RESPONSIVE GRAPHICS LAYOUT ---
 st.set_page_config(layout="wide", page_title="EquiCompare")
 
-# Premium Minimalist Stylesheet
+# Premium Responsive Stylesheet (Handles Desktop & Mobile Viewports cleanly)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
@@ -18,7 +18,7 @@ st.markdown("""
     .main { background-color: #0B0F17; color: #F3F4F6; }
     header, footer, #MainMenu { visibility: hidden !important; }
     
-    /* Full-Screen Page Section Wrappers */
+    /* Structural Section Layout Blocks */
     .intro-section {
         background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
         padding: 35px;
@@ -41,6 +41,25 @@ st.markdown("""
         padding: 40px;
         margin-bottom: 60px;
     }
+    
+    /* Responsive Fluid Typography Classes */
+    .main-title {
+        margin: 0 0 15px 0; 
+        color: #FFFFFF; 
+        font-size: 2.4rem; 
+        font-weight: 700;
+    }
+    .main-bullet-list {
+        margin: 0; 
+        padding-left: 20px; 
+        color: #C7D2FE; 
+        font-size: 1.05rem; 
+        font-weight: 400; 
+        line-height: 1.6;
+    }
+    .main-bullet-list li {
+        margin-bottom: 8px;
+    }
     .scroll-footer {
         margin-top: 25px;
         color: #64748B;
@@ -55,6 +74,32 @@ st.markdown("""
         font-weight: 500;
         margin-top: 4px;
         display: block;
+    }
+    
+    /* --- CRITICAL PHONE OPTIMIZATION OVERRIDES --- */
+    @media (max-width: 768px) {
+        .intro-section {
+            padding: 20px 15px !important;
+            margin-bottom: 20px !important;
+        }
+        .main-title {
+            font-size: 1.6rem !important;
+            line-height: 1.3 !important;
+            text-align: left;
+        }
+        .main-bullet-list {
+            font-size: 0.92rem !important;
+            padding-left: 15px !important;
+            line-height: 1.5 !important;
+        }
+        .page-section {
+            padding: 20px 15px !important;
+            margin-bottom: 30px !important;
+        }
+        .blueprint-card {
+            padding: 18px 15px !important;
+            margin-bottom: 15px !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -137,9 +182,9 @@ if 'portfolio_stocks' not in st.session_state:
 # --- SECTION 1: WELCOME & INTRODUCTION PAGE ---
 st.markdown("""
     <div class="intro-section">
-        <h1 style="margin:0 0 15px 0; color:#FFFFFF; font-size:2.4rem; font-weight:700;">📈 EquiCompare</h1>
-        <ul style="margin:0; padding-left:20px; color:#C7D2FE; font-size:1.05rem; font-weight:400; line-height:1.6;">
-            <li style="margin-bottom:8px;">Compare exactly how your money would have grown across different Indian stocks over time.</li>
+        <h1 class="main-title">📈 EquiCompare</h1>
+        <ul class="main-bullet-list">
+            <li>Compare exactly how your money would have grown across different Indian stocks over time.</li>
             <li>Choose your custom investment amounts, pick your start years, and analyze historical returns side-by-side against the NIFTY 50 index with zero clutter.</li>
         </ul>
     </div>
@@ -259,10 +304,11 @@ main_chart = go.Figure()
 color_palette_hex = ['#38BDF8', '#F59E0B', '#E11D48', '#10B981', '#A855F7', '#6366F1']
 color_mapping = {}
 
+# FIXED THE BENCHMARK CONTRACT: Opaque white dashed benchmark lane locked down
 if compare_nifty and nifty_compiled_package is not None:
     main_chart.add_trace(go.Scatter(
         x=nifty_compiled_package['series'].index, y=nifty_compiled_package['series'],
-        name="NIFTY 50 Benchmark", line=dict(color='rgba(255, 255, 255, 0.7)', dash='dash', width=2.5),
+        name="NIFTY 50 Benchmark", line=dict(color='#FFFFFF', dash='dash', width=2.5),
         hovertemplate="NIFTY 50: ₹%{y:,.0f}<extra></extra>"
     ))
 
@@ -304,15 +350,20 @@ for date_marker, event_title in market_crises_timeline:
         main_chart.add_vline(x=parsed_dt, line_width=1, line_dash="dot", line_color="#334155")
         main_chart.add_annotation(x=parsed_dt, y=plot_dataframe.max().max() * 0.95, text=f" {event_title}", showarrow=False, xanchor="left", font=dict(color="#64748B", size=10))
 
+# DARK ENVIRONMENT LOCK DOWN: Forcing absolute dark hex coordinates to prevent theme injection overrides
 main_chart.update_layout(
-    template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-    hovermode="x unified", yaxis=dict(title="Growth Valuation (₹)", gridcolor="#1E293B", tickformat=",.0f"),
-    xaxis=dict(title="Year Horizon Tracks", gridcolor="#1E293B"),
-    margin=dict(l=10, r=100, t=20, b=10), height=750,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0)
+    paper_bgcolor='#0F131C', 
+    plot_bgcolor='#0F131C',
+    font=dict(color="#F3F4F6"),
+    hovermode="x unified", 
+    yaxis=dict(title="Growth Valuation (₹)", gridcolor="#1E293B", tickformat=",.0f", titlefont=dict(color="#F3F4F6"), tickfont=dict(color="#94A3B8")),
+    xaxis=dict(title="Year Horizon Tracks", gridcolor="#1E293B", titlefont=dict(color="#F3F4F6"), tickfont=dict(color="#94A3B8")),
+    margin=dict(l=15, r=110, t=30, b=15), height=600,
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, font=dict(color="#F3F4F6"))
 )
 
-st.plotly_chart(main_chart, use_container_width=True)
+# CRITICAL REPAIR: theme=None blocks Streamlit from forcing a light theme override on mobile
+st.plotly_chart(main_chart, use_container_width=True, theme=None)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # --- SECTION 4: PERFORMANCE METRICS BREAKDOWN PAGE (SORTED BY HIGHEST VALUE) ---
@@ -370,7 +421,7 @@ if compare_nifty and nifty_compiled_package is not None:
         """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- SECTION 5: CLEAN TEXT-ONLY SOCIAL CARD GENERATOR (STABLE PRESET CANVAS) ---
+# --- SECTION 5: CLEAN TEXT-ONLY SOCIAL CARD GENERATOR ---
 st.markdown('<div class="page-section">', unsafe_allow_html=True)
 st.markdown("<h2 style='margin:0 0 10px 0; color:#FFFFFF; font-size:1.5rem;'>4. Export Comparison Card</h2>", unsafe_allow_html=True)
 st.write("Compile a high-resolution, unclipped graphic layout optimized cleanly for professional feeds.")
@@ -378,51 +429,51 @@ st.write("Compile a high-resolution, unclipped graphic layout optimized cleanly 
 if st.button("🎴 Generate Shareable Card Asset Layout", use_container_width=True):
     card_canvas = go.Figure()
     
-    # Outer dark presentation panel frame bounding box shape
+    # Solid background fill execution (locks image export from ever going white/transparent)
     card_canvas.add_shape(type="rect", x0=0, y0=0, x1=100, y1=100, fillcolor="#060913", line=dict(color="#1E293B", width=3))
     
-    # High-end branding text headers
-    card_canvas.add_annotation(x=4, y=91, text="HISTORICAL INVESTMENT METRICS PROFILE", font=dict(color="#38BDF8", size=18, weight="bold"), showarrow=False, xanchor="left")
-    card_canvas.add_annotation(x=96, y=91, text="EQUICOMPARE // 30 DAYS OF AI FINANCE", font=dict(color="#475569", size=12), showarrow=False, xanchor="right")
+    # FIXED CANVAS TEXT: Moved title higher up and adjusted sizing to completely resolve text overlaps on mobile rendering
+    card_canvas.add_annotation(x=4, y=94, text="HISTORICAL INVESTMENT METRICS PROFILE", font=dict(color="#38BDF8", size=16, weight="bold"), showarrow=False, xanchor="left")
+    card_canvas.add_annotation(x=96, y=94, text="EQUICOMPARE TERMINAL", font=dict(color="#475569", size=11, weight="bold"), showarrow=False, xanchor="right")
     
-    # Dynamically scale layout text steps programmatically to completely eliminate bottom clipping paths
+    # Expand step spacing index logic to prevent clipping text completely
     total_assets_count = len(sorted_metrics_list)
-    y_start_boundary = 76
-    y_spacing_step = 64.0 / max(total_assets_count, 1)
+    y_start_boundary = 78
+    y_spacing_step = 66.0 / max(total_assets_count, 1)
     
     for idx_m, (name, metrics_data) in enumerate(sorted_metrics_list):
         current_y_pos = y_start_boundary - (idx_m * y_spacing_step)
         asset_text_color = color_mapping.get(name, '#FFFFFF')
         
-        # Main Bold Ticker Designation text line
-        card_canvas.add_annotation(x=4, y=current_y_pos, text=f"• {name}", font=dict(color=asset_text_color, size=19, weight="bold"), showarrow=False, xanchor="left")
+        # Core metric row labels rendering
+        card_canvas.add_annotation(x=4, y=current_y_pos, text=f"• {name}", font=dict(color=asset_text_color, size=18, weight="bold"), showarrow=False, xanchor="left")
         
-        # Metrics sub-details line compilation
         compiled_string_line = (
             f"Invested: {format_rupees(metrics_data['config']['amount'])} ({metrics_data['config']['start']})  ➔  "
             f"Final Value: {format_rupees(metrics_data['final_value'])}  |  "
             f"CAGR: {metrics_data['cagr']:.2f}%  |  "
             f"Max Drop: {metrics_data['max_dd']:.2f}%"
         )
-        card_canvas.add_annotation(x=4, y=current_y_pos - (y_spacing_step * 0.38), text=compiled_string_line, font=dict(color="#94A3B8", size=12.5), showarrow=False, xanchor="left")
+        card_canvas.add_annotation(x=4, y=current_y_pos - (y_spacing_step * 0.35), text=compiled_string_line, font=dict(color="#94A3B8", size=12), showarrow=False, xanchor="left")
         
     if nifty_compiled_package is not None:
         card_canvas.add_annotation(
-            x=4, y=8, 
+            x=4, y=6, 
             text=f"• NIFTY 50 Market Benchmark Reference Return: +{nifty_compiled_package['abs_pct']:.1f}%  |  CAGR: {nifty_compiled_package['cagr']:.2f}%", 
-            font=dict(color="#64748B", size=12), showarrow=False, xanchor="left"
+            font=dict(color="#64748B", size=11.5), showarrow=False, xanchor="left"
         )
 
-    # Clean text constraints configuration layer
+    # Clean layout constraints configuration layer
     card_canvas.update_layout(
         xaxis=dict(visible=False, range=[0, 100], autorange=False),
         yaxis=dict(visible=False, range=[0, 100], autorange=False),
         margin=dict(l=0, r=0, t=0, b=0),
         height=500, width=960,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
+        paper_bgcolor="#060913",
+        plot_bgcolor="#060913"
     )
     
-    st.plotly_chart(card_canvas, config={'toImageButtonOptions': {'format': 'png', 'filename': 'equicompare_performance_card', 'scale': 2}})
+    # CRITICAL REPAIR: theme=None enforces pure canvas code settings on the shared card plot view block
+    st.plotly_chart(card_canvas, config={'toImageButtonOptions': {'format': 'png', 'filename': 'equicompare_performance_card', 'scale': 2}}, theme=None)
     st.info("Hover above the generated comparison card component and click the camera icon shortcut to download your clean graphic instantly! 📸")
 st.markdown('</div>', unsafe_allow_html=True)
