@@ -4,48 +4,102 @@ import plotly.graph_objects as go
 import numpy as np
 import requests
 
-# --- I. ULTRA-PREMIUM FINTECH VISUAL ENGINE & RESPONSIVE CSS ---
+# --- I. UNBREAKABLE FINTECH VISUAL ENGINE & SYSTEM THEME SHIELD ---
 st.set_page_config(layout="wide", page_title="Portfolio Overlap Analyzer")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
     
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .main { background-color: #0B0F17; color: #F3F4F6; }
-    header, footer, #MainMenu { visibility: hidden !important; }
+    html, body, .main, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: #0B0F17 !important;
+        color: #F3F4F6 !important;
+    }
     
-    /* Premium Dashboard Component Architecture */
+    /* AGGRESSIVE THEME SHIELD: Stops mobile light mode from turning markdown text black */
+    [data-testid="stMarkdownContainer"] h1, 
+    [data-testid="stMarkdownContainer"] h2, 
+    [data-testid="stMarkdownContainer"] h3, 
+    [data-testid="stMarkdownContainer"] h4, 
+    [data-testid="stMarkdownContainer"] h5, 
+    [data-testid="stMarkdownContainer"] p, 
+    [data-testid="stMarkdownContainer"] li,
+    [data-testid="stMarkdownContainer"] div,
+    [data-testid="stMarkdownContainer"] span,
+    [data-testid="stMarkdownContainer"] b {
+        color: #F3F4F6 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    /* Premium Banner Layout Component Configuration */
     .banner-container {
-        background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
-        padding: 40px; border-radius: 14px; border: 1px solid #1E293B; margin-bottom: 25px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%) !important;
+        padding: 40px !important; 
+        border-radius: 14px !important; 
+        border: 1px solid #1E293B !important; 
+        margin-bottom: 25px !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
     }
+    .banner-container h1 { color: #FFFFFF !important; font-size: 2.4rem !important; font-weight: 700 !important; margin-bottom: 15px !important; }
+    .banner-container p { color: #C7D2FE !important; font-size: 1.05rem !important; margin: 6px 0 !important; }
+    
+    /* Grid Content Feature Cards */
     .grid-card {
-        background-color: #0F131C; border: 1px solid #1E293B;
-        border-radius: 12px; padding: 30px; height: 100%;
+        background-color: #0F131C !important; 
+        border: 1px solid #1E293B !important;
+        border-radius: 12px !important; 
+        padding: 30px !important; 
+        height: 100% !important;
     }
+    .grid-card h4 { color: #38BDF8 !important; font-size: 1.25rem !important; margin-top: 0 !important; margin-bottom: 15px !important; }
+    .grid-card p, .grid-card li { color: #94A3B8 !important; font-size: 0.92rem !important; }
+    
+    /* Main App Layout Card Sections */
     .page-section {
-        background-color: #0F131C; border: 1px solid #1E293B;
-        border-radius: 14px; padding: 35px; margin-bottom: 30px;
+        background-color: #0F131C !important; 
+        border: 1px solid #1E293B !important;
+        border-radius: 14px !important; 
+        padding: 35px !important; 
+        margin-bottom: 30px !important;
     }
+    
+    /* Dynamic Pairwise Summary Cards */
     .metric-summary-card {
-        background-color: #0B0F19; border: 1px solid #1E293B;
-        padding: 24px; border-radius: 12px; margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        background-color: #0B0F19 !important; 
+        border: 1px solid #1E293B !important;
+        padding: 24px !important; 
+        border-radius: 12px !important; 
+        margin-bottom: 20px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
     }
+    .metric-summary-card h4 { color: #E2E8F0 !important; line-height: 1.45 !important; }
+    .metric-summary-card p { color: #94A3B8 !important; }
+    
+    /* Chart Interpretation Guides */
     .interpretation-panel {
-        background-color: rgba(30, 41, 59, 0.4); border-left: 4px solid #38BDF8;
-        padding: 18px; border-radius: 0 12px 12px 0; margin-top: 15px;
+        background-color: rgba(30, 41, 59, 0.4) !important; 
+        border-left: 4px solid #38BDF8 !important;
+        padding: 18px !important; 
+        border-radius: 0 12px 12px 0 !important; 
+        margin-top: 15px !important;
     }
+    .interpretation-panel h5 { color: #38BDF8 !important; font-size: 0.95rem !important; margin: 0 0 6px 0 !important; }
+    .interpretation-panel li { color: #94A3B8 !important; font-size: 0.85rem !important; }
     
-    .banner-title { margin: 0 0 15px 0; color: #FFFFFF; font-size: 2.4rem; font-weight: 700; }
-    .banner-desc { margin: 6px 0; color: #C7D2FE; font-size: 1.05rem; font-weight: 400; }
+    /* High-Contrast Verdict Alerts */
+    .verdict-box { padding: 25px !important; border-radius: 12px !important; border-width: 1px !important; border-style: solid !important; margin-bottom: 25px !important; }
     
-    .verdict-box { padding: 25px; border-radius: 12px; border-width: 1px; border-style: solid; margin-bottom: 25px; }
-    .verdict-good { background-color: rgba(16, 185, 129, 0.05); border-color: #10B981; }
-    .verdict-warn { background-color: rgba(245, 158, 11, 0.05); border-color: #F59E0B; }
-    .verdict-danger { background-color: rgba(239, 68, 68, 0.05); border-color: #EF4444; }
+    .verdict-good { background-color: rgba(16, 185, 129, 0.08) !important; border-color: #10B981 !important; }
+    .verdict-good h4 { color: #10B981 !important; font-weight: 700 !important; margin: 0 0 8px 0 !important; }
+    .verdict-good p, .verdict-good b, .verdict-good span { color: #E2E8F0 !important; }
+    
+    .verdict-warn { background-color: rgba(245, 158, 11, 0.08) !important; border-color: #F59E0B !important; }
+    .verdict-warn h4 { color: #F59E0B !important; font-weight: 700 !important; margin: 0 0 8px 0 !important; }
+    .verdict-warn p, .verdict-warn b, .verdict-warn span { color: #E2E8F0 !important; }
+    
+    .verdict-danger { background-color: rgba(239, 68, 68, 0.08) !important; border-color: #EF4444 !important; }
+    .verdict-danger h4 { color: #EF4444 !important; font-weight: 700 !important; margin: 0 0 8px 0 !important; }
+    .verdict-danger p, .verdict-danger b, .verdict-danger span { color: #E2E8F0 !important; }
     
     @media (max-width: 768px) {
         .banner-container { padding: 25px 15px !important; margin-bottom: 20px !important; }
@@ -196,20 +250,20 @@ info_cols = st.columns(2)
 with info_cols[0]:
     st.markdown("""
         <div class="grid-card">
-            <h4 style="margin:0 0 15px 0; color:#38BDF8; font-size:1.25rem;">📋 Core Platform Features</h4>
-            <p style="margin:6px 0; font-size:0.92rem; color:#94A3B8;"><b>• Hybrid Universe:</b> Instant lookup for 20 popular Indian funds coupled with a live external REST API resolver.</p>
-            <p style="margin:6px 0; font-size:0.92rem; color:#94A3B8;"><b>• Portfolio Weight Modulation:</b> Automatically shifts between equal-weight balancing and custom user allocation scales.</p>
-            <p style="margin:6px 0; font-size:0.92rem; color:#94A3B8;"><b>• Multi-Layer Tracking:</b> Traces concentration intersections down to identical equity shares and sector clusters.</p>
+            <h4>📋 Core Platform Features</h4>
+            <p><b>• Hybrid Universe:</b> Instant lookup for 20 popular Indian funds coupled with a live external REST API resolver.</p>
+            <p><b>• Portfolio Weight Modulation:</b> Automatically shifts between equal-weight balancing and custom user allocation scales.</p>
+            <p><b>• Multi-Layer Tracking:</b> Traces concentration intersections down to identical equity shares and sector clusters.</p>
         </div>
     """, unsafe_allow_html=True)
 
 with info_cols[1]:
     st.markdown("""
         <div class="grid-card">
-            <h4 style="margin:0 0 15px 0; color:#10B981; font-size:1.25rem;">⚙️ Quick Setup Guide</h4>
-            <p style="margin:6px 0; font-size:0.92rem; color:#94A3B8;"><b>1. Assemble Targets:</b> Pick up to 5 distinct mutual funds or ETF products in the constructor workspace.</p>
-            <p style="margin:6px 0; font-size:0.92rem; color:#94A3B8;"><b>2. Specify Weights:</b> Enter percentage parameters or leave at 0.0 to execute equal-weight computations.</p>
-            <p style="margin:6px 0; font-size:0.92rem; color:#94A3B8;"><b>3. Trace Clashing Traps:</b> Scan structural diagnostics maps to verify tracking redundancies before saving snapshots.</p>
+            <h4>⚙️ Quick Setup Guide</h4>
+            <p><b>1. Assemble Targets:</b> Pick up to 5 distinct mutual funds or ETF products in the constructor workspace.</p>
+            <p><b>2. Specify Weights:</b> Enter percentage parameters or leave at 0.0 to execute equal-weight computations.</p>
+            <p><b>3. Trace Clashing Traps:</b> Scan structural diagnostics maps to verify tracking redundancies before saving snapshots.</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -339,7 +393,7 @@ for name in finalized_labels:
         global_sectors[sec]["s_weight"] += w * coef
         global_sectors[sec]["breakdown"][name] = global_sectors[sec]["breakdown"].get(name, 0.0) + w
 
-# --- SECTION 8: FIXED-COLUMN SUMMARY MATRIX GRID (FIXED VERTICAL TRUNCATION CRASH) ---
+# --- SECTION 8: WRAPPED FIXED-COLUMN SUMMARY MATRIX GRID ---
 st.markdown('<div class="page-section">', unsafe_allow_html=True)
 st.markdown("<h2 style='margin:0 0 20px 0; color:#FFFFFF; font-size:1.5rem;'>3. Pairwise Matrix Summary</h2>", unsafe_allow_html=True)
 
@@ -354,16 +408,15 @@ for row_idx in range(0, len(pairwise_records), cards_per_row):
         drivers_str = ", ".join(rec['Top Drivers']) if rec['Top Drivers'] else "None flagged"
         
         with card_columns[col_idx]:
-            # FIXED: Removed 'height' and 'overflow' limits to avoid clipping secondary long names fluidly
             st.markdown(f"""
                 <div class="metric-summary-card">
                     <p style="margin:0; font-size:0.75rem; color:#64748B; font-weight:700;">PAIR ALLOCATION #{row_idx + col_idx + 1}</p>
-                    <h4 style="margin:8px 0; color:#E2E8F0; font-size:0.95rem; line-height:1.45;"><b>{rec['Fund A']}</b><br><span style="color:#38BDF8; font-size:0.85rem;">↔️</span> <span style="color:#94A3B8;">{rec['Fund B']}</span></h4>
+                    <h4 style="margin:8px 0; line-height:1.45;"><b>{rec['Fund A']}</b><br><span style="color:#38BDF8; font-size:0.85rem;">↔️</span> <span style="color:#94A3B8;">{rec['Fund B']}</span></h4>
                     <hr style="border-color:#1E293B; margin:10px 0;">
                     <p style="margin:2px 0; font-size:1.8rem; font-weight:700; color:{badge_color};">{v:.1f}%</p>
-                    <p style="margin:2px 0; font-size:0.85rem; color:#94A3B8;">Shared Stocks: <b style="color:#FFF;">{rec['Shared Count']}</b></p>
-                    <p style="margin:4px 0; font-size:0.8rem; color:#64748B; min-height:36px; line-height:1.4;">Drivers: <span style="color:#F3F4F6;">{drivers_str}</span></p>
-                    <p style="margin:6px 0 0 0; font-size:0.75rem; color:{badge_color}; font-weight:700;">● {badge_text}</p>
+                    <p style="margin:2px 0; font-size:0.85rem;">Shared Stocks: <b>{rec['Shared Count']}</b></p>
+                    <p style="margin:4px 0; font-size:0.8rem; min-height:36px; line-height:1.4;">Drivers: <span>{drivers_str}</span></p>
+                    <p style="margin:6px 0 0 0; font-size:0.75rem; font-weight:700;">● {badge_text}</p>
                 </div>
             """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
@@ -376,7 +429,6 @@ with split_heatmap_cols[0]:
     st.markdown("<h3 style='margin:0 0 15px 0; color:#FFFFFF; font-size:1.25rem;'>4. Primary Stock-Level Overlap Heatmap</h3>", unsafe_allow_html=True)
     labels_trunc = [n[:18] + "..." if len(n) > 18 else n for n in finalized_labels]
     
-    # FIXED: Cleared out syntax bracket parameters corrupting script execution rules
     fig_primary = go.Figure(data=go.Heatmap(
         z=stock_heatmap_canvas, x=labels_trunc, y=labels_trunc,
         colorscale=[[0.0, '#10B981'], [0.35, '#F59E0B'], [1.0, '#EF4444']], zmin=0, zmax=100,
@@ -389,8 +441,8 @@ with split_heatmap_cols[0]:
     
     st.markdown("""
     <div class="interpretation-panel">
-        <h5 style="margin:0 0 6px 0; color:#38BDF8; font-size:0.95rem; font-weight:700;">💡 How to interpret this Primary Heatmap:</h5>
-        <ul style="margin:0; padding-left:18px; font-size:0.85rem; color:#94A3B8; line-height:1.5;">
+        <h5>💡 How to interpret this Primary Heatmap:</h5>
+        <ul>
             <li><b>The 100% Identity Diagonal:</b> Represents a standard baseline fund self-comparison matrix node.</li>
             <li><b>Red Cells (>40% Overlap):</b> Redundancy trap. These funds buy near-identical names; you're stacking up duplicate risks.</li>
             <li><b>Green Cells (<20% Overlap):</b> Clean diversification boundaries. These allocations work together well.</li>
@@ -415,8 +467,8 @@ with split_heatmap_cols[1]:
     
     st.markdown("""
     <div class="interpretation-panel">
-        <h5 style="margin:0 0 6px 0; color:#38BDF8; font-size:0.95rem; font-weight:700;">💡 How to interpret this Sector Heatmap:</h5>
-        <ul style="margin:0; padding-left:18px; font-size:0.85rem; color:#94A3B8; line-height:1.5;">
+        <h5>💡 How to interpret this Sector Heatmap:</h5>
+        <ul>
             <li><b>Macro Cluster Risks:</b> Funds can sometimes appear diversified via unique underlying stock listings.</li>
             <li><b>Hidden Structural Clumping:</b> If columns show intense heat in matching sectors, you are highly exposed to single sector shocks.</li>
         </ul>
@@ -459,12 +511,12 @@ with verdict_split_cols[0]:
 
     st.markdown(f"""
         <div class="verdict-box {box_css}">
-            <h4 style="margin:0 0 8px 0; color:{token_color}; font-size:1.15rem; font-weight:700;">● {headline}</h4>
-            <p style="margin:0 0 15px 0; color:#E2E8F0; font-size:0.92rem; line-height:1.5;">{plain_english_verdict}</p>
-            <p style="margin:3px 0; font-size:0.85rem; color:#94A3B8;">Overall Diversification Score: <b style="color:#FFFFFF; font-size:0.95rem;">{portfolio_mean_overlap:.1f}%</b></p>
-            <p style="margin:3px 0; font-size:0.85rem; color:#94A3B8;">Concentration Exposure Score (Top 10 Stocks): <b style="color:#FFFFFF; font-size:0.95rem;">{top_10_concentration_sum:.1f}%</b></p>
-            <p style="margin:10px 0 0 0; font-size:0.85rem; color:#94A3B8; line-height:1.4;">Top Repeated Stocks: {top_stocks_str}</p>
-            <p style="margin:4px 0 0 0; font-size:0.85rem; color:#94A3B8; line-height:1.4;">Top Concentrated Sectors: {top_sectors_str}</p>
+            <h4>● {headline}</h4>
+            <p>{plain_english_verdict}</p>
+            <p>Overall Diversification Score: <b>{portfolio_mean_overlap:.1f}%</b></p>
+            <p>Concentration Exposure Score (Top 10 Stocks): <b>{top_10_concentration_sum:.1f}%</b></p>
+            <p style="margin-top:12px;">Top Repeated Stocks: {top_stocks_str}</p>
+            <p>Top Concentrated Sectors: {top_sectors_str}</p>
         </div>
     """, unsafe_allow_html=True)
 
