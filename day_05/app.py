@@ -99,14 +99,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Session state gate to ensure card only generates strictly upon button interaction
 if "show_summary" not in st.session_state:
     st.session_state.show_summary = False
 
 def activate_summary_card():
     st.session_state.show_summary = True
 
-# --- SECTION 3: HOMEPAGE HERO HEADER Framework ---
+# --- SECTION 3: HOMEPAGE HERO HEADER ---
 st.markdown("""
     <div class="banner-container">
         <h1>📊 Nifty Sector Rotation Dashboard</h1>
@@ -159,6 +158,13 @@ def fetch_historical_market_matrices():
     start_date = end_date - timedelta(days=500)
     try:
         raw_download = yf.download(all_tickers, start=start_date, end=end_date, progress=False)
+        
+        # --- FIX: DETECT MULTIINDEX AND FLATTEN SECURELY FOR CLOUD DEPLOYMENTS ---
+        if isinstance(raw_download.columns, pd.MultiIndex):
+            # Select Adj Close if present, fallback to Close, and drop the metric layer name
+            df_metric = raw_download["Adj Close"] if "Adj Close" in raw_download else raw_download["Close"]
+            return df_metric
+        
         return raw_download["Adj Close"] if "Adj Close" in raw_download else raw_download["Close"]
     except Exception as e:
         st.error(f"Failed to fetch market data from yfinance: {str(e)}")
@@ -373,7 +379,7 @@ if not nifty_series.empty:
         x=nifty_series.index, y=nifty_normalized, 
         name="Nifty 50 (Benchmark)", 
         line=dict(color="#FFFFFF", width=3),
-        connectgaps=True  # Bypasses trading holiday gaps smoothly
+        connectgaps=True
     ))
 
 for name in selected_sectors:
@@ -386,7 +392,7 @@ for name in selected_sectors:
                 x=s_series.index, y=s_normalized, 
                 name=name, 
                 line=dict(width=2),
-                connectgaps=True  # Enforces fluid connections across gaps
+                connectgaps=True
             ))
 
 line_fig.update_layout(
