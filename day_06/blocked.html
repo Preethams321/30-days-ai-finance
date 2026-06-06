@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stay With Your Focus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --border: #2b2b2b;
+      --text: #f5f5f5;
+      --muted: #9a9a9a;
+      --accent: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, #1b1b1b, #050505 55%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .card {
+      width: min(640px, 92vw);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 28px 24px 26px;
+      text-align: left;
+    }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 {
+      font-size: 28px;
+      margin: 10px 0 4px;
+    }
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .quote {
+      margin-top: 18px;
+      padding: 14px 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #151515;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .small {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="eyebrow">Build Your Own Focus</div>
+    <h1 id="heading">This page is paused for you.</h1>
+    <p id="subtext">Distraction will always be there. This moment will not.</p>
+    <div id="quoteBox" class="quote">Stay with the work your future self will thank you for.</div>
+    <p id="metaText" class="small"></p>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const reason = params.get("reason") || "focus";
+    const originalUrl = params.get("url") || "";
+    const user = params.get("user") || "friend";
+    const intention = params.get("intention") || "";
+
+    const heading = document.getElementById("heading");
+    const subtext = document.getElementById("subtext");
+    const quoteBox = document.getElementById("quoteBox");
+    const metaText = document.getElementById("metaText");
+
+    const genericQuotes = [
+      "Stop scrolling. Start building.",
+      "Discipline is choosing what matters most over what feels easy now.",
+      "Your future self is watching what you do with this minute.",
+      "Attention is your edge. Guard it.",
+      "Momentum is built one focused block at a time."
+    ];
+
+    const personalQuotes = [
+      `Stop this tab, ${user}. Your goals deserve this focus.`,
+      `${user}, this is a tiny moment where your life tilts one way or the other.`,
+      `${user}, go back to the work that actually moves you forward.`,
+      `${user}, the hardest part is staying. You’re already here.`
+    ];
+
+    const pool = [...personalQuotes, ...genericQuotes];
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    quoteBox.textContent = pick;
+
+    if (reason === "shorts") {
+      heading.textContent = "Shorts are off for now.";
+      subtext.textContent = `${user}, quick dopamine is expensive when you’re trying to build something real.`;
+      metaText.textContent = "Blocked reason: YouTube Shorts";
+    } else if (reason === "adult") {
+      heading.textContent = "Safe mode stepped in.";
+      subtext.textContent = `${user}, protect your mind the way you protect your time.`;
+      metaText.textContent = "Blocked by safe mode starter list.";
+    } else {
+      heading.textContent = "This page is blocked during focus mode.";
+      if (intention) {
+        subtext.textContent = `${user}, you wrote: “${intention}”. Go finish that first.`;
+      } else {
+        subtext.textContent = `${user}, go back to the work that actually matters today.`;
+      }
+      metaText.textContent = originalUrl ? `Original URL: ${originalUrl}` : "";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Build Your Own Focus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #111111;
+      --panel-soft: #181818;
+      --border: #2b2b2b;
+      --text: #f5f5f5;
+      --muted: #a2a2a2;
+      --accent: #ffffff;
+      --accent-soft: #dddddd;
+      --danger: #ff4d6a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      width: 420px;
+      min-height: 720px;
+      background: radial-gradient(circle at top, #1e1e1e 0, #050505 50%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .app {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      background: var(--panel);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 14px 14px 16px;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    h2 { font-size: 13px; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+    p { margin: 0; font-size: 12px; color: var(--muted); }
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+    input, textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+    textarea { resize: none; min-height: 72px; }
+    input:focus, textarea:focus {
+      border-color: var(--accent-soft);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .row { display: flex; gap: 8px; align-items: center; }
+    button {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--panel-soft);
+      color: var(--text);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border-color: transparent;
+    }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .btn-danger {
+      background: transparent;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .switch input { display: none; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #1f1f1f;
+      border: 1px solid var(--border);
+    }
+    .slider::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--muted);
+      top: 2px;
+      left: 3px;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .switch input:checked + .slider::after {
+      transform: translateX(18px);
+      background: var(--accent);
+    }
+    .headline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 9px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .timer {
+      font-size: 32px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 6px;
+    }
+    .timer-sub {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .stat {
+      background: var(--panel-soft);
+      border-radius: 12px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .stat-value {
+      margin-top: 2px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .hidden { display: none !important; }
+    .site-list {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0;
+      max-height: 110px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .site-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel-soft);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ONBOARDING -->
+    <section id="onboardingCard" class="card hidden">
+      <div class="headline-row">
+        <div>
+          <h1>Build Your Own Focus</h1>
+          <p>Design a focus system that fits you.</p>
+        </div>
+      </div>
+
+      <div style="height: 10px;"></div>
+
+      <div>
+        <label for="nameInput">Your name</label>
+        <input id="nameInput" type="text" placeholder="Preetham" />
+      </div>
+
+      <div style="height: 10px;"></div>
+
+      <h2>Daily target</h2>
+      <div>
+        <label for="goalInput">Daily deep-work goal (minutes)</label>
+        <input id="goalInput" type="number" min="30" step="15" placeholder="120" />
+      </div>
+
+      <div style="height: 14px;"></div>
+
+      <h2>Pomodoro plan</h2>
+      <div class="grid-2">
+        <div>
+          <label for="focusInput">Focus length (minutes)</label>
+          <input id="focusInput" type="number" min="10" step="5" placeholder="25" />
+        </div>
+        <div>
+          <label for="shortBreakInput">Short break (minutes)</label>
+          <input id="shortBreakInput" type="number" min="3" step="1" placeholder="5" />
+        </div>
+        <div>
+          <label for="longBreakInput">Long break (minutes)</label>
+          <input id="longBreakInput" type="number" min="10" step="5" placeholder="15" />
+        </div>
+      </div>
+
+      <div class="toggle-row" style="margin-top: 16px;">
+        <div>
+          <strong style="font-size: 12px;">Safe mode</strong>
+          <p>Block a starter list of adult sites.</p>
+        </div>
+        <label class="switch">
+          <input id="safeModeSetup" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div style="height: 12px;"></div>
+      <button id="saveSetupBtn" class="btn-primary" style="width: 100%;">Start my focus era</button>
+    </section>
+
+    <!-- MAIN APP -->
+    <section id="mainCard" class="hidden">
+      <section class="card">
+        <div class="headline-row">
+          <div>
+            <h1 id="heroTitle">Your Focus</h1>
+            <p id="heroSubtitle">Make today count.</p>
+          </div>
+          <div id="modeBadge" class="badge">Idle</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Today’s intention</h2>
+        <label for="intentionInput">What do you want to make real today?</label>
+        <textarea id="intentionInput" placeholder="Ship MCX research section, record video, push code."></textarea>
+        <div style="height: 8px;"></div>
+        <button id="saveIntentionBtn" class="btn-primary" style="width: 100%;">Save intention</button>
+        <p id="intentionStatus" style="margin-top: 6px;"></p>
+      </section>
+
+      <section class="card">
+        <h2>Pomodoro</h2>
+        <div id="timerDisplay" class="timer">25:00</div>
+        <div id="timerSubtext" class="timer-sub">Ready when you are.</div>
+        <div class="row" style="margin-top: 10px;">
+          <button id="startFocusBtn" class="btn-primary" style="flex: 1;">Start focus</button>
+          <button id="startBreakBtn" class="btn-ghost" style="flex: 1;">Start break</button>
+          <button id="stopBtn" class="btn-danger" style="flex: 0 0 auto;">Stop</button>
+        </div>
+
+        <div style="margin-top: 10px;"></div>
+        <div class="grid-2">
+          <div>
+            <label for="focusSettingInput">Focus (min)</label>
+            <input id="focusSettingInput" type="number" min="10" step="5" />
+          </div>
+          <div>
+            <label for="shortBreakSettingInput">Short break (min)</label>
+            <input id="shortBreakSettingInput" type="number" min="3" step="1" />
+          </div>
+          <div>
+            <label for="longBreakSettingInput">Long break (min)</label>
+            <input id="longBreakSettingInput" type="number" min="10" step="5" />
+          </div>
+        </div>
+        <div style="height: 8px;"></div>
+        <button id="saveTimerSettingsBtn" class="btn-ghost" style="width: 100%;">Update Pomodoro lengths</button>
+      </section>
+
+      <section class="card">
+        <h2>Progress</h2>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-label">Streak</div>
+            <div id="streakValue" class="stat-value">0 days</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Today focus</div>
+            <div id="todayValue" class="stat-value">0 min</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Sessions today</div>
+            <div id="sessionsValue" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Level</div>
+            <div id="levelValue" class="stat-value">1</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Guard rails</h2>
+        <div class="toggle-row">
+          <div>
+            <strong style="font-size: 12px;">Block YouTube Shorts</strong>
+            <p>Redirect Shorts to a focus reminder.</p>
+          </div>
+          <label class="switch">
+            <input id="shortsToggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <strong style="font-size: 12px;">Safe mode</strong>
+            <p>Block a starter list of adult sites.</p>
+          </div>
+          <label class="switch">
+            <input id="safeModeToggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <strong style="font-size: 12px;">Floating widget</strong>
+            <p>Show a small timer on pages.</p>
+          </div>
+          <label class="switch">
+            <input id="widgetToggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Blocked during focus</h2>
+        <div class="row">
+          <input id="domainInput" type="text" placeholder="Add domain e.g. reddit.com" />
+          <button id="addDomainBtn">Add</button>
+        </div>
+        <ul id="domainList" class="site-list"></ul>
+      </section>
+    </section>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

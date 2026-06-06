@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Build Your Own Focus",
+  "version": "1.0.0",
+  "description": "Personalized deep-work extension with Pomodoro, blocking, a floating widget, and a clean monochrome UI.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "webNavigation",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Build Your Own Focus",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
