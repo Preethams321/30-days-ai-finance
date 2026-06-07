@@ -52,7 +52,7 @@
    RESET & BASE
 ════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;font-size:15px}
+html{scroll-behavior:smooth;font-size:15.5px}
 body{font-family:var(--fb);background:var(--surface);color:var(--text-1);min-height:100vh;transition:background .25s,color .25s;overflow-x:hidden}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
@@ -88,9 +88,16 @@ button{cursor:pointer;font-family:var(--fb)}
 .dz-label{font-weight:600;font-size:.88rem;margin-bottom:.35rem}
 .dz-hint{font-family:var(--fm);font-size:.65rem;color:var(--text-3);letter-spacing:.04em}
 .dz-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.demo-btn{margin-top:1.6rem;background:none;border:none;display:flex;align-items:center;gap:.45rem;font-family:var(--fm);font-size:.68rem;color:var(--text-3);transition:color .18s}
-.demo-btn:hover{color:var(--gold)}
-.demo-btn span{text-decoration:underline;text-underline-offset:3px}
+.demo-btn{margin-top:1.4rem;width:100%;max-width:520px;background:transparent;border:none;cursor:pointer;padding:0}
+.demo-card{width:100%;background:var(--card-bg);border:1.5px solid var(--gold);border-radius:var(--rl);padding:1.3rem 1.6rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:all .22s;backdrop-filter:blur(8px);position:relative;overflow:hidden}
+.demo-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,110,.07) 0%,transparent 60%);pointer-events:none}
+.demo-card:hover{border-color:var(--gold-lt);transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,169,110,.18)}
+.demo-card-l{text-align:left}
+.demo-card-eye{font-family:var(--fm);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem}
+.demo-card-title{font-family:var(--fd);font-size:1.05rem;font-weight:700;color:var(--text-1);letter-spacing:-.01em;margin-bottom:.25rem}
+.demo-card-sub{font-family:var(--fm);font-size:.65rem;color:var(--text-2);line-height:1.5}
+.demo-card-arrow{width:40px;height:40px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;transition:transform .22s}
+.demo-card:hover .demo-card-arrow{transform:scale(1.12)}
 .feat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;max-width:680px;width:100%;margin-top:3.5rem;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
 .feat-cell{background:var(--surface);padding:1.1rem .9rem;text-align:center}
 .feat-ico{font-size:1.1rem;margin-bottom:.45rem}
@@ -145,7 +152,7 @@ button{cursor:pointer;font-family:var(--fb)}
 .hc-lbl{font-family:var(--fm);font-size:.56rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:.38rem}
 .hc-val{font-family:var(--fd);font-size:1.35rem;font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--text-1)}
 .hc-val.xl{font-size:2rem}
-.hc-sub{font-size:.7rem;color:var(--text-2);margin-top:.28rem;line-height:1.45}
+.hc-sub{font-size:.76rem;color:var(--text-2);margin-top:.28rem;line-height:1.5}
 .chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.6rem}
 .chip{font-family:var(--fm);font-size:.57rem;letter-spacing:.05em;padding:2px 7px;border:1px solid var(--border-2);border-radius:2px;color:var(--text-2);background:var(--surface-2);text-transform:uppercase}
 .chip.g{border-color:var(--gold);color:var(--gold);background:transparent}
@@ -156,10 +163,10 @@ button{cursor:pointer;font-family:var(--fb)}
 .kpi{background:var(--card-bg);padding:1.05rem 1.15rem;transition:background .15s}
 .kpi:hover{background:var(--surface-2)}
 .kpi-lbl{font-family:var(--fm);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:.45rem}
-.kpi-v{font-family:var(--fm);font-size:1.08rem;font-weight:500;line-height:1;letter-spacing:-.01em;color:var(--text-1)}
+.kpi-v{font-family:var(--fm);font-size:1.18rem;font-weight:500;line-height:1;letter-spacing:-.01em;color:var(--text-1)}
 .kpi-v.pos{color:var(--green)}.kpi-v.neg{color:var(--red)}.kpi-v.gld{color:var(--gold)}
-.kpi-ctx{font-size:.63rem;color:var(--text-3);margin-top:.28rem;line-height:1.35}
-.kpi-tag{display:inline-block;font-family:var(--fm);font-size:.52rem;padding:1px 5px;background:var(--surface-3);border-radius:1px;color:var(--text-3);margin-top:.35rem;letter-spacing:.04em}
+.kpi-ctx{font-size:.7rem;color:var(--text-3);margin-top:.28rem;line-height:1.4}
+.kpi-tag{display:inline-block;font-family:var(--fm);font-size:.56rem;padding:1px 5px;background:var(--surface-3);border-radius:1px;color:var(--text-3);margin-top:.35rem;letter-spacing:.04em}
 
 /* ── OFFER SPLIT ── */
 .offer-split{display:grid;grid-template-columns:1fr 2fr;gap:1.4rem;margin-bottom:1.4rem}
@@ -206,7 +213,7 @@ button{cursor:pointer;font-family:var(--fb)}
 .moat-item{display:flex;gap:.65rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
 .moat-item:last-child{border-bottom:none}
 .moat-n{font-family:var(--fm);font-size:.58rem;color:var(--gold);flex-shrink:0;padding-top:2px}
-.moat-t{font-size:.72rem;color:var(--text-2);line-height:1.5}
+.moat-t{font-size:.77rem;color:var(--text-2);line-height:1.55}
 .moat-t strong{color:var(--text-1)}
 .mkt-pos{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.15rem;margin-bottom:1rem}
 .mkt-ttl{font-family:var(--fm);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.5rem}
@@ -218,13 +225,13 @@ button{cursor:pointer;font-family:var(--fb)}
 .chart-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.15rem 1.3rem}
 .chart-card canvas{max-height:185px}
 .chart-ttl{font-family:var(--fm);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.9rem}
-.chart-callout{margin-top:.75rem;padding:.55rem .75rem;background:var(--surface-2);border-left:2px solid var(--gold);font-size:.69rem;color:var(--text-2);line-height:1.5}
+.chart-callout{margin-top:.75rem;padding:.55rem .75rem;background:var(--surface-2);border-left:2px solid var(--gold);font-size:.75rem;color:var(--text-2);line-height:1.55}
 
 /* ── TABLES ── */
 .tbl-wrap{overflow-x:auto;margin-top:.9rem}
-table{width:100%;border-collapse:collapse;font-size:.7rem;min-width:560px}
-th{font-family:var(--fm);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);text-align:left;padding:.58rem .75rem;background:var(--surface-2);border-bottom:1px solid var(--border)}
-td{padding:.58rem .75rem;border-bottom:1px solid var(--border);color:var(--text-2);font-family:var(--fm)}
+table{width:100%;border-collapse:collapse;font-size:.74rem;min-width:560px}
+th{font-family:var(--fm);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);text-align:left;padding:.62rem .8rem;background:var(--surface-2);border-bottom:1px solid var(--border)}
+td{padding:.62rem .8rem;border-bottom:1px solid var(--border);color:var(--text-2);font-family:var(--fm)}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--surface-2)}
 .src-bar{background:var(--surface-2);border-top:1px solid var(--border);padding:.5rem 1.1rem;display:flex;align-items:center;gap:.5rem;font-family:var(--fm);font-size:.6rem;color:var(--text-3);margin-top:.7rem}
@@ -252,7 +259,7 @@ tr:hover td{background:var(--surface-2)}
 .rk{background:var(--card-bg);padding:1.15rem}
 .rk-ico{font-size:1.05rem;margin-bottom:.45rem}
 .rk-ttl{font-size:.73rem;font-weight:600;color:var(--text-1);margin-bottom:.35rem}
-.rk-body{font-size:.67rem;color:var(--text-2);line-height:1.5}
+.rk-body{font-size:.72rem;color:var(--text-2);line-height:1.55}
 .rk-badge{display:inline-block;margin-top:.45rem;font-family:var(--fm);font-size:.52rem;padding:2px 6px;border-radius:1px;letter-spacing:.06em;text-transform:uppercase}
 .rb-h{background:rgba(153,34,51,.09);color:var(--red);border:1px solid var(--red)}
 .rb-m{background:rgba(201,169,110,.09);color:var(--gold);border:1px solid var(--gold)}
@@ -270,7 +277,7 @@ tr:hover td{background:var(--surface-2)}
 .tl-item.done::before{background:var(--gold)}
 .tl-date{font-family:var(--fm);font-size:.6rem;color:var(--gold);letter-spacing:.06em;margin-bottom:.18rem}
 .tl-ev{font-weight:600;font-size:.8rem;color:var(--text-1);margin-bottom:.18rem}
-.tl-note{font-size:.67rem;color:var(--text-3);line-height:1.4}
+.tl-note{font-size:.72rem;color:var(--text-3);line-height:1.45}
 
 /* ── MANAGEMENT ── */
 .mgmt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
@@ -283,8 +290,8 @@ tr:hover td{background:var(--surface-2)}
 /* ── RESEARCH LENS ── */
 .lens-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.5rem 1.8rem}
 .lens-col .lt{font-family:var(--fm);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
-.lens-item{display:flex;gap:.55rem;margin-bottom:.72rem;font-size:.72rem;color:var(--text-2);line-height:1.5}
-.lens-item::before{content:'›';color:var(--gold);flex-shrink:0;font-size:.88rem;line-height:1.35}
+.lens-item{display:flex;gap:.55rem;margin-bottom:.72rem;font-size:.76rem;color:var(--text-2);line-height:1.55}
+.lens-item::before{content:'›';color:var(--gold);flex-shrink:0;font-size:.92rem;line-height:1.35}
 
 /* ── APPENDIX ── */
 .app-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
@@ -405,8 +412,14 @@ tr:hover td{background:var(--surface-2)}
   </div>
 
   <button class="demo-btn" onclick="loadDemo()">
-    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor"/><path d="M5.5 3v3.5M5.5 7.8v.2" stroke="currentColor" stroke-linecap="round"/></svg>
-    <span>Try the Groww IPO demo — Billionbrains Garage Ventures Ltd</span>
+    <div class="demo-card">
+      <div class="demo-card-l">
+        <div class="demo-card-eye">Live Demo — No API Key Needed</div>
+        <div class="demo-card-title">Groww IPO Research Dashboard</div>
+        <div class="demo-card-sub">Billionbrains Garage Ventures Ltd &nbsp;·&nbsp; ₹6,632 Cr &nbsp;·&nbsp; Subscribed 17.60× &nbsp;·&nbsp; Listed Nov 12, 2025</div>
+      </div>
+      <div class="demo-card-arrow">→</div>
+    </div>
   </button>
 
   <div class="feat-row">
@@ -448,6 +461,7 @@ tr:hover td{background:var(--surface-2)}
     <div class="nav-a" onclick="navTo('proceeds')"><span class="nav-dot"></span>Use of Proceeds</div>
     <div class="nav-grp-lbl">Business</div>
     <div class="nav-a" onclick="navTo('business')"><span class="nav-dot"></span>Business Overview</div>
+    <div class="nav-a" onclick="navTo('opkpis')"><span class="nav-dot"></span>Platform Metrics</div>
     <div class="nav-a" onclick="navTo('financials')"><span class="nav-dot"></span>Financials</div>
     <div class="nav-a" onclick="navTo('cashflow')"><span class="nav-dot"></span>Cash Flow</div>
     <div class="nav-grp-lbl">Governance</div>
@@ -606,6 +620,12 @@ tr:hover td{background:var(--surface-2)}
           <div id="moat-list"><!-- populated --></div>
         </div>
       </div>
+    </div>
+
+    <!-- ── 05b OPERATIONAL KPIs ── -->
+    <div class="sec" id="sec-opkpis">
+      <div class="sec-hdr"><span class="sec-num">05b</span><span class="sec-ttl">Platform Operating Metrics</span><span class="sec-note">Source: RHP Operational & Financial Metrics</span></div>
+      <div class="kpi-grid" id="op-kpi-grid"><!-- populated by JS --></div>
     </div>
 
     <!-- ── 06 FINANCIALS ── -->
@@ -1210,7 +1230,7 @@ const DEMO = {
   company: {
     legal_name: "Billionbrains Garage Ventures Limited",
     brand_name: "Groww",
-    description: "India's largest and fastest growing direct-to-customer digital investment platform with 37 million demat accounts and ₹2.6 lakh crore AUM as of June 2025. Offers stocks, IPOs, F&O, ETFs, bonds, mutual funds, MTF, and personal loans through a consumer-grade app backed by an in-house technology stack. Covers 98.36% of Indian pin codes.",
+    description: "Direct-to-customer digital investment platform with 14.38M Active Users, 37.41M demat accounts, and ₹26.07 Lakh Cr Total Customer Assets as of June 30, 2025. Only investment app in India to cross 100M cumulative downloads (Sensor Tower). 83.16% of new customers acquired organically. Active users in 98.36% of Indian pin codes. System capacity: 50M simultaneous users, 50M orders/day.",
     sector: "Fintech", subsector: "Digital Broking & Investment Platform",
     incorporated: "January 9, 2018 (Private Limited) · Converted to Public Limited: April 11, 2025",
     registered_office: "Vaishnavi Tech Park, South Tower, 3rd Floor, Survey No. 161 and 172, Ambalipura Village, Varthur Hobli, Bellandur, Bengaluru 560103, Karnataka, India",
@@ -1226,6 +1246,7 @@ const DEMO = {
     listing_exchanges: ["BSE","NSE"], designated_exchange: "NSE",
     fresh_issue_inr_mn: 10600,
     ofs_shares: "55.72 Cr equity shares (₹5,572.30 Cr at upper band)",
+    ofs_inr_cr: 5572.30,
     total_issue_size: "₹6,632.30 Cr",
     price_band: "₹95 – ₹100 per share",
     face_value: "₹2 per share",
@@ -1309,7 +1330,7 @@ const DEMO = {
     ]
   },
   business: {
-    market_position: "India's largest stockbroker — 37 million demat accounts, 26%+ market share on NSE, ₹2.6 lakh crore AUM, present in 98.36% of Indian pin codes as of June 30, 2025.",
+    market_position: "#1 by NSE active clients (12.58M, June 2025) · 45.45% of all net new NSE active client additions in 12M to June 2025 · 19.31% retail cash ADTO market share FY25 (up from 12.66% FY24) · 13% SIP market share — 1 in 3 new SIPs on Groww (June 2025) · Only Indian investment app to cross 100M downloads · Adj. EBITDA margin 59.11% FY25.",
     products: [
       { name: "Equity & IPOs",      description: "Direct stock trading and IPO applications via app/web",  icon: "📊" },
       { name: "F&O / Derivatives",  description: "Futures & options with in-house risk framework",          icon: "⚡" },
@@ -1321,20 +1342,40 @@ const DEMO = {
       { name: "915 by Groww",       description: "Pro-trading web terminal for high-frequency traders",     icon: "💻" }
     ],
     moat_points: [
-      "**#1 active client base on NSE** with 37M demat accounts and 26%+ market share — network and data moat compounding daily",
-      "**In-house technology stack** enables rapid product iteration, lower infra costs, and superior UX vs legacy incumbents",
-      "**Vertically integrated credit** via GCS NBFC — personal loans and MTF cross-sell to 37M existing trusted users",
-      "**Brand dominance** in sub-35 demographic and Tier 2/3 cities where digital-first investing is still growing",
-      "**Full-stack platform** — investing, trading, lending, and asset management all under one app/brand"
+      "**#1 NSE active client base** (12.58M, June 2025) — 45.45% of all net new NSE client additions in 12M to June 2025; also 18.9% market share in total individual demat accounts",
+      "**83.16% organic acquisition** — word-of-mouth and referral driven; Cost to Grow (marketing as % of revenue) declining; platform AARPU growing via multi-product attach",
+      "**In-house tech at UPI scale** — 50M simultaneous users, 50M orders/day capacity; peak TPS at par with UPI (NPCI); AI chatbot handles 98,528 queries/day (June 2025)",
+      "**77.70% three-year retention** across cohorts; FY22 cohort generated 3.84× revenue in FY25; DAU/MAU 56.29% FY25 — habitual daily engagement, not transactional",
+      "**Full-stack + Adj. EBITDA 59.11%** FY25 — stocks, F&O, MF, MTF, NBFC (GCS), AMC, wealth mgmt ('W by Groww') all under one brand with proprietary UPI (GUPI)"
     ]
   },
   management: [
-    { name: "Lalit Keshre",  role: "Co-Founder & CEO", holding_pct: 9.12 },
-    { name: "Harsh Jain",    role: "Co-Founder & COO", holding_pct: 6.72 },
-    { name: "Neeraj Singh",  role: "Co-Founder & CTO", holding_pct: 6.25 },
-    { name: "Ishan Bansal",  role: "Co-Founder & CPO", holding_pct: 4.53 }
+    { name: "Lalit Keshre",      role: "Co-Founder, WTD & CEO",       holding_pct: 9.12 },
+    { name: "Harsh Jain",        role: "Co-Founder, WTD & COO",       holding_pct: 6.72 },
+    { name: "Neeraj Singh",      role: "Co-Founder, WTD & CTO",       holding_pct: 6.25 },
+    { name: "Ishan Bansal",      role: "Co-Founder, WTD & CFO",       holding_pct: 4.53 },
+    { name: "Gaurang Shah",      role: "Chairman & Independent Director", holding_pct: 0 },
+    { name: "Ashish Agrawal",    role: "Nominee Director",             holding_pct: 0 },
+    { name: "Neetu Kashiramka",  role: "Independent Director",         holding_pct: 0 },
+    { name: "Ankit Nagori",      role: "Independent Director",         holding_pct: 0 },
   ],
-  tags: ["Fresh Issue","OFS","Fintech","Book Built","Profitable","NSE Listed","17.60× Subscribed","Digital Broking"],
+  op_kpis: {
+    // Source: RHP Operational & Financial Metrics table, p.227-228
+    nse_active_clients_mn:    [12.58, 10.92, 12.92,  9.54, 5.37],
+    active_users_mn:          [14.38, 10.78, 13.94,  9.43, 5.36],
+    total_customer_assets_bn: [2606.57, 1637.93, 2168.12, 1213.76, 478.04], // ₹ Millions → display as ₹ Bn
+    platform_aarpu:           [null, null, 3339.28, 3529.80, 2540.99],      // annual only
+    mau_mn:                   [14.17, 10.78, 12.69,  7.15,  4.55],
+    adjusted_ebitda_mn:       [5071.95, 5836.68, 23063.69, 14709.19, 4163.01],
+    adjusted_ebitda_margin:   [56.08, 58.32, 59.11, 56.37, 36.47],
+    contribution_margin:      [85.20, 87.77, 85.38, 87.45, 84.15],
+    stocks_adto_mn:           [106739.91, 81604.78, 91719.45, 45229.21, 23887.18],
+    derivatives_active_mn:    [1.40, 1.95, 1.40, 1.89, 0.80],
+    mtf_book_mn:              [10357.69, 1291.78, 6018.89, 0, 0],
+    gcs_gross_loan_book_mn:   [11639.09, 9633.08, 11365.20, 7303.05, 0],
+    gcs_gnpa_pct:             [1.67, 0.96, 1.68, 0.29, 0],
+    organic_acquisition_pct:  [83.16, 82.96, 83.63, 81.10, 81.03]
+  },
   research: {
     positives: [
       "IPO subscribed 17.60× — QIB 22.02×, NII 14.20×, Retail 9.43× — broad-based institutional demand",
@@ -1517,6 +1558,9 @@ function populate(d) {
   // Show PDF export button
   document.getElementById('btn-export').style.display = 'inline-block';
 
+  // ── OPERATIONAL KPIs ──
+  if (d.op_kpis) buildOpKPIs(d.op_kpis, f.periods);
+
   // ── CHARTS ──
   renderCharts(d);
 }
@@ -1650,6 +1694,32 @@ function buildLitNotes(notes) {
   </div>`;
 }
 
+function buildOpKPIs(ok, periods) {
+  const g = document.getElementById('op-kpi-grid');
+  if (!g || !ok) return;
+  const p0 = periods[0], p1 = periods[2]; // latest quarter, FY25
+  const items = [
+    { lbl: 'NSE Active Clients', val: ok.nse_active_clients_mn[0]?.toFixed(2) + 'M', ctx: `FY25: ${ok.nse_active_clients_mn[2]?.toFixed(2)}M · FY23: ${ok.nse_active_clients_mn[4]?.toFixed(2)}M` },
+    { lbl: 'Active Users', val: ok.active_users_mn[0]?.toFixed(2) + 'M', ctx: `FY25: ${ok.active_users_mn[2]?.toFixed(2)}M · CAGR 52.74% FY23–Q1FY26` },
+    { lbl: 'Total Customer Assets', val: '₹' + (ok.total_customer_assets_bn[0]/1000).toFixed(2) + ' Lakh Cr', ctx: `FY25: ₹${(ok.total_customer_assets_bn[2]/1000).toFixed(2)} Lakh Cr` },
+    { lbl: 'Platform AARPU', val: ok.platform_aarpu[2] ? '₹' + ok.platform_aarpu[2].toFixed(0) : '—', ctx: 'FY25 Annual · FY24: ₹' + (ok.platform_aarpu[3]||0).toFixed(0) },
+    { lbl: 'Adjusted EBITDA Margin', val: ok.adjusted_ebitda_margin[0]?.toFixed(2) + '%', cls:'pos', ctx: `FY25: ${ok.adjusted_ebitda_margin[2]}% · FY23: ${ok.adjusted_ebitda_margin[4]}%` },
+    { lbl: 'Contribution Margin', val: ok.contribution_margin[0]?.toFixed(2) + '%', cls:'pos', ctx: 'Revenue minus Cost to Serve · FY25: ' + ok.contribution_margin[2] + '%' },
+    { lbl: 'Stocks ADTO', val: '₹' + (ok.stocks_adto_mn[0]/100).toFixed(0) + ' Cr/day', ctx: `FY25: ₹${(ok.stocks_adto_mn[2]/100).toFixed(0)} Cr · FY24: ₹${(ok.stocks_adto_mn[3]/100).toFixed(0)} Cr` },
+    { lbl: 'MTF Book', val: '₹' + (ok.mtf_book_mn[0]/10).toFixed(0) + ' Cr', ctx: `Market share ~1.22% as of June 2025 (NSE data)` },
+    { lbl: 'GCS Gross Loan Book', val: '₹' + (ok.gcs_gross_loan_book_mn[0]/10).toFixed(0) + ' Cr', ctx: `GNPA ${ok.gcs_gnpa_pct[0]}% · CRAR ${46.44}% (min 15%)` },
+    { lbl: 'Organic Acquisition', val: ok.organic_acquisition_pct[0] + '%', cls:'pos', ctx: 'New users acquired without paid marketing — FY25: ' + ok.organic_acquisition_pct[2] + '%' },
+    { lbl: 'MAU', val: ok.mau_mn[0]?.toFixed(2) + 'M', ctx: 'Monthly Active Users · FY25 avg: ' + ok.mau_mn[2]?.toFixed(2) + 'M' },
+    { lbl: 'Derivatives Active Users', val: ok.derivatives_active_mn[0]?.toFixed(2) + 'M', cls: ok.derivatives_active_mn[0] < ok.derivatives_active_mn[1] ? 'neg' : '', ctx: `Q1FY25: ${ok.derivatives_active_mn[1]}M — SEBI F&O regulation impact visible` },
+  ];
+  g.innerHTML = items.map(item => `
+    <div class="kpi">
+      <div class="kpi-lbl">${item.lbl}</div>
+      <div class="kpi-v ${item.cls||''}">${item.val}</div>
+      <div class="kpi-ctx">${item.ctx}</div>
+    </div>`).join('');
+}
+
 function buildLens(id, items) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -1761,28 +1831,42 @@ function renderCharts(d) {
     datasets:[{ data: byPeriod(f.ronw), borderColor:co.gold, backgroundColor:co.gold+'14', tension:.32, fill:true, pointBackgroundColor:co.gold, pointRadius:4 }]
   });
 
-  // Cashflow
+  // Cashflow — reverse to chronological order for display
+  const cfPeriods = [...cf.periods].reverse();
+  const cfOps     = [...cf.operating].reverse();
+  const cfFin     = [...cf.financing].reverse();
+  const cfNet     = [...cf.net_change].reverse();
+
   mk('chartCashflow','bar',{
-    labels: cf.periods,
+    labels: cfPeriods,
     datasets:[
-      { label:'Operating', data:cf.operating,  backgroundColor:co.green+'99', borderRadius:2 },
-      { label:'Financing', data:cf.financing,   backgroundColor:co.gold+'99',  borderRadius:2 }
+      { label:'Operating', data:cfOps, backgroundColor:cfOps.map(v=>v>=0?co.green+'99':co.red+'88'), borderRadius:2 },
+      { label:'Financing', data:cfFin, backgroundColor:co.gold+'99', borderRadius:2 }
     ]
   }, { plugins:{ ...bo.plugins, legend:{ display:true, labels:{ color:co.text, font:{family:"'DM Mono'",size:9}, boxWidth:9 } } } });
 
-  // Net cash
   mk('chartNetcash','bar',{
-    labels: cf.periods,
-    datasets:[{ data:cf.net_change, backgroundColor:cf.net_change.map(v=>v>=0?co.green+'99':co.red+'99'), borderRadius:2 }]
+    labels: cfPeriods,
+    datasets:[{ data:cfNet, backgroundColor:cfNet.map(v=>v>=0?co.green+'99':co.red+'88'), borderRadius:2 }]
   });
 
-  // Offer donut
+  // Offer donut — use actual Crore values from offer data
   const odEl = document.getElementById('offerDonut');
   if (odEl) {
+    const freshCr  = d.offer.fresh_issue_inr_mn ? d.offer.fresh_issue_inr_mn / 10 : 0;
+    const ofsCr    = d.offer.ofs_inr_cr || 0;
+    const donutData = ofsCr > 0 ? [freshCr, ofsCr] : [freshCr, 1];
     activeCharts.push(new Chart(odEl, {
       type:'doughnut',
-      data:{ labels:['Fresh Issue','OFS'], datasets:[{ data:[d.offer.fresh_issue_inr_mn||1,1], backgroundColor:[co.gold, co.muted], borderWidth:0 }] },
-      options:{ cutout:'68%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.label}} }, maintainAspectRatio:true }
+      data:{ labels:['Fresh Issue','OFS'], datasets:[{ data: donutData, backgroundColor:[co.gold, co.muted], borderWidth:0 }] },
+      options:{
+        cutout:'68%',
+        plugins:{
+          legend:{display:false},
+          tooltip:{ callbacks:{ label: ctx => `${ctx.label}: ₹${ctx.parsed.toFixed(0)} Cr` } }
+        },
+        maintainAspectRatio:true
+      }
     }));
   }
 
@@ -1866,7 +1950,7 @@ function exportPDF() {
 // ═══════════════════════════════════════════════════════
 const SEC_MAP = {
   'hero':'sec-hero','kpis':'sec-kpis','offer':'sec-offer','proceeds':'sec-proceeds',
-  'business':'sec-business','financials':'sec-financials','cashflow':'sec-cashflow',
+  'business':'sec-business','opkpis':'sec-opkpis','financials':'sec-financials','cashflow':'sec-cashflow',
   'ownership':'sec-ownership','risk':'sec-risk','timeline':'sec-timeline',
   'management':'sec-management','lens':'sec-lens','appendix':'sec-appendix'
 };
