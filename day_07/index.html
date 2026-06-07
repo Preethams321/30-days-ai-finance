@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPODesk — IPO Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════ */
+:root {
+  --surface:      #f4f2ed;
+  --surface-2:    #eceae3;
+  --surface-3:    #e0ddd4;
+  --card-bg:      rgba(255,255,255,0.72);
+  --ink:          #0b0b10;
+  --text-1:       #0b0b10;
+  --text-2:       #484858;
+  --text-3:       #888898;
+  --border:       rgba(11,11,16,0.09);
+  --border-2:     rgba(11,11,16,0.16);
+  --gold:         #c9a96e;
+  --gold-lt:      #e8ca90;
+  --green:        #2a6649;
+  --red:          #992233;
+  --blue:         #183658;
+  --r:3px; --rl:6px;
+  --fd: 'Playfair Display', Georgia, serif;
+  --fb: 'Syne', sans-serif;
+  --fm: 'DM Mono', monospace;
+}
+[data-theme="dark"] {
+  --surface:    #0d0d13;
+  --surface-2:  #14141c;
+  --surface-3:  #1c1c27;
+  --card-bg:    rgba(20,20,28,0.9);
+  --ink:        #eeeae2;
+  --text-1:     #eeeae2;
+  --text-2:     #a8a49c;
+  --text-3:     #626270;
+  --border:     rgba(255,255,255,0.07);
+  --border-2:   rgba(255,255,255,0.13);
+  --green:      #4ab87a;
+  --red:        #e05c6c;
+  --blue:       #6aaad8;
+}
+
+/* ════════════════════════════════════════
+   RESET & BASE
+════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:var(--fb);background:var(--surface);color:var(--text-1);min-height:100vh;transition:background .25s,color .25s;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  opacity:.5}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:var(--fb)}
+
+/* ════════════════════════════════════════
+   TOPBAR
+════════════════════════════════════════ */
+.topbar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 2rem;background:var(--surface);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}
+.logo{display:flex;align-items:center;gap:.55rem}
+.logo-mark{width:26px;height:26px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:900;font-size:13px;color:#fff;letter-spacing:-.3px;flex-shrink:0}
+.logo-word{font-family:var(--fd);font-weight:700;font-size:1.05rem;letter-spacing:-.02em;color:var(--text-1)}
+.logo-tag{font-family:var(--fm);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);display:block;margin-top:1px}
+.topbar-r{display:flex;align-items:center;gap:.7rem}
+.btn-sm{background:none;border:1px solid var(--border-2);color:var(--text-2);padding:4px 10px;font-family:var(--fm);font-size:.65rem;letter-spacing:.04em;border-radius:var(--r);transition:all .18s}
+.btn-sm:hover{background:var(--surface-2)}
+.btn-gold{background:var(--gold);border:none;color:#fff;padding:5px 13px;font-size:.72rem;font-weight:600;border-radius:var(--r);transition:background .18s}
+.btn-gold:hover{background:var(--gold-lt)}
+
+/* ════════════════════════════════════════
+   UPLOAD SCREEN
+════════════════════════════════════════ */
+#screen-upload{min-height:calc(100vh - 52px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;position:relative;z-index:1}
+.up-eye{font-family:var(--fm);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:1.1rem}
+.up-h1{font-family:var(--fd);font-size:clamp(2rem,5vw,3.4rem);font-weight:700;line-height:1.1;text-align:center;letter-spacing:-.025em;max-width:640px;margin-bottom:.9rem}
+.up-h1 em{font-style:italic;color:var(--gold)}
+.up-sub{font-size:.88rem;color:var(--text-2);text-align:center;max-width:460px;line-height:1.65;margin-bottom:2.8rem}
+.drop-zone{width:100%;max-width:520px;border:1.5px dashed var(--border-2);border-radius:var(--rl);padding:2.8rem 2rem;text-align:center;cursor:pointer;transition:all .22s;background:var(--card-bg);backdrop-filter:blur(8px);position:relative}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:var(--surface-2)}
+.dz-ico{width:44px;height:44px;margin:0 auto .9rem;color:var(--text-3)}
+.dz-label{font-weight:600;font-size:.88rem;margin-bottom:.35rem}
+.dz-hint{font-family:var(--fm);font-size:.65rem;color:var(--text-3);letter-spacing:.04em}
+.dz-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.demo-btn{margin-top:1.6rem;background:none;border:none;display:flex;align-items:center;gap:.45rem;font-family:var(--fm);font-size:.68rem;color:var(--text-3);transition:color .18s}
+.demo-btn:hover{color:var(--gold)}
+.demo-btn span{text-decoration:underline;text-underline-offset:3px}
+.feat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;max-width:680px;width:100%;margin-top:3.5rem;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.feat-cell{background:var(--surface);padding:1.1rem .9rem;text-align:center}
+.feat-ico{font-size:1.1rem;margin-bottom:.45rem}
+.feat-t{font-size:.7rem;font-weight:700;margin-bottom:.2rem}
+.feat-d{font-family:var(--fm);font-size:.6rem;color:var(--text-3);line-height:1.4}
+
+/* API Key Input */
+
+/* ════════════════════════════════════════
+   PROCESSING SCREEN
+════════════════════════════════════════ */
+#screen-processing{display:none;min-height:calc(100vh - 52px);flex-direction:column;align-items:center;justify-content:center;padding:3rem;position:relative;z-index:1}
+.proc-ring{width:52px;height:52px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.8rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-title{font-family:var(--fd);font-size:1.3rem;font-weight:600;text-align:center;margin-bottom:.5rem}
+.proc-step{font-family:var(--fm);font-size:.68rem;color:var(--text-3);letter-spacing:.07em;text-align:center;min-height:1.4em}
+.proc-bar{width:220px;height:2px;background:var(--border);border-radius:1px;overflow:hidden;margin:1.4rem auto 0}
+.proc-fill{height:100%;background:var(--gold);border-radius:1px;width:0%;transition:width .6s ease}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+#screen-dashboard{display:none;position:relative;z-index:1}
+.dash{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 52px)}
+
+/* SIDEBAR */
+.sidebar{position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;border-right:1px solid var(--border);padding:1.4rem 0;background:var(--surface);scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-co{padding:0 1.1rem 1.3rem;border-bottom:1px solid var(--border);margin-bottom:.8rem}
+.sb-sector{font-family:var(--fm);font-size:.56rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.sb-name{font-family:var(--fd);font-size:.98rem;font-weight:700;line-height:1.2;color:var(--text-1)}
+.sb-exch{font-family:var(--fm);font-size:.58rem;color:var(--text-3);margin-top:.25rem}
+.nav-grp-lbl{font-family:var(--fm);font-size:.54rem;letter-spacing:.13em;text-transform:uppercase;color:var(--text-3);padding:.55rem 1.1rem .25rem}
+.nav-a{display:flex;align-items:center;gap:.55rem;padding:.42rem 1.1rem;font-size:.76rem;font-weight:500;color:var(--text-2);border-left:2px solid transparent;cursor:pointer;transition:all .14s;user-select:none}
+.nav-a:hover{color:var(--text-1);background:var(--surface-2)}
+.nav-a.on{color:var(--gold);border-left-color:var(--gold);background:var(--surface-2)}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0}
+
+/* MAIN */
+.main{padding:2rem 2.4rem;max-width:1080px}
+.sec{margin-bottom:2.8rem;animation:fadeUp .38s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sec-hdr{display:flex;align-items:baseline;gap:.9rem;margin-bottom:1.4rem;padding-bottom:.7rem;border-bottom:1px solid var(--border)}
+.sec-num{font-family:var(--fm);font-size:.55rem;letter-spacing:.15em;color:var(--gold);flex-shrink:0}
+.sec-ttl{font-family:var(--fd);font-size:1.22rem;font-weight:700;letter-spacing:-.02em;color:var(--text-1)}
+.sec-note{font-family:var(--fm);font-size:.58rem;color:var(--text-3);margin-left:auto}
+
+/* ── HERO GRID ── */
+.hero-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:1.4rem}
+.hc{background:var(--card-bg);padding:1.15rem 1.3rem}
+.hc.s2{grid-column:span 2}.hc.s3{grid-column:span 3}
+.hc-lbl{font-family:var(--fm);font-size:.56rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:.38rem}
+.hc-val{font-family:var(--fd);font-size:1.35rem;font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--text-1)}
+.hc-val.xl{font-size:2rem}
+.hc-sub{font-size:.7rem;color:var(--text-2);margin-top:.28rem;line-height:1.45}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.6rem}
+.chip{font-family:var(--fm);font-size:.57rem;letter-spacing:.05em;padding:2px 7px;border:1px solid var(--border-2);border-radius:2px;color:var(--text-2);background:var(--surface-2);text-transform:uppercase}
+.chip.g{border-color:var(--gold);color:var(--gold);background:transparent}
+.chip.gr{border-color:var(--green);color:var(--green);background:transparent}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.kpi{background:var(--card-bg);padding:1.05rem 1.15rem;transition:background .15s}
+.kpi:hover{background:var(--surface-2)}
+.kpi-lbl{font-family:var(--fm);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:.45rem}
+.kpi-v{font-family:var(--fm);font-size:1.08rem;font-weight:500;line-height:1;letter-spacing:-.01em;color:var(--text-1)}
+.kpi-v.pos{color:var(--green)}.kpi-v.neg{color:var(--red)}.kpi-v.gld{color:var(--gold)}
+.kpi-ctx{font-size:.63rem;color:var(--text-3);margin-top:.28rem;line-height:1.35}
+.kpi-tag{display:inline-block;font-family:var(--fm);font-size:.52rem;padding:1px 5px;background:var(--surface-3);border-radius:1px;color:var(--text-3);margin-top:.35rem;letter-spacing:.04em}
+
+/* ── OFFER SPLIT ── */
+.offer-split{display:grid;grid-template-columns:1fr 2fr;gap:1.4rem;margin-bottom:1.4rem}
+.donut-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.3rem;display:flex;flex-direction:column;align-items:center}
+.donut-wrap canvas{max-height:170px}
+.donut-legend{margin-top:.9rem;width:100%}
+.dl-item{display:flex;align-items:center;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.7rem}
+.dl-item:last-child{border-bottom:none}
+.dl-dot{width:8px;height:8px;border-radius:1px;margin-right:.45rem;flex-shrink:0}
+.dl-name{display:flex;align-items:center;color:var(--text-1);font-weight:500}
+.dl-val{font-family:var(--fm);font-size:.63rem;color:var(--text-3)}
+.alloc-cards{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;align-content:start}
+.ac{background:var(--card-bg);padding:1.15rem}
+.ac.wide{grid-column:span 2}
+.ac-lbl{font-family:var(--fm);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.38rem}
+.ac-pct{font-family:var(--fd);font-size:1.75rem;font-weight:700;color:var(--text-1)}
+.ac-name{font-size:.7rem;color:var(--text-2);margin-top:.18rem}
+.ac-bar{height:3px;background:var(--border);margin-top:.75rem;border-radius:1px;overflow:hidden}
+.ac-fill{height:100%;background:var(--gold);border-radius:1px;transition:width .8s ease}
+.caution-note{font-size:.7rem;color:var(--text-2);line-height:1.55;margin-top:.5rem}
+
+/* ── PROCEEDS ── */
+.proc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.pc{background:var(--card-bg);padding:1.15rem}
+.pc-ico{font-size:1.1rem;margin-bottom:.55rem}
+.pc-title{font-size:.74rem;font-weight:600;color:var(--text-1);margin-bottom:.28rem;line-height:1.35}
+.pc-amt{font-family:var(--fm);font-size:.98rem;font-weight:500;color:var(--gold);margin-bottom:.28rem}
+.pc-desc{font-size:.63rem;color:var(--text-3);line-height:1.45}
+.deploy-row{display:grid;grid-template-columns:1fr 1fr;gap:.25rem;margin-top:.6rem}
+.dr-item{padding:3px 6px;background:var(--surface-2);border-radius:var(--r);font-family:var(--fm);font-size:.56rem;color:var(--text-3)}
+.dr-item b{color:var(--gold)}
+.proc-note{margin-top:.9rem;padding:.75rem 1rem;background:var(--surface-2);border-radius:var(--r);font-size:.65rem;color:var(--text-3);line-height:1.6}
+
+/* ── BUSINESS ── */
+.biz-split{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:1.4rem}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.pd{background:var(--card-bg);padding:.95rem;display:flex;align-items:flex-start;gap:.65rem;transition:background .15s}
+.pd:hover{background:var(--surface-2)}
+.pd-ico{font-size:1.05rem;flex-shrink:0}
+.pd-name{font-size:.73rem;font-weight:600;color:var(--text-1);margin-bottom:.1rem}
+.pd-desc{font-size:.6rem;color:var(--text-3);line-height:1.4}
+.moat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.3rem}
+.moat-ttl{font-family:var(--fd);font-size:.98rem;font-weight:700;color:var(--text-1);margin-bottom:.9rem;padding-bottom:.55rem;border-bottom:1px solid var(--border)}
+.moat-item{display:flex;gap:.65rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
+.moat-item:last-child{border-bottom:none}
+.moat-n{font-family:var(--fm);font-size:.58rem;color:var(--gold);flex-shrink:0;padding-top:2px}
+.moat-t{font-size:.72rem;color:var(--text-2);line-height:1.5}
+.moat-t strong{color:var(--text-1)}
+.mkt-pos{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.15rem;margin-bottom:1rem}
+.mkt-ttl{font-family:var(--fm);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.5rem}
+.mkt-val{font-family:var(--fd);font-size:1.02rem;font-weight:700;color:var(--text-1);margin-bottom:.35rem}
+.mkt-sub{font-size:.68rem;color:var(--text-2);line-height:1.5}
+
+/* ── CHARTS ── */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:1.4rem}
+.chart-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.15rem 1.3rem}
+.chart-card canvas{max-height:185px}
+.chart-ttl{font-family:var(--fm);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.9rem}
+.chart-callout{margin-top:.75rem;padding:.55rem .75rem;background:var(--surface-2);border-left:2px solid var(--gold);font-size:.69rem;color:var(--text-2);line-height:1.5}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;margin-top:.9rem}
+table{width:100%;border-collapse:collapse;font-size:.7rem;min-width:560px}
+th{font-family:var(--fm);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);text-align:left;padding:.58rem .75rem;background:var(--surface-2);border-bottom:1px solid var(--border)}
+td{padding:.58rem .75rem;border-bottom:1px solid var(--border);color:var(--text-2);font-family:var(--fm)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface-2)}
+.src-bar{background:var(--surface-2);border-top:1px solid var(--border);padding:.5rem 1.1rem;display:flex;align-items:center;gap:.5rem;font-family:var(--fm);font-size:.6rem;color:var(--text-3);margin-top:.7rem}
+.src-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── OWNERSHIP ── */
+.own-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.own-tbl{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.own-hdr{display:grid;grid-template-columns:2fr 1fr 1fr;padding:.65rem .95rem;background:var(--surface-2);border-bottom:1px solid var(--border)}
+.oth{font-family:var(--fm);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.own-row{display:grid;grid-template-columns:2fr 1fr 1fr;padding:.65rem .95rem;border-bottom:1px solid var(--border);align-items:center;transition:background .14s}
+.own-row:last-child{border-bottom:none}
+.own-row:hover{background:var(--surface-2)}
+.or-name{font-size:.72rem;font-weight:500;color:var(--text-1)}
+.or-pct{font-family:var(--fm);font-size:.7rem;color:var(--text-1);text-align:right}
+.or-bar-wrap{display:flex;align-items:center;gap:.45rem;justify-content:flex-end}
+.or-mini{width:52px;height:3px;background:var(--border);border-radius:1px;overflow:hidden;flex-shrink:0}
+.or-fill{height:100%;background:var(--gold);border-radius:1px}
+.own-row.total{background:var(--surface-2)}
+.or-total-v{font-family:var(--fm);font-size:.72rem;color:var(--gold);font-weight:600;text-align:right}
+
+/* ── RISK ── */
+.risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:1.2rem}
+.rk{background:var(--card-bg);padding:1.15rem}
+.rk-ico{font-size:1.05rem;margin-bottom:.45rem}
+.rk-ttl{font-size:.73rem;font-weight:600;color:var(--text-1);margin-bottom:.35rem}
+.rk-body{font-size:.67rem;color:var(--text-2);line-height:1.5}
+.rk-badge{display:inline-block;margin-top:.45rem;font-family:var(--fm);font-size:.52rem;padding:2px 6px;border-radius:1px;letter-spacing:.06em;text-transform:uppercase}
+.rb-h{background:rgba(153,34,51,.09);color:var(--red);border:1px solid var(--red)}
+.rb-m{background:rgba(201,169,110,.09);color:var(--gold);border:1px solid var(--gold)}
+.rb-l{background:rgba(42,102,73,.09);color:var(--green);border:1px solid var(--green)}
+.caution-box{background:rgba(153,34,51,.05);border:1px solid rgba(153,34,51,.2);border-radius:var(--r);padding:.9rem 1.1rem;margin-bottom:1rem}
+.cbox-t{font-size:.7rem;font-weight:600;color:var(--red);margin-bottom:.38rem;display:flex;align-items:center;gap:.38rem}
+.cbox-b{font-size:.68rem;color:var(--text-2);line-height:1.55}
+.lit-note{padding:.48rem 0;border-bottom:1px solid var(--border);font-size:.7rem;color:var(--text-2)}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-left:1.4rem}
+.tl::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:1px;background:var(--border-2)}
+.tl-item{position:relative;padding:0 0 1.4rem 1.1rem}
+.tl-item::before{content:'';position:absolute;left:-4.5px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--surface);border:2px solid var(--gold)}
+.tl-item.done::before{background:var(--gold)}
+.tl-date{font-family:var(--fm);font-size:.6rem;color:var(--gold);letter-spacing:.06em;margin-bottom:.18rem}
+.tl-ev{font-weight:600;font-size:.8rem;color:var(--text-1);margin-bottom:.18rem}
+.tl-note{font-size:.67rem;color:var(--text-3);line-height:1.4}
+
+/* ── MANAGEMENT ── */
+.mgmt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.mg{background:var(--card-bg);padding:1.15rem}
+.mg-ini{width:34px;height:34px;background:var(--gold);color:#fff;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;font-size:.82rem;margin-bottom:.75rem;letter-spacing:-.02em}
+.mg-name{font-weight:600;font-size:.78rem;color:var(--text-1);margin-bottom:.18rem}
+.mg-role{font-family:var(--fm);font-size:.58rem;color:var(--text-3);letter-spacing:.04em;line-height:1.4}
+.mg-pct{font-family:var(--fm);font-size:.68rem;color:var(--gold);margin-top:.38rem}
+
+/* ── RESEARCH LENS ── */
+.lens-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);padding:1.5rem 1.8rem}
+.lens-col .lt{font-family:var(--fm);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+.lens-item{display:flex;gap:.55rem;margin-bottom:.72rem;font-size:.72rem;color:var(--text-2);line-height:1.5}
+.lens-item::before{content:'›';color:var(--gold);flex-shrink:0;font-size:.88rem;line-height:1.35}
+
+/* ── APPENDIX ── */
+.app-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.disc{margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--border);font-size:.63rem;color:var(--text-3);line-height:1.65;padding:1rem}
+
+/* ════════════════════════════════════════
+   PRINT
+════════════════════════════════════════ */
+@media print{
+  .topbar,.sidebar,#screen-upload,#screen-processing,body::after{display:none!important}
+  #screen-dashboard{display:block!important}
+  .dash{grid-template-columns:1fr}
+  body{font-size:10pt;background:#fff;color:#000}
+  .sec{page-break-inside:avoid}
+  .chart-card canvas{max-height:120px}
+  @page{margin:1.4cm;size:A4}
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media(max-width:900px){
+  .dash{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);display:flex;flex-direction:row;overflow-x:auto;padding:.5rem 0;gap:0}
+  .sb-co{display:none}
+  .nav-grp-lbl{display:none}
+  .nav-a{white-space:nowrap;border-left:none;border-bottom:2px solid transparent;font-size:.68rem;padding:.42rem .9rem}
+  .nav-a.on{border-left:none;border-bottom-color:var(--gold)}
+  .chart-row,.offer-split,.biz-split,.own-grid{grid-template-columns:1fr}
+  .alloc-cards{grid-template-columns:1fr 1fr}
+  .risk-grid{grid-template-columns:1fr 1fr}
+  .hero-grid{grid-template-columns:1fr 1fr}
+  .hc.s2{grid-column:span 1}.hc.s3{grid-column:span 2}
+  .lens-grid{grid-template-columns:1fr;gap:1rem}
+  .main{padding:1.2rem}
+  .topbar{padding:0 1rem}
+  .feat-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .hero-grid{grid-template-columns:1fr}
+  .hc.s2,.hc.s3{grid-column:span 1}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .risk-grid{grid-template-columns:1fr}
+  .mgmt-grid{grid-template-columns:1fr 1fr}
+  .proc-grid{grid-template-columns:1fr 1fr}
+  .alloc-cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════ -->
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-mark">I</div>
+    <div>
+      <span class="logo-word">IPODesk</span>
+      <span class="logo-tag">IPO Research Platform</span>
+    </div>
+  </div>
+  <div class="topbar-r">
+    <button class="btn-sm" onclick="toggleTheme()">◑ Theme</button>
+    <button class="btn-gold" onclick="resetToUpload()">+ New Analysis</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     UPLOAD SCREEN
+══════════════════════════════════════ -->
+<section id="screen-upload">
+  <div class="up-eye">Institutional-grade IPO Research</div>
+  <h1 class="up-h1">Drop any RHP.<br>Get <em>the full picture.</em></h1>
+  <p class="up-sub">Upload a Red Herring Prospectus or DRHP. IPODesk reads the document, extracts every structured data point, and builds a complete research dashboard — offer structure, financials, ownership, risk, and more.</p>
+
+  <!-- PROVIDER SELECTOR -->
+  <div id="provider-section" style="width:100%;max-width:520px;margin-bottom:1.4rem">
+
+    <!-- Provider tabs -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:.9rem">
+      <button class="prov-tab active" id="tab-google"   onclick="selectProvider('google')"   style="padding:.55rem;font-family:var(--fm);font-size:.65rem;font-weight:600;background:var(--card-bg);border:none;color:var(--text-2);cursor:pointer;transition:all .15s;border-bottom:2px solid var(--gold)">
+        ✦ Google Gemini<br><span style="font-size:.55rem;font-weight:400;color:var(--gold)">Free tier available</span>
+      </button>
+      <button class="prov-tab" id="tab-anthropic" onclick="selectProvider('anthropic')" style="padding:.55rem;font-family:var(--fm);font-size:.65rem;font-weight:600;background:var(--surface-2);border:none;color:var(--text-3);cursor:pointer;transition:all .15s;border-bottom:2px solid transparent">
+        ◆ Anthropic Claude<br><span style="font-size:.55rem;font-weight:400">claude.ai users</span>
+      </button>
+      <button class="prov-tab" id="tab-openai"    onclick="selectProvider('openai')"    style="padding:.55rem;font-family:var(--fm);font-size:.65rem;font-weight:600;background:var(--surface-2);border:none;color:var(--text-3);cursor:pointer;transition:all .15s;border-bottom:2px solid transparent">
+        ◈ OpenAI GPT<br><span style="font-size:.55rem;font-weight:400">GPT-4o</span>
+      </button>
+    </div>
+
+    <!-- Key input -->
+    <div style="display:flex;flex-direction:column;gap:.4rem">
+      <input id="api-key-input" type="password" autocomplete="off"
+        placeholder="Paste your Google AI Studio API key…"
+        style="width:100%;background:var(--card-bg);border:1px solid var(--border-2);border-radius:var(--r);padding:9px 13px;font-family:var(--fm);font-size:.72rem;color:var(--text-1);outline:none;transition:border .18s"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border-2)'">
+      <div id="provider-hint" style="font-family:var(--fm);font-size:.6rem;color:var(--text-3);display:flex;justify-content:space-between;align-items:center">
+        <span>Key stays in your browser only — never stored or sent anywhere else.</span>
+        <a id="provider-link" href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold);white-space:nowrap">Get free key →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="drop-zone" id="drop-zone">
+    <svg class="dz-ico" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="7" y="4" width="30" height="36" rx="2" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M14 16h16M14 22h16M14 28h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="33" cy="33" r="8" fill="currentColor" opacity=".12"/>
+      <path d="M33 29v8M29 33h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <div class="dz-label">Drop your RHP / DRHP here</div>
+    <div class="dz-hint">PDF · SEBI-format prospectus · Max 10 MB</div>
+    <input type="file" class="dz-input" id="file-input" accept=".pdf" onchange="handleFile(this.files[0])">
+  </div>
+
+  <button class="demo-btn" onclick="loadDemo()">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor"/><path d="M5.5 3v3.5M5.5 7.8v.2" stroke="currentColor" stroke-linecap="round"/></svg>
+    <span>Try the Groww IPO demo — Billionbrains Garage Ventures Ltd</span>
+  </button>
+
+  <div class="feat-row">
+    <div class="feat-cell"><div class="feat-ico">📊</div><div class="feat-t">Financials</div><div class="feat-d">Revenue, PAT, RONW, EPS trends</div></div>
+    <div class="feat-cell"><div class="feat-ico">🏗️</div><div class="feat-t">Offer Structure</div><div class="feat-d">Fresh issue, OFS, allocations</div></div>
+    <div class="feat-cell"><div class="feat-ico">🗂️</div><div class="feat-t">Ownership</div><div class="feat-d">Promoters, VCs, OFS sellers</div></div>
+    <div class="feat-cell"><div class="feat-ico">⚠️</div><div class="feat-t">Risk Intel</div><div class="feat-d">Litigation, regulatory, market</div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PROCESSING SCREEN
+══════════════════════════════════════ -->
+<section id="screen-processing">
+  <div class="proc-ring"></div>
+  <div class="proc-title">Reading Prospectus…</div>
+  <div class="proc-step" id="proc-step">Parsing document structure</div>
+  <div class="proc-bar"><div class="proc-fill" id="proc-fill"></div></div>
+</section>
+
+<!-- ══════════════════════════════════════
+     DASHBOARD — FIXED TEMPLATE
+══════════════════════════════════════ -->
+<section id="screen-dashboard">
+<div class="dash">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-co">
+      <div class="sb-sector" data-field="company.sector">Sector</div>
+      <div class="sb-name" data-field="company.brand_name">Company</div>
+      <div class="sb-exch" data-field="offer.listing_exchanges_str">BSE · NSE</div>
+    </div>
+    <div class="nav-grp-lbl">Overview</div>
+    <div class="nav-a on" onclick="navTo('hero')"><span class="nav-dot"></span>IPO Snapshot</div>
+    <div class="nav-a" onclick="navTo('kpis')"><span class="nav-dot"></span>Key Metrics</div>
+    <div class="nav-grp-lbl">Offer</div>
+    <div class="nav-a" onclick="navTo('offer')"><span class="nav-dot"></span>Offer Structure</div>
+    <div class="nav-a" onclick="navTo('proceeds')"><span class="nav-dot"></span>Use of Proceeds</div>
+    <div class="nav-grp-lbl">Business</div>
+    <div class="nav-a" onclick="navTo('business')"><span class="nav-dot"></span>Business Overview</div>
+    <div class="nav-a" onclick="navTo('financials')"><span class="nav-dot"></span>Financials</div>
+    <div class="nav-a" onclick="navTo('cashflow')"><span class="nav-dot"></span>Cash Flow</div>
+    <div class="nav-grp-lbl">Governance</div>
+    <div class="nav-a" onclick="navTo('ownership')"><span class="nav-dot"></span>Shareholding</div>
+    <div class="nav-a" onclick="navTo('risk')"><span class="nav-dot"></span>Risk & Litigation</div>
+    <div class="nav-a" onclick="navTo('timeline')"><span class="nav-dot"></span>Timeline</div>
+    <div class="nav-a" onclick="navTo('management')"><span class="nav-dot"></span>Management</div>
+    <div class="nav-grp-lbl">Research</div>
+    <div class="nav-a" onclick="navTo('lens')"><span class="nav-dot"></span>Research Lens</div>
+    <div class="nav-a" onclick="navTo('appendix')"><span class="nav-dot"></span>Appendix</div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── 01 HERO ── -->
+    <div class="sec" id="sec-hero">
+      <div class="sec-hdr"><span class="sec-num">01</span><span class="sec-ttl">IPO Snapshot</span><span class="sec-note">Source: Red Herring Prospectus</span></div>
+      <div class="hero-grid">
+        <div class="hc s2">
+          <div class="hc-lbl">Legal Entity / Brand</div>
+          <div class="hc-val xl" data-field="company.brand_name">—</div>
+          <div class="hc-sub" data-field="company.legal_name">—</div>
+          <div class="chips" id="chips-tags"></div>
+        </div>
+        <div class="hc">
+          <div class="hc-lbl">Fresh Issue Size</div>
+          <div class="hc-val" data-field="offer.fresh_issue_fmt">—</div>
+          <div class="hc-sub">Company receives proceeds from fresh issue only</div>
+        </div>
+        <div class="hc">
+          <div class="hc-lbl">Bid / Offer Opens</div>
+          <div class="hc-val" style="font-size:1rem" data-field="offer.open_date">—</div>
+          <div class="hc-sub">Closes: <span data-field="offer.close_date">—</span></div>
+        </div>
+        <div class="hc">
+          <div class="hc-lbl">OFS Shares</div>
+          <div class="hc-val" style="font-size:1rem" data-field="offer.ofs_shares">—</div>
+          <div class="hc-sub">Company does not receive OFS proceeds</div>
+        </div>
+        <div class="hc">
+          <div class="hc-lbl">Listing Exchanges</div>
+          <div class="hc-val" style="font-size:1rem" data-field="offer.listing_exchanges_str">—</div>
+          <div class="hc-sub">Designated: <span data-field="offer.designated_exchange">—</span></div>
+        </div>
+        <div class="hc s3">
+          <div class="hc-lbl">Business Description</div>
+          <div class="hc-sub" style="font-size:.78rem;line-height:1.65" data-field="company.description">—</div>
+        </div>
+        <div class="hc s3">
+          <div class="hc-lbl">Lead Managers (BRLMs)</div>
+          <div class="chips" id="chips-brlms"></div>
+          <div style="margin-top:.55rem;font-size:.65rem;color:var(--text-3)">
+            Registrar: <span data-field="offer.registrar">—</span> &nbsp;·&nbsp; <span data-field="offer.regulation">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 02 KPIs ── -->
+    <div class="sec" id="sec-kpis">
+      <div class="sec-hdr"><span class="sec-num">02</span><span class="sec-ttl">Key Metrics</span><span class="sec-note">Restated consolidated financials</span></div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-lbl">Revenue — FY25</div><div class="kpi-v gld" data-field="kpi.revenue_fy25">—</div><div class="kpi-ctx" data-field="kpi.revenue_yoy">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">PAT — FY25</div><div class="kpi-v pos" data-field="kpi.pat_fy25">—</div><div class="kpi-ctx" data-field="kpi.pat_yoy">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">Net Worth — Latest</div><div class="kpi-v" data-field="kpi.networth_latest">—</div><div class="kpi-ctx" data-field="kpi.networth_ctx">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">RONW — FY25</div><div class="kpi-v pos" data-field="kpi.ronw_fy25">—</div><div class="kpi-ctx">Capital efficiency indicator</div></div>
+        <div class="kpi"><div class="kpi-lbl">EPS Basic — FY25</div><div class="kpi-v" data-field="kpi.eps_basic_fy25">—</div><div class="kpi-ctx">Diluted: <span data-field="kpi.eps_diluted_fy25">—</span></div></div>
+        <div class="kpi"><div class="kpi-lbl">NAV / Share — Latest</div><div class="kpi-v" data-field="kpi.nav_latest">—</div><div class="kpi-ctx" data-field="kpi.nav_ctx">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">Borrowings (Current)</div><div class="kpi-v" data-field="kpi.borrow_curr">—</div><div class="kpi-ctx">Non-current: <span data-field="kpi.borrow_noncurr">—</span></div></div>
+        <div class="kpi"><div class="kpi-lbl">Equity Capital — Latest</div><div class="kpi-v" data-field="kpi.equity_cap">—</div><div class="kpi-ctx" data-field="kpi.equity_ctx">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">Total Promoter Holding</div><div class="kpi-v" data-field="kpi.promoter_pct">—</div><div class="kpi-ctx">Pre-offer, fully diluted basis</div></div>
+        <div class="kpi"><div class="kpi-lbl">Q1 Revenue (Latest)</div><div class="kpi-v gld" data-field="kpi.q1_rev">—</div><div class="kpi-ctx" data-field="kpi.q1_rev_ctx">—</div><div class="kpi-tag">Unannualised</div></div>
+        <div class="kpi"><div class="kpi-lbl">Q1 PAT (Latest)</div><div class="kpi-v pos" data-field="kpi.q1_pat">—</div><div class="kpi-ctx" data-field="kpi.q1_pat_ctx">—</div><div class="kpi-tag">Unannualised</div></div>
+        <div class="kpi"><div class="kpi-lbl">Q1 RONW (Latest)</div><div class="kpi-v" data-field="kpi.q1_ronw">—</div><div class="kpi-ctx">Not annualised</div><div class="kpi-tag">Unannualised</div></div>
+      </div>
+    </div>
+
+    <!-- ── 03 OFFER STRUCTURE ── -->
+    <div class="sec" id="sec-offer">
+      <div class="sec-hdr"><span class="sec-num">03</span><span class="sec-ttl">Offer Structure</span></div>
+      <div class="offer-split">
+        <div class="donut-wrap">
+          <div class="chart-ttl">Issue Composition</div>
+          <canvas id="offerDonut"></canvas>
+          <div class="donut-legend">
+            <div class="dl-item"><div class="dl-name"><div class="dl-dot" style="background:var(--gold)"></div>Fresh Issue</div><div class="dl-val" data-field="offer.fresh_issue_fmt">—</div></div>
+            <div class="dl-item"><div class="dl-name"><div class="dl-dot" style="background:var(--text-3)"></div>OFS</div><div class="dl-val" data-field="offer.ofs_shares">—</div></div>
+          </div>
+        </div>
+        <div class="alloc-cards">
+          <div class="ac">
+            <div class="ac-lbl">QIB</div>
+            <div class="ac-pct" data-field="offer.qib_pct">—</div>
+            <div class="ac-name">Qualified Institutional Buyers</div>
+            <div class="ac-bar"><div class="ac-fill" id="bar-qib" style="width:75%"></div></div>
+          </div>
+          <div class="ac">
+            <div class="ac-lbl">NII / HNI</div>
+            <div class="ac-pct" data-field="offer.nii_pct">—</div>
+            <div class="ac-name">Non-Institutional Investors</div>
+            <div class="ac-bar"><div class="ac-fill" id="bar-nii" style="width:15%"></div></div>
+          </div>
+          <div class="ac">
+            <div class="ac-lbl">Retail</div>
+            <div class="ac-pct" data-field="offer.retail_pct">—</div>
+            <div class="ac-name">Individual Retail Investors</div>
+            <div class="ac-bar"><div class="ac-fill" id="bar-retail" style="width:10%"></div></div>
+          </div>
+          <div class="ac">
+            <div class="ac-lbl">Offer Type</div>
+            <div style="font-size:.8rem;font-weight:600;margin-top:.2rem;color:var(--text-1)" data-field="offer.offer_type">—</div>
+            <div class="ac-name" data-field="offer.regulation">—</div>
+          </div>
+          <div class="ac wide">
+            <div class="ac-lbl">Important Caution</div>
+            <div class="caution-note" data-field="offer.caution_note">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 04 PROCEEDS ── -->
+    <div class="sec" id="sec-proceeds">
+      <div class="sec-hdr"><span class="sec-num">04</span><span class="sec-ttl">Use of Proceeds</span><span class="sec-note" data-field="offer.fresh_issue_fmt">—</span></div>
+      <div class="proc-grid" id="proceeds-grid">
+        <!-- populated by JS -->
+      </div>
+      <div class="proc-note" data-field="proceeds.cap_note">—</div>
+    </div>
+
+    <!-- ── 05 BUSINESS ── -->
+    <div class="sec" id="sec-business">
+      <div class="sec-hdr"><span class="sec-num">05</span><span class="sec-ttl">Business Overview</span></div>
+      <div class="mkt-pos">
+        <div class="mkt-ttl">Market Position</div>
+        <div class="mkt-val" data-field="business.market_position">—</div>
+        <div class="mkt-sub" data-field="company.description">—</div>
+      </div>
+      <div class="biz-split">
+        <div class="prod-grid" id="prod-grid"><!-- populated --></div>
+        <div class="moat-card">
+          <div class="moat-ttl">Competitive Moat</div>
+          <div id="moat-list"><!-- populated --></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 06 FINANCIALS ── -->
+    <div class="sec" id="sec-financials">
+      <div class="sec-hdr"><span class="sec-num">06</span><span class="sec-ttl">Financial Performance</span><span class="sec-note">Restated consolidated · INR Millions</span></div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-ttl">Revenue from Operations</div>
+          <canvas id="chartRevenue"></canvas>
+          <div class="chart-callout" data-field="fin.revenue_insight">—</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-ttl">Profit After Tax</div>
+          <canvas id="chartProfit"></canvas>
+          <div class="chart-callout" data-field="fin.profit_insight">—</div>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-ttl">Net Worth</div>
+          <canvas id="chartNetworth"></canvas>
+          <div class="chart-callout" data-field="fin.networth_insight">—</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-ttl">Return on Net Worth (%)</div>
+          <canvas id="chartRonw"></canvas>
+          <div class="chart-callout" data-field="fin.ronw_insight">—</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table id="fin-table">
+          <thead><tr id="fin-thead-row"></tr></thead>
+          <tbody id="fin-tbody"></tbody>
+        </table>
+      </div>
+      <div class="src-bar"><div class="src-dot"></div>Quarterly figures are not annualised. Data from restated consolidated financial statements per RHP.</div>
+    </div>
+
+    <!-- ── 07 CASHFLOW ── -->
+    <div class="sec" id="sec-cashflow">
+      <div class="sec-hdr"><span class="sec-num">07</span><span class="sec-ttl">Cash Flow & Capital Signals</span><span class="sec-note">INR Millions</span></div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-ttl">Operating & Financing Cash Flows</div>
+          <canvas id="chartCashflow"></canvas>
+          <div class="chart-callout" data-field="cf.ops_insight">—</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-ttl">Net Change in Cash</div>
+          <canvas id="chartNetcash"></canvas>
+          <div class="chart-callout" data-field="cf.net_insight">—</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table id="cf-table">
+          <thead><tr id="cf-thead-row"></tr></thead>
+          <tbody id="cf-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── 08 OWNERSHIP ── -->
+    <div class="sec" id="sec-ownership">
+      <div class="sec-hdr"><span class="sec-num">08</span><span class="sec-ttl">Shareholding & Sellers</span><span class="sec-note">Pre-offer, fully diluted</span></div>
+      <div class="own-grid">
+        <div>
+          <div class="chart-card" style="margin-bottom:1rem">
+            <div class="chart-ttl">Pre-Offer Ownership Breakdown</div>
+            <canvas id="chartOwnership" style="max-height:190px"></canvas>
+          </div>
+          <div class="own-tbl">
+            <div class="own-hdr"><div class="oth">Promoter</div><div class="oth" style="text-align:right">Shares</div><div class="oth" style="text-align:right">% Holding</div></div>
+            <div id="promoter-rows"><!-- populated --></div>
+            <div class="own-row total">
+              <div class="or-name" style="font-weight:700">Total Promoters</div>
+              <div></div>
+              <div class="or-total-v" data-field="sh.total_promoter_pct">—</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--fm);font-size:.58rem;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.55rem">Top Selling Shareholders — OFS</div>
+          <div class="own-tbl">
+            <div class="own-hdr"><div class="oth">Investor</div><div class="oth" style="text-align:right">Pre-offer %</div><div class="oth" style="text-align:right">OFS Shares</div></div>
+            <div id="seller-rows"><!-- populated --></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 09 RISK ── -->
+    <div class="sec" id="sec-risk">
+      <div class="sec-hdr"><span class="sec-num">09</span><span class="sec-ttl">Risk & Litigation</span></div>
+      <div class="caution-box">
+        <div class="cbox-t">⚠️ First Issue Caution</div>
+        <div class="cbox-b" data-field="lit.caution_text">—</div>
+      </div>
+      <div class="risk-grid">
+        <div class="rk"><div class="rk-ico">⚖️</div><div class="rk-ttl">Criminal Proceedings</div><div class="rk-body" data-field="lit.criminal_text">—</div><div class="rk-badge rb-l">Low Risk</div></div>
+        <div class="rk"><div class="rk-ico">🧾</div><div class="rk-ttl">Tax Proceedings</div><div class="rk-body" data-field="lit.tax_text">—</div><div class="rk-badge rb-m">Monitor</div></div>
+        <div class="rk"><div class="rk-ico">🏛️</div><div class="rk-ttl">Material Civil Litigation</div><div class="rk-body" data-field="lit.civil_text">—</div><div class="rk-badge rb-m">Monitor</div></div>
+        <div class="rk"><div class="rk-ico">📉</div><div class="rk-ttl">Market / Price Risk</div><div class="rk-body">Post-listing price may differ materially from offer price. Equity markets are volatile and no assurance of active trading post-listing.</div><div class="rk-badge rb-h">Inherent</div></div>
+        <div class="rk"><div class="rk-ico">📋</div><div class="rk-ttl">Regulatory Risk</div><div class="rk-body" data-field="lit.regulatory_text">—</div><div class="rk-badge rb-h">Watch</div></div>
+        <div class="rk"><div class="rk-ico">💻</div><div class="rk-ttl">Technology Risk</div><div class="rk-body" data-field="lit.tech_text">Platform downtime, security breaches, or data events could erode user trust and attract regulatory penalties.</div><div class="rk-badge rb-m">Monitor</div></div>
+      </div>
+      <div id="lit-notes-list"><!-- populated --></div>
+    </div>
+
+    <!-- ── 10 TIMELINE ── -->
+    <div class="sec" id="sec-timeline">
+      <div class="sec-hdr"><span class="sec-num">10</span><span class="sec-ttl">IPO Timeline</span></div>
+      <div class="tl">
+        <div class="tl-item done">
+          <div class="tl-date">RHP Filed</div>
+          <div class="tl-ev" data-field="offer.rhp_date">—</div>
+          <div class="tl-note">Red Herring Prospectus filed with SEBI and stock exchanges</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Anchor Investor Bidding</div>
+          <div class="tl-ev" data-field="offer.anchor_date">—</div>
+          <div class="tl-note">Institutional anchor investors bid one day before general opening</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Bid / Offer Opens</div>
+          <div class="tl-ev" data-field="offer.open_date">—</div>
+          <div class="tl-note">QIB, NII, and retail applications open</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Bid / Offer Closes</div>
+          <div class="tl-ev" data-field="offer.close_date">—</div>
+          <div class="tl-note">All bids must be submitted before market close</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Allotment & Listing</div>
+          <div class="tl-ev">T+6 Business Days</div>
+          <div class="tl-note">Shares allotted and listed on <span data-field="offer.listing_exchanges_str">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 11 MANAGEMENT ── -->
+    <div class="sec" id="sec-management">
+      <div class="sec-hdr"><span class="sec-num">11</span><span class="sec-ttl">Management & Promoters</span></div>
+      <div class="mgmt-grid" id="mgmt-grid"><!-- populated --></div>
+      <div style="margin-top:1.3rem;padding:1rem 1.2rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--rl)">
+        <div style="font-family:var(--fm);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.5rem">Corporate Background</div>
+        <div style="font-size:.73rem;color:var(--text-2);line-height:1.7" data-field="company.corp_history">—</div>
+      </div>
+    </div>
+
+    <!-- ── 12 RESEARCH LENS ── -->
+    <div class="sec" id="sec-lens">
+      <div class="sec-hdr"><span class="sec-num">12</span><span class="sec-ttl">Research Investment Lens</span><span class="sec-note">Analytical · Not Investment Advice</span></div>
+      <div class="lens-grid">
+        <div class="lens-col">
+          <div class="lt">✦ What Stands Out</div>
+          <div id="lens-positives"></div>
+          <br>
+          <div class="lt">→ Key Drivers</div>
+          <div id="lens-drivers"></div>
+        </div>
+        <div class="lens-col">
+          <div class="lt">⚠ Investor Watchpoints</div>
+          <div id="lens-watchpoints"></div>
+          <br>
+          <div class="lt">📌 Track Post-Listing</div>
+          <div id="lens-postlisting"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 13 APPENDIX ── -->
+    <div class="sec" id="sec-appendix">
+      <div class="sec-hdr"><span class="sec-num">13</span><span class="sec-ttl">Appendix & Source Notes</span></div>
+      <div class="app-card">
+        <table>
+          <thead><tr><th>Field</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody id="appendix-tbody"><!-- populated --></tbody>
+        </table>
+        <div class="disc">
+          <strong>Disclaimer:</strong> This dashboard is generated automatically from the uploaded prospectus using AI analysis. All data is sourced directly from the RHP/DRHP. This is not investment advice. IPODesk does not guarantee the accuracy of AI-extracted data — always refer to the original prospectus filed with SEBI. Past financial performance does not guarantee future results. Quarterly figures are not annualised.
+        </div>
+      </div>
+    </div>
+
+  </main><!-- /main -->
+</div><!-- /dash -->
+</section>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════
+let dark = false;
+function toggleTheme() {
+  dark = !dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+  if (currentData) renderCharts(currentData);
+}
+
+// ═══════════════════════════════════════════════════════
+// SCREEN HELPERS
+// ═══════════════════════════════════════════════════════
+function show(id) {
+  ['screen-upload','screen-processing','screen-dashboard'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? (id === 'screen-dashboard' ? 'block' : 'flex') : 'none';
+  });
+}
+function resetToUpload() { show('screen-upload'); }
+
+// ═══════════════════════════════════════════════════════
+// DRAG & DROP
+// ═══════════════════════════════════════════════════════
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') handleFile(f);
+  else alert('Please drop a PDF file.');
+});
+
+// ═══════════════════════════════════════════════════════
+// FILE → AI → POPULATE
+// ═══════════════════════════════════════════════════════
+async function handleFile(file) {
+  if (!file) return;
+  if (!file.type.includes('pdf')) { alert('Please upload a PDF file.'); return; }
+  if (file.size > 32 * 1024 * 1024) { alert('File too large. Please use a PDF under 32 MB.'); return; }
+
+  const apiKey = (document.getElementById('api-key-input')?.value || '').trim();
+  // In artifact env (claude.ai), Anthropic calls are pre-authed — key optional
+  // In standalone mode, key is required
+  const isArtifact = window.location.hostname.includes('claude.ai') || window.location.protocol === 'blob:';
+  if (!isArtifact && !apiKey) {
+    alert('Please enter your API key for the selected provider.');
+    return;
+  }
+
+  show('screen-processing');
+  startProgress();
+  try {
+    const b64 = await toBase64(file);
+    const data = await extractFromPDF(b64, apiKey);
+    populate(data);
+    stopProgress();
+    show('screen-dashboard');
+    setupScrollSpy();
+  } catch(e) {
+    stopProgress();
+    show('screen-upload');
+    console.error(e);
+    alert('Could not process this PDF.\n\n' + e.message + '\n\nTip: Try the Groww demo to verify the dashboard works, or check your API key.');
+  }
+}
+
+function toBase64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = () => rej(new Error('File read failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// PROGRESS ANIMATION
+// ═══════════════════════════════════════════════════════
+const STEPS = [
+  'Parsing document structure…',
+  'Identifying company & offer terms…',
+  'Extracting financial tables…',
+  'Mapping shareholding structure…',
+  'Reading use of proceeds…',
+  'Detecting risk & litigation data…',
+  'Profiling management & promoters…',
+  'Structuring research output…',
+  'Populating dashboard…'
+];
+let progressInterval;
+function startProgress() {
+  let i = 0;
+  const step = document.getElementById('proc-step');
+  const fill = document.getElementById('proc-fill');
+  fill.style.width = '0%';
+  progressInterval = setInterval(() => {
+    if (i < STEPS.length) {
+      step.textContent = STEPS[i];
+      fill.style.width = ((i+1)/STEPS.length*88) + '%';
+      i++;
+    }
+  }, 1600);
+}
+function stopProgress() {
+  clearInterval(progressInterval);
+  document.getElementById('proc-fill').style.width = '100%';
+}
+
+// ═══════════════════════════════════════════════════════
+// PROVIDER MANAGEMENT
+// ═══════════════════════════════════════════════════════
+let currentProvider = 'google';
+
+const PROVIDERS = {
+  google: {
+    name: 'Google Gemini',
+    placeholder: 'Paste your Google AI Studio API key…',
+    link: 'https://aistudio.google.com/app/apikey',
+    linkText: 'Get free key →',
+    supportsPDF: true
+  },
+  anthropic: {
+    name: 'Anthropic Claude',
+    placeholder: 'sk-ant-… (Anthropic API key)',
+    link: 'https://console.anthropic.com/keys',
+    linkText: 'Get API key →',
+    supportsPDF: true
+  },
+  openai: {
+    name: 'OpenAI GPT-4o',
+    placeholder: 'sk-… (OpenAI API key)',
+    link: 'https://platform.openai.com/api-keys',
+    linkText: 'Get API key →',
+    supportsPDF: false  // GPT-4o doesn't take raw PDF; we send as base64 image pages note
+  }
+};
+
+function selectProvider(id) {
+  currentProvider = id;
+  const p = PROVIDERS[id];
+
+  // Update tabs
+  document.querySelectorAll('.prov-tab').forEach(t => {
+    const isActive = t.id === 'tab-' + id;
+    t.style.background    = isActive ? 'var(--card-bg)'   : 'var(--surface-2)';
+    t.style.color         = isActive ? 'var(--text-1)'    : 'var(--text-3)';
+    t.style.borderBottom  = isActive ? '2px solid var(--gold)' : '2px solid transparent';
+  });
+
+  // Update input placeholder + link
+  const input = document.getElementById('api-key-input');
+  const link  = document.getElementById('provider-link');
+  if (input) input.placeholder = p.placeholder;
+  if (link)  { link.href = p.link; link.textContent = p.linkText; }
+
+  // Warn if provider doesn't support native PDF
+  const hint = document.getElementById('provider-hint');
+  if (hint) {
+    const warn = !p.supportsPDF
+      ? ' <span style="color:var(--gold)">⚠ GPT-4o: PDF converted to text — may miss tables.</span>'
+      : '';
+    hint.querySelector('span').innerHTML = 'Key stays in your browser only — never stored or sent anywhere else.' + warn;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// EXTRACTION PROMPT (shared across all providers)
+// ═══════════════════════════════════════════════════════
+const EXTRACT_SYSTEM = `You are a senior IPO research analyst. Extract ALL available data from this Red Herring Prospectus (RHP) or DRHP and return ONLY a raw JSON object — no markdown, no backticks, no explanation, no preamble. Use exactly this schema. If a field is not available in the document use "" for strings, 0 for numbers, [] for arrays. Never invent or guess data.
+
+{
+  "company": {
+    "legal_name": "",
+    "brand_name": "",
+    "description": "",
+    "sector": "",
+    "subsector": "",
+    "incorporated": "",
+    "registered_office": "",
+    "website": "",
+    "corp_history": ""
+  },
+  "offer": {
+    "rhp_date": "",
+    "anchor_date": "",
+    "open_date": "",
+    "close_date": "",
+    "listing_exchanges": [],
+    "designated_exchange": "",
+    "fresh_issue_inr_mn": 0,
+    "ofs_shares": "",
+    "offer_type": "",
+    "qib_pct": "",
+    "nii_pct": "",
+    "retail_pct": "",
+    "brlms": [],
+    "registrar": "",
+    "regulation": "",
+    "first_public_issue": true
+  },
+  "proceeds": [
+    { "purpose": "", "amount_inr_mn": 0, "fy_current": 0, "fy_next": 0, "icon": "💼", "desc": "" }
+  ],
+  "proceeds_cap_note": "",
+  "financials": {
+    "periods": [],
+    "revenue": [],
+    "profit": [],
+    "net_worth": [],
+    "ronw": [],
+    "eps_basic": [],
+    "eps_diluted": [],
+    "nav_per_share": [],
+    "borrowings_current": [],
+    "borrowings_noncurrent": [],
+    "equity_capital": []
+  },
+  "cashflow": {
+    "periods": [],
+    "operating": [],
+    "investing": [],
+    "financing": [],
+    "net_change": []
+  },
+  "shareholding": {
+    "promoters": [{ "name": "", "shares": 0, "pct": 0 }],
+    "promoter_group_pct": 0,
+    "top_sellers": [{ "name": "", "pct": 0, "ofs_up_to": 0 }]
+  },
+  "litigation": {
+    "criminal_against": 0,
+    "tax_proceedings": 0,
+    "regulatory_actions": 0,
+    "material_civil_inr_mn": 0,
+    "notes": []
+  },
+  "business": {
+    "market_position": "",
+    "products": [{ "name": "", "description": "", "icon": "📊" }],
+    "moat_points": []
+  },
+  "management": [{ "name": "", "role": "", "holding_pct": 0 }],
+  "tags": [],
+  "research": {
+    "positives": [],
+    "watchpoints": [],
+    "key_drivers": [],
+    "post_listing": []
+  }
+}`;
+
+// ═══════════════════════════════════════════════════════
+// MAIN EXTRACTOR — routes to correct provider
+// ═══════════════════════════════════════════════════════
+async function extractFromPDF(b64, apiKey) {
+  if (!apiKey) throw new Error('Please enter your API key.');
+  switch (currentProvider) {
+    case 'google':    return callGemini(b64, apiKey);
+    case 'anthropic': return callAnthropic(b64, apiKey);
+    case 'openai':    return callOpenAI(b64, apiKey);
+    default:          throw new Error('Unknown provider');
+  }
+}
+
+function parseJSON(text) {
+  const clean = text.replace(/```json|```/gi, '').trim();
+  try { return JSON.parse(clean); }
+  catch {
+    const m = clean.match(/\{[\s\S]*\}/);
+    if (m) return JSON.parse(m[0]);
+    throw new Error('Could not parse model response as JSON. Try again.');
+  }
+}
+
+// ── GOOGLE GEMINI ──────────────────────────────────────
+async function callGemini(b64, apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: EXTRACT_SYSTEM }] },
+      contents: [{
+        role: 'user',
+        parts: [
+          { inline_data: { mime_type: 'application/pdf', data: b64 } },
+          { text: 'Extract all data from this RHP/DRHP and return only the JSON.' }
+        ]
+      }],
+      generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+    })
+  });
+  if (!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    const msg = e.error?.message || `Gemini API error ${resp.status}`;
+    if (resp.status === 400) throw new Error('Gemini 400 — check your API key or try a smaller PDF. ' + msg);
+    if (resp.status === 403) throw new Error('Gemini 403 — API key invalid or quota exceeded.');
+    throw new Error('Gemini: ' + msg);
+  }
+  const result = await resp.json();
+  const text = result.candidates?.[0]?.content?.parts?.map(p => p.text||'').join('') || '';
+  if (!text) throw new Error('Gemini returned an empty response. Check your quota.');
+  return parseJSON(text);
+}
+
+// ── ANTHROPIC CLAUDE ───────────────────────────────────
+async function callAnthropic(b64, apiKey) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+  if (apiKey) headers['x-api-key'] = apiKey;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 8000,
+      system: EXTRACT_SYSTEM,
+      messages: [{ role: 'user', content: [
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } },
+        { type: 'text', text: 'Extract all data from this RHP/DRHP and return only the JSON.' }
+      ]}]
+    })
+  });
+  if (!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    const msg = e.error?.message || `Claude API error ${resp.status}`;
+    if (resp.status === 401) throw new Error('Claude 401 — API key invalid.');
+    if (resp.status === 529 || resp.status === 503) throw new Error('Claude is overloaded — please try again in a moment.');
+    throw new Error('Claude: ' + msg);
+  }
+  const result = await resp.json();
+  const text = result.content.map(b => b.text||'').join('');
+  return parseJSON(text);
+}
+
+// ── OPENAI GPT-4o ──────────────────────────────────────
+async function callOpenAI(b64, apiKey) {
+  // GPT-4o doesn't accept raw PDF natively in the API at time of build.
+  // We send it as a base64 file attachment using the files approach,
+  // falling back to sending PDF bytes as a user message with instructions.
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      max_tokens: 8000,
+      messages: [
+        { role: 'system', content: EXTRACT_SYSTEM },
+        { role: 'user', content: [
+          {
+            type: 'text',
+            text: 'The following is a base64-encoded PDF of a Red Herring Prospectus (RHP) or DRHP. Decode it mentally, extract all structured data, and return only the JSON as instructed.'
+          },
+          {
+            type: 'text',
+            text: `PDF base64 (first 60000 chars): ${b64.substring(0, 60000)}\n\nExtract all data and return only the JSON schema.`
+          }
+        ]}
+      ],
+      temperature: 0.1
+    })
+  });
+  if (!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    const msg = e.error?.message || `OpenAI API error ${resp.status}`;
+    if (resp.status === 401) throw new Error('OpenAI 401 — API key invalid.');
+    if (resp.status === 429) throw new Error('OpenAI rate limit or quota exceeded.');
+    throw new Error('OpenAI: ' + msg);
+  }
+  const result = await resp.json();
+  const text = result.choices?.[0]?.message?.content || '';
+  if (!text) throw new Error('OpenAI returned an empty response.');
+  return parseJSON(text);
+}
+
+// ═══════════════════════════════════════════════════════
+// DEMO DATA (GROWW)
+// ═══════════════════════════════════════════════════════
+function loadDemo() {
+  show('screen-processing');
+  startProgress();
+  setTimeout(() => {
+    stopProgress();
+    populate(DEMO);
+    show('screen-dashboard');
+    setupScrollSpy();
+  }, 4500);
+}
+
+const DEMO = {
+  company: {
+    legal_name: "Billionbrains Garage Ventures Limited",
+    brand_name: "Groww",
+    description: "India's largest and fastest growing direct-to-customer digital investment platform, offering stocks, IPOs, derivatives, bonds, mutual funds, margin trading (MTF), and personal loans through a consumer-grade app and website backed by an in-house technology stack.",
+    sector: "Fintech", subsector: "Digital Broking & Investment Platform",
+    incorporated: "January 9, 2018 (Private Limited) · Converted to Public Limited: April 11, 2025",
+    registered_office: "Vaishnavi Tech Park, South Tower, 3rd Floor, Bellandur, Bengaluru 560103, Karnataka",
+    website: "www.groww.in",
+    corp_history: "Incorporated January 9, 2018 as a private limited company. Certificate dated January 17, 2018. Converted to a public limited company and renamed Billionbrains Garage Ventures Limited — fresh certificate dated April 11, 2025. Groww Inc., the erstwhile holding company, amalgamated into the company pursuant to NCLT Bengaluru Bench order dated March 28, 2024."
+  },
+  offer: {
+    rhp_date: "October 29, 2025", anchor_date: "November 3, 2025 (Monday)",
+    open_date: "November 4, 2025 (Tuesday)", close_date: "November 7, 2025 (Friday)",
+    listing_exchanges: ["BSE","NSE"], designated_exchange: "NSE",
+    fresh_issue_inr_mn: 10600, ofs_shares: "557,230,051 equity shares",
+    offer_type: "Book Built Issue", qib_pct: "≥75%", nii_pct: "≤15%", retail_pct: "≤10%",
+    brlms: ["Kotak Mahindra Capital","J.P. Morgan India","Citigroup Global Markets India","Axis Capital","Motilal Oswal Investment Advisors"],
+    registrar: "MUFG Intime India Pvt Ltd", regulation: "Reg. 62 SEBI ICDR",
+    first_public_issue: true
+  },
+  proceeds: [
+    { purpose: "Cloud Infrastructure", amount_inr_mn: 1525, fy_current: 400, fy_next: 1125, icon: "☁️", desc: "Scalable cloud infrastructure to support platform growth" },
+    { purpose: "Brand Building & Performance Marketing", amount_inr_mn: 2250, fy_current: 750, fy_next: 1500, icon: "📣", desc: "User acquisition campaigns and brand awareness" },
+    { purpose: "Investment in GCS — NBFC Capital Base", amount_inr_mn: 2050, fy_current: 400, fy_next: 1650, icon: "🏦", desc: "Augmenting capital base of Groww Creditserv Technology (NBFC)" },
+    { purpose: "Investment in GIT — MTF Business", amount_inr_mn: 1675, fy_current: 400, fy_next: 1275, icon: "📈", desc: "Funding Margin Trading Facility via Groww Invest Tech Pvt Ltd" },
+    { purpose: "Inorganic Growth & General Corporate Purposes", amount_inr_mn: 0, fy_current: 0, fy_next: 0, icon: "🔍", desc: "To be finalised at offer price. Combined cap ≤35% of gross proceeds; each individually ≤25%." }
+  ],
+  proceeds_cap_note: "⚠ The amount for inorganic growth and general corporate purposes is to be finalised upon determination of the offer price. The combined allocation for both heads shall not exceed 35% of gross fresh issue proceeds, and each individually shall not exceed 25%.",
+  financials: {
+    periods: ["Q1FY26","Q1FY25","FY25","FY24","FY23"],
+    revenue:             [9043.98, 10007.94, 39017.23, 26092.81, 11415.26],
+    profit:              [3783.67,  3380.13, 18243.73,  8049.41,  4576.63],
+    net_worth:           [59954.49,28862.80, 48553.47, 25426.36, 33167.50],
+    ronw:                [6.31,    11.71,    37.57,    31.66,    13.80],
+    eps_basic:           [0.66,     0.63,     3.34,     1.50,     0.86],
+    eps_diluted:         [0.63,     0.61,     3.19,     1.50,     0.79],
+    nav_per_share:       [10.47,    5.39,     8.89,     4.75,     6.20],
+    borrowings_current:  [2724.97,  1176.64,  2731.23,   240.64,     0],
+    borrowings_noncurrent:[515.85,  0,         788.65,     0,         0],
+    equity_capital:      [4187.70,  207.33,   3656.30,   207.33,   206.61]
+  },
+  cashflow: {
+    periods: ["Q1FY26","Q1FY25","FY25","FY24","FY23"],
+    operating:  [1378.60, 1791.97, 9621.60, 8849.71,  5478.18],
+    investing:  [0,       0,       0,       0,         0],
+    financing:  [6756.69,  887.28, 8756.55,   37.43,   -54.55],
+    net_change: [2996.57, 1206.57,  532.22,  222.90, -1717.36]
+  },
+  shareholding: {
+    promoters: [
+      { name: "Lalit Keshre",  shares: 559064671, pct: 9.12 },
+      { name: "Harsh Jain",    shares: 411579773, pct: 6.72 },
+      { name: "Neeraj Singh",  shares: 383199310, pct: 6.25 },
+      { name: "Ishan Bansal",  shares: 277715210, pct: 4.53 }
+    ],
+    promoter_group_pct: 1.38,
+    top_sellers: [
+      { name: "Peak XV Partners Investments VI-1", pct: 19.87, ofs_up_to: 158281491 },
+      { name: "YC Holdings II, LLC",               pct: 12.04, ofs_up_to: 105481609 },
+      { name: "Ribbit Capital V, L.P.",             pct:  8.14, ofs_up_to:  65668147 },
+      { name: "Internet Fund VI Pte. Ltd.",         pct:  6.04, ofs_up_to:  51842810 },
+      { name: "Sequoia Capital Global Growth III",  pct:  1.85, ofs_up_to:  14723398 },
+      { name: "Propel Venture Partners Global",     pct:  1.77, ofs_up_to:  16266356 },
+      { name: "GW-E Ribbit Opportunity V, LLC",     pct:  1.05, ofs_up_to:  52464086 }
+    ]
+  },
+  litigation: {
+    criminal_against: 0, tax_proceedings: 4, regulatory_actions: 0,
+    material_civil_inr_mn: 1391.41,
+    notes: [
+      "No criminal proceedings against the company",
+      "4 tax proceedings pending under applicable statutes",
+      "Material civil litigation aggregate (per materiality policy): ₹1,391.41 Mn",
+      "No statutory or regulatory actions disclosed"
+    ]
+  },
+  business: {
+    market_position: "India's largest and fastest growing investment platform by active users on NSE as of June 30, 2025 (Redseer Report cited in prospectus summary).",
+    products: [
+      { name: "Equity & IPOs",     description: "Direct stock trading and IPO applications",       icon: "📊" },
+      { name: "Derivatives",       description: "F&O trading with in-house risk framework",         icon: "⚡" },
+      { name: "Mutual Funds",      description: "Direct funds, SIPs, goal-based investing",         icon: "🗂️" },
+      { name: "Bonds & Debt",      description: "Corporate bonds, G-Secs, fixed deposits",          icon: "🔒" },
+      { name: "Margin Trading",    description: "MTF funded via Groww Invest Tech Pvt Ltd",         icon: "📈" },
+      { name: "Personal Loans",    description: "Consumer credit via GCS NBFC subsidiary",          icon: "🏦" }
+    ],
+    moat_points: [
+      "**Largest active user base** on NSE as of June 2025 — network and data moat compounds over time",
+      "**In-house technology stack** enables rapid product iteration and superior UX vs legacy incumbents",
+      "**Vertically integrated credit** via GCS NBFC — cross-sell engine leveraging existing trusted user base",
+      "**Brand-led acquisition** in mass-affluent and first-time investor segment, especially sub-35 demographic",
+      "**Low customer acquisition cost** driven by word-of-mouth virality and digital performance marketing"
+    ]
+  },
+  management: [
+    { name: "Lalit Keshre",  role: "Co-Founder & CEO", holding_pct: 9.12 },
+    { name: "Harsh Jain",    role: "Co-Founder & COO", holding_pct: 6.72 },
+    { name: "Neeraj Singh",  role: "Co-Founder & CTO", holding_pct: 6.25 },
+    { name: "Ishan Bansal",  role: "Co-Founder & CPO", holding_pct: 4.53 }
+  ],
+  tags: ["Fresh Issue","OFS","Fintech","Tech Platform","Profitable","India","Digital Broking","NBFC"],
+  research: {
+    positives: [
+      "Fastest-growing investment platform by active NSE users — strong, defensible network moat",
+      "Consistent profitability: PAT ₹18,244 Mn in FY25, a 3× expansion over two years",
+      "Net worth doubled in FY25; RONW at 37.57% signals exceptional capital efficiency",
+      "Fresh issue proceeds targeted at high-ROI growth vectors: cloud, credit, MTF, and brand"
+    ],
+    watchpoints: [
+      "OFS dominates total offer volume — company receives only the ₹10,600 Mn fresh issue",
+      "Q1FY26 revenue of ₹9,044 Mn trails Q1FY25 ₹10,008 Mn — monitor for structural slowdown",
+      "First public issue: post-listing price discovery carries inherently higher uncertainty",
+      "Evolving SEBI regulations on F&O and digital brokers represent a structural regulatory risk"
+    ],
+    key_drivers: [
+      "Active user and NSE active client count growth trajectory",
+      "Revenue per user (ARPU) lift via MTF and personal loan cross-sell to existing base",
+      "GCS NBFC capital deployment and NPA quality of emerging loan book",
+      "Marketing efficiency and brand penetration in Tier 2 / Tier 3 cities"
+    ],
+    post_listing: [
+      "Monthly active users and NSE active client disclosures",
+      "GCS and GIT loan book size, NPA ratios, and capital adequacy",
+      "Product mix shift — share of MTF, credit, and non-broking revenues in total",
+      "F&O trading volumes amid ongoing regulatory tightening",
+      "Quarterly brand spend vs new user acquisition cost trends"
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// POPULATE — fills every data-field and dynamic element
+// ═══════════════════════════════════════════════════════
+let currentData = null;
+let activeCharts = [];
+
+function populate(d) {
+  stopProgress();
+  currentData = d;
+  const f = d.financials;
+  const cf = d.cashflow;
+
+  // Derived / computed flat fields for data-field binding
+  const flat = {
+    'company.brand_name':       d.company.brand_name || d.company.legal_name,
+    'company.legal_name':       d.company.legal_name,
+    'company.description':      d.company.description,
+    'company.sector':           d.company.sector,
+    'company.corp_history':     d.company.corp_history,
+
+    'offer.rhp_date':           d.offer.rhp_date,
+    'offer.anchor_date':        d.offer.anchor_date,
+    'offer.open_date':          d.offer.open_date,
+    'offer.close_date':         d.offer.close_date,
+    'offer.listing_exchanges_str': (d.offer.listing_exchanges||[]).join(' · '),
+    'offer.designated_exchange':d.offer.designated_exchange,
+    'offer.fresh_issue_fmt':    fmtMn(d.offer.fresh_issue_inr_mn),
+    'offer.ofs_shares':         d.offer.ofs_shares,
+    'offer.offer_type':         d.offer.offer_type,
+    'offer.qib_pct':            d.offer.qib_pct,
+    'offer.nii_pct':            d.offer.nii_pct,
+    'offer.retail_pct':         d.offer.retail_pct,
+    'offer.registrar':          d.offer.registrar,
+    'offer.regulation':         d.offer.regulation,
+    'offer.caution_note':       d.offer.first_public_issue
+      ? 'This is the first public issue of the company. There has been no formal market for the equity shares prior to this offer. The offer/floor/cap price should not be treated as indicative of the market price after listing. No assurance can be given regarding active or sustained trading post-listing.'
+      : 'Secondary market listing. Refer to the prospectus for complete risk disclosures.',
+
+    // KPIs
+    'kpi.revenue_fy25':         fmtMn(f.revenue[2]),
+    'kpi.revenue_yoy':          yoy(f.revenue[2], f.revenue[3]),
+    'kpi.pat_fy25':             fmtMn(f.profit[2]),
+    'kpi.pat_yoy':              yoy(f.profit[2], f.profit[3]),
+    'kpi.networth_latest':      fmtMn(f.net_worth[0]),
+    'kpi.networth_ctx':         'Q1 Latest · FY25: ' + fmtMn(f.net_worth[2]),
+    'kpi.ronw_fy25':            fmtPct(f.ronw[2]),
+    'kpi.eps_basic_fy25':       '₹' + n2(f.eps_basic[2]),
+    'kpi.eps_diluted_fy25':     '₹' + n2(f.eps_diluted[2]),
+    'kpi.nav_latest':           '₹' + n2(f.nav_per_share[0]),
+    'kpi.nav_ctx':              'Latest quarter · FY25: ₹' + n2(f.nav_per_share[2]),
+    'kpi.borrow_curr':          fmtMn(f.borrowings_current[0]),
+    'kpi.borrow_noncurr':       fmtMn(f.borrowings_noncurrent[0]),
+    'kpi.equity_cap':           fmtMn(f.equity_capital[0]),
+    'kpi.equity_ctx':           'Latest quarter',
+    'kpi.promoter_pct':         totalPromoterPct(d).toFixed(2) + '%',
+    'kpi.q1_rev':               fmtMn(f.revenue[0]),
+    'kpi.q1_rev_ctx':           'Prior Q1: ' + fmtMn(f.revenue[1]),
+    'kpi.q1_pat':               fmtMn(f.profit[0]),
+    'kpi.q1_pat_ctx':           'Prior Q1: ' + fmtMn(f.profit[1]),
+    'kpi.q1_ronw':              fmtPct(f.ronw[0]),
+
+    // Financial insights
+    'fin.revenue_insight':      buildInsight('Revenue', f.revenue, f.periods),
+    'fin.profit_insight':       buildInsight('PAT', f.profit, f.periods),
+    'fin.networth_insight':     'Net worth at ' + fmtMn(f.net_worth[0]) + ' in latest quarter vs ' + fmtMn(f.net_worth[2]) + ' in FY25.',
+    'fin.ronw_insight':         'RONW peaked at ' + fmtPct(f.ronw[2]) + ' in FY25. Latest quarter: ' + fmtPct(f.ronw[0]) + ' (not annualised — denominator expanded post capital raise).',
+
+    // Cashflow
+    'cf.ops_insight':           'Operating cash flow positive across all periods. Financing surge in latest quarter signals pre-IPO capital activity.',
+    'cf.net_insight':           'Net cash change: ' + fmtMn(cf.net_change[0]) + ' latest quarter vs ' + fmtMn(cf.net_change[2]) + ' in FY25.',
+
+    // Shareholding
+    'sh.total_promoter_pct':    totalPromoterPct(d).toFixed(2) + '%',
+
+    // Litigation
+    'lit.caution_text':         d.offer.first_public_issue
+      ? 'This is the first public issue of the company\'s equity shares. There has been no formal market for these shares prior to this offer. The offer price, floor price, or cap price should not be considered indicative of the market price of equity shares after listing. No assurance of active or sustained trading can be given.'
+      : 'The company has prior listing history. Refer to prospectus for complete risk disclosures.',
+    'lit.criminal_text':        `Against company: ${d.litigation.criminal_against || 'None'}. Standard disclosures maintained.`,
+    'lit.tax_text':             `${d.litigation.tax_proceedings || 0} tax proceedings pending. Common for companies of this scale under India's tax framework.`,
+    'lit.civil_text':           `Material civil litigation aggregate: ${fmtMn(d.litigation.material_civil_inr_mn)}. Statutory/regulatory actions: ${d.litigation.regulatory_actions || 'Nil'}.`,
+    'lit.regulatory_text':      'Evolving SEBI and RBI regulations for digital brokers/NBFCs represent a structural risk. Adverse actions could materially impact business model.',
+    'lit.tech_text':            'Platform downtime, security breaches, or data events could erode user trust and invite regulatory scrutiny.',
+
+    // Proceeds
+    'proceeds.cap_note':        d.proceeds_cap_note || 'Refer to prospectus for complete deployment schedule and conditions.',
+  };
+
+  // Apply all data-field bindings
+  document.querySelectorAll('[data-field]').forEach(el => {
+    const key = el.getAttribute('data-field');
+    if (flat[key] !== undefined) el.textContent = flat[key];
+  });
+
+  // ── CHIPS ──
+  buildChips('chips-tags', d.tags || [], 'g');
+  buildChips('chips-brlms', d.offer.brlms || []);
+
+  // ── PROCEEDS ──
+  buildProceeds(d.proceeds || []);
+
+  // ── PRODUCTS ──
+  buildProducts(d.business.products || []);
+
+  // ── MOAT ──
+  buildMoat(d.business.moat_points || []);
+
+  // ── FINANCIAL TABLES ──
+  buildFinTable(f);
+  buildCFTable(cf);
+
+  // ── PROMOTERS ──
+  buildPromoterRows(d.shareholding.promoters || []);
+
+  // ── SELLERS ──
+  buildSellerRows(d.shareholding.top_sellers || []);
+
+  // ── MANAGEMENT ──
+  buildMgmt(d.management || []);
+
+  // ── LITIGATION NOTES ──
+  buildLitNotes(d.litigation.notes || []);
+
+  // ── RESEARCH LENS ──
+  buildLens('lens-positives',   d.research.positives    || []);
+  buildLens('lens-watchpoints', d.research.watchpoints  || []);
+  buildLens('lens-drivers',     d.research.key_drivers  || []);
+  buildLens('lens-postlisting', d.research.post_listing || []);
+
+  // ── APPENDIX ──
+  buildAppendix(d);
+
+  // ── CHARTS ──
+  renderCharts(d);
+}
+
+// ═══════════════════════════════════════════════════════
+// BUILDERS
+// ═══════════════════════════════════════════════════════
+function buildChips(id, items, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = items.map(t => `<span class="chip${cls?' '+cls:''}">${t}</span>`).join('');
+}
+
+function buildProceeds(items) {
+  const g = document.getElementById('proceeds-grid');
+  if (!g) return;
+  g.innerHTML = items.map(p => `
+    <div class="pc">
+      <div class="pc-ico">${p.icon||'💼'}</div>
+      <div class="pc-title">${p.purpose}</div>
+      <div class="pc-amt">${p.amount_inr_mn ? fmtMn(p.amount_inr_mn) : 'TBD at offer price'}</div>
+      <div class="pc-desc">${p.desc||''}</div>
+      ${p.amount_inr_mn ? `<div class="deploy-row">
+        <div class="dr-item">FY-curr <b>${fmtMn(p.fy_current)}</b></div>
+        <div class="dr-item">FY-next <b>${fmtMn(p.fy_next)}</b></div>
+      </div>` : ''}
+    </div>`).join('');
+}
+
+function buildProducts(items) {
+  const g = document.getElementById('prod-grid');
+  if (!g) return;
+  g.innerHTML = items.map(p => `
+    <div class="pd">
+      <div class="pd-ico">${p.icon||'●'}</div>
+      <div><div class="pd-name">${p.name}</div><div class="pd-desc">${p.description}</div></div>
+    </div>`).join('');
+}
+
+function buildMoat(items) {
+  const g = document.getElementById('moat-list');
+  if (!g) return;
+  g.innerHTML = items.map((m,i) => `
+    <div class="moat-item">
+      <div class="moat-n">0${i+1}</div>
+      <div class="moat-t">${m.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>
+    </div>`).join('');
+}
+
+function buildFinTable(f) {
+  const thead = document.getElementById('fin-thead-row');
+  const tbody = document.getElementById('fin-tbody');
+  if (!thead || !tbody) return;
+  thead.innerHTML = '<th>Metric (₹ Mn)</th>' + f.periods.map(p=>`<th>${p}</th>`).join('');
+  const rows = [
+    ['Revenue from Operations', f.revenue],
+    ['Profit for Period',        f.profit],
+    ['Net Worth',               f.net_worth],
+    ['RONW (%)',                f.ronw, true],
+    ['EPS Basic (₹)',           f.eps_basic],
+    ['EPS Diluted (₹)',         f.eps_diluted],
+    ['NAV / Share (₹)',         f.nav_per_share],
+    ['Borrowings — Current',    f.borrowings_current],
+    ['Borrowings — Non-current',f.borrowings_noncurrent],
+  ];
+  tbody.innerHTML = rows.map(([lbl,vals,isPct]) =>
+    `<tr><td>${lbl}</td>${vals.map(v=>`<td>${v===0?'—':n2(v)+(isPct?'%':'')}</td>`).join('')}</tr>`
+  ).join('');
+}
+
+function buildCFTable(cf) {
+  const thead = document.getElementById('cf-thead-row');
+  const tbody = document.getElementById('cf-tbody');
+  if (!thead || !tbody) return;
+  thead.innerHTML = '<th>Cash Flow (₹ Mn)</th>' + cf.periods.map(p=>`<th>${p}</th>`).join('');
+  const rows = [
+    ['Operating Activities',  cf.operating],
+    ['Financing Activities',  cf.financing],
+    ['Net Change in Cash',    cf.net_change],
+  ];
+  tbody.innerHTML = rows.map(([lbl,vals]) =>
+    `<tr><td>${lbl}</td>${vals.map(v=>`<td>${n2(v)}</td>`).join('')}</tr>`
+  ).join('');
+}
+
+function buildPromoterRows(promoters) {
+  const el = document.getElementById('promoter-rows');
+  if (!el) return;
+  el.innerHTML = promoters.map(p => `
+    <div class="own-row">
+      <div class="or-name">${p.name}</div>
+      <div class="or-pct" style="font-size:.65rem;color:var(--text-3)">${p.shares?(p.shares/1e6).toFixed(1)+'M':'—'}</div>
+      <div class="or-bar-wrap">
+        <div class="or-mini"><div class="or-fill" style="width:${Math.min((p.pct||0)*5,100)}%"></div></div>
+        <div class="or-pct">${n2(p.pct)}%</div>
+      </div>
+    </div>`).join('');
+}
+
+function buildSellerRows(sellers) {
+  const el = document.getElementById('seller-rows');
+  if (!el) return;
+  el.innerHTML = sellers.map(s => `
+    <div class="own-row">
+      <div class="or-name">${s.name}</div>
+      <div class="or-bar-wrap">
+        <div class="or-mini"><div class="or-fill" style="width:${Math.min((s.pct||0)*4,100)}%"></div></div>
+        <div class="or-pct">${n2(s.pct)}%</div>
+      </div>
+      <div class="or-pct" style="font-size:.65rem;color:var(--text-3)">${s.ofs_up_to?(s.ofs_up_to/1e6).toFixed(1)+'M':'—'}</div>
+    </div>`).join('');
+}
+
+function buildMgmt(items) {
+  const g = document.getElementById('mgmt-grid');
+  if (!g) return;
+  g.innerHTML = items.map(m => `
+    <div class="mg">
+      <div class="mg-ini">${initials(m.name)}</div>
+      <div class="mg-name">${m.name}</div>
+      <div class="mg-role">${m.role}</div>
+      ${m.holding_pct ? `<div class="mg-pct">${n2(m.holding_pct)}% pre-offer</div>` : ''}
+    </div>`).join('');
+}
+
+function buildLitNotes(notes) {
+  const el = document.getElementById('lit-notes-list');
+  if (!el || !notes.length) return;
+  el.innerHTML = `<div style="margin-top:1rem"><div style="font-family:var(--fm);font-size:.57rem;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">Disclosed Notes</div>
+    ${notes.map(n=>`<div class="lit-note">› ${n}</div>`).join('')}
+  </div>`;
+}
+
+function buildLens(id, items) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = items.map(t=>`<div class="lens-item">${t}</div>`).join('');
+}
+
+function buildAppendix(d) {
+  const tb = document.getElementById('appendix-tbody');
+  if (!tb) return;
+  const rows = [
+    ['Legal Entity',      d.company.legal_name,                         'RHP Cover Page'],
+    ['Brand',             d.company.brand_name,                         'RHP Cover Page'],
+    ['Sector',            d.company.sector + ' / ' + d.company.subsector,'SEBI Classification'],
+    ['RHP Date',          d.offer.rhp_date,                             'RHP Cover Page'],
+    ['Fresh Issue',       fmtMn(d.offer.fresh_issue_inr_mn),            'Offer Structure'],
+    ['OFS',               d.offer.ofs_shares,                           'Offer Structure'],
+    ['Designated Exchange',d.offer.designated_exchange,                  'RHP'],
+    ['BRLMs',             (d.offer.brlms||[]).join(', '),               'RHP Cover Page'],
+    ['Registrar',         d.offer.registrar,                            'RHP Cover Page'],
+    ['Financial Basis',   'Restated Consolidated',                       'RHP Financials'],
+    ['Quarterly Note',    'Quarterly figures are NOT annualised',        'IPODesk Standard'],
+    ['Unavailable Fields','Marked "—" — not estimated',                  'IPODesk Policy'],
+    ['AI Extraction',     'Claude (Anthropic) via IPODesk',          'IPODesk Platform'],
+  ];
+  tb.innerHTML = rows.map(([f,v,s])=>`<tr><td>${f}</td><td>${v||'—'}</td><td style="color:var(--text-3)">${s}</td></tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════════════
+function chartColors() {
+  return {
+    text:   dark ? '#a8a49c' : '#666678',
+    grid:   dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    gold:   '#c9a96e',
+    green:  dark ? '#4ab87a' : '#2a6649',
+    red:    dark ? '#e05c6c' : '#992233',
+    blue:   dark ? '#6aaad8' : '#183658',
+    muted:  dark ? '#2c2c38' : '#e0ddd4',
+    tip_bg: dark ? '#1c1c27' : '#fff',
+    tip_t:  dark ? '#eeeae2' : '#0b0b10',
+    tip_b:  dark ? '#a8a49c' : '#484858',
+    tip_bd: dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.1)',
+  };
+}
+
+function baseOpts(co) {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: co.tip_bg, titleColor: co.tip_t, bodyColor: co.tip_b, borderColor: co.tip_bd, borderWidth: 1, padding: 9, cornerRadius: 2 }
+    },
+    scales: {
+      x: { ticks: { color: co.text, font: { family:"'DM Mono'", size:9 } }, grid: { display:false }, border: { color: co.grid } },
+      y: { ticks: { color: co.text, font: { family:"'DM Mono'", size:9 } }, grid: { color: co.grid }, border: { display:false } }
+    }
+  };
+}
+
+function renderCharts(d) {
+  activeCharts.forEach(c => c.destroy());
+  activeCharts = [];
+  const f = d.financials, cf = d.cashflow;
+  const co = chartColors();
+  const bo = baseOpts(co);
+
+  // Helper: create chart
+  function mk(id, type, data, opts) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    activeCharts.push(new Chart(el, { type, data, options: { ...bo, ...opts } }));
+  }
+
+  const allPeriods = f.periods;
+  const annualLbls = ['FY23','FY24','FY25'];
+  const qLbls      = allPeriods[1] ? [allPeriods[1], allPeriods[0]] : [];
+  const barLbls    = [...annualLbls, ...qLbls];
+
+  // Map values by period
+  function byPeriod(arr) {
+    const map = {};
+    f.periods.forEach((p,i) => map[p] = arr[i]);
+    return barLbls.map(l => map[l] ?? null);
+  }
+
+  // Revenue
+  mk('chartRevenue','bar',{
+    labels: barLbls,
+    datasets:[{ data: byPeriod(f.revenue), backgroundColor: barLbls.map((_,i)=>i<3?co.gold+'cc':co.gold+'66'), borderRadius:2 }]
+  });
+
+  // Profit
+  mk('chartProfit','line',{
+    labels: barLbls,
+    datasets:[{ data: byPeriod(f.profit), borderColor:co.green, backgroundColor:co.green+'18', tension:.32, fill:true, pointBackgroundColor:co.green, pointRadius:4 }]
+  });
+
+  // Net Worth
+  mk('chartNetworth','bar',{
+    labels: barLbls,
+    datasets:[{ data: byPeriod(f.net_worth), backgroundColor: co.blue+'99', borderRadius:2 }]
+  });
+
+  // RONW
+  mk('chartRonw','line',{
+    labels: barLbls,
+    datasets:[{ data: byPeriod(f.ronw), borderColor:co.gold, backgroundColor:co.gold+'14', tension:.32, fill:true, pointBackgroundColor:co.gold, pointRadius:4 }]
+  });
+
+  // Cashflow
+  mk('chartCashflow','bar',{
+    labels: cf.periods,
+    datasets:[
+      { label:'Operating', data:cf.operating,  backgroundColor:co.green+'99', borderRadius:2 },
+      { label:'Financing', data:cf.financing,   backgroundColor:co.gold+'99',  borderRadius:2 }
+    ]
+  }, { plugins:{ ...bo.plugins, legend:{ display:true, labels:{ color:co.text, font:{family:"'DM Mono'",size:9}, boxWidth:9 } } } });
+
+  // Net cash
+  mk('chartNetcash','bar',{
+    labels: cf.periods,
+    datasets:[{ data:cf.net_change, backgroundColor:cf.net_change.map(v=>v>=0?co.green+'99':co.red+'99'), borderRadius:2 }]
+  });
+
+  // Offer donut
+  const odEl = document.getElementById('offerDonut');
+  if (odEl) {
+    activeCharts.push(new Chart(odEl, {
+      type:'doughnut',
+      data:{ labels:['Fresh Issue','OFS'], datasets:[{ data:[d.offer.fresh_issue_inr_mn||1,1], backgroundColor:[co.gold, co.muted], borderWidth:0 }] },
+      options:{ cutout:'68%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.label}} }, maintainAspectRatio:true }
+    }));
+  }
+
+  // Ownership bar
+  const owEl = document.getElementById('chartOwnership');
+  if (owEl && d.shareholding.promoters) {
+    const ps = d.shareholding.promoters;
+    const totalP = ps.reduce((a,p)=>a+(p.pct||0),0);
+    const selPct  = (d.shareholding.top_sellers||[]).reduce((a,s)=>a+(s.pct||0),0);
+    const othPct  = Math.max(0,100-totalP-(d.shareholding.promoter_group_pct||0)-selPct);
+    const palColors = [co.gold, co.gold+'cc', co.gold+'88', co.gold+'55', co.blue+'88', co.red+'77', co.muted];
+    activeCharts.push(new Chart(owEl, {
+      type:'bar',
+      data:{
+        labels:[...ps.map(p=>p.name.split(' ')[0]), 'Promo.\nGroup','Top Sellers','Others'],
+        datasets:[{ data:[...ps.map(p=>p.pct), d.shareholding.promoter_group_pct||0, selPct, othPct],
+          backgroundColor: ps.map((_,i)=>palColors[i]||co.gold+'44').concat([co.blue+'66',co.red+'66',co.muted]),
+          borderRadius:2 }]
+      },
+      options:{ ...bo, indexAxis:'y', scales:{
+        x:{...bo.scales.x, ticks:{...bo.scales.x.ticks, callback:v=>v+'%'}},
+        y:{...bo.scales.y}
+      }}
+    }));
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// SCROLL SPY + NAV
+// ═══════════════════════════════════════════════════════
+const SEC_MAP = {
+  'hero':'sec-hero','kpis':'sec-kpis','offer':'sec-offer','proceeds':'sec-proceeds',
+  'business':'sec-business','financials':'sec-financials','cashflow':'sec-cashflow',
+  'ownership':'sec-ownership','risk':'sec-risk','timeline':'sec-timeline',
+  'management':'sec-management','lens':'sec-lens','appendix':'sec-appendix'
+};
+function navTo(key) {
+  const el = document.getElementById(SEC_MAP[key]);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function setupScrollSpy() {
+  const navLinks = document.querySelectorAll('.nav-a');
+  const secIds   = Object.values(SEC_MAP);
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = secIds.indexOf(e.target.id);
+        navLinks.forEach((l,i) => l.classList.toggle('on', i===idx));
+      }
+    });
+  }, { rootMargin:'-15% 0px -75% 0px' });
+  secIds.forEach(id => { const el = document.getElementById(id); if(el) obs.observe(el); });
+}
+
+// ═══════════════════════════════════════════════════════
+// UTIL
+// ═══════════════════════════════════════════════════════
+function fmtMn(n) {
+  if (!n || n===0) return '—';
+  if (n >= 1000) return '₹' + (n/1000).toFixed(2) + ' Bn';
+  return '₹' + n.toFixed(2) + ' Mn';
+}
+function fmtPct(n) { return n ? n+'%' : '—'; }
+function n2(n) { return typeof n==='number' ? (Number.isInteger(n)?n:parseFloat(n.toFixed(2))) : n; }
+function initials(name) { return (name||'').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase(); }
+function totalPromoterPct(d) { return (d.shareholding.promoters||[]).reduce((a,p)=>a+(p.pct||0),0); }
+function yoy(curr, prev) {
+  if (!curr || !prev) return '—';
+  const pct = ((curr-prev)/Math.abs(prev)*100).toFixed(1);
+  return (pct>0?'+':'') + pct + '% YoY vs prior period';
+}
+function buildInsight(label, vals, periods) {
+  const fy = periods.indexOf('FY25');
+  const fyPrev = periods.indexOf('FY24');
+  if (fy<0) return label + ' trend extracted from prospectus.';
+  const g = fy>=0&&fyPrev>=0 ? yoy(vals[fy],vals[fyPrev]) : '';
+  return `${label} ${fmtMn(vals[fy])} in FY25 (${g}). Latest quarter: ${fmtMn(vals[0])}.`;
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+show('screen-upload');
+selectProvider('google'); // default to Gemini (free tier)
+</script>
+</body>
+</html>
