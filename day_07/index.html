@@ -349,6 +349,7 @@ tr:hover td{background:var(--surface-2)}
   </div>
   <div class="topbar-r">
     <button class="btn-sm" onclick="toggleTheme()">◑ Theme</button>
+    <button class="btn-sm" onclick="exportPDF()" style="display:none" id="btn-export">⬇ Export PDF</button>
     <button class="btn-gold" onclick="resetToUpload()">+ New Analysis</button>
   </div>
 </header>
@@ -504,6 +505,18 @@ tr:hover td{background:var(--surface-2)}
           </div>
         </div>
       </div>
+
+      <!-- GMP + Subscription + Listing row — hidden if data unavailable -->
+      <div id="market-stats-row" style="display:none;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-top:1px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1px;background:var(--border)">
+          <div class="hc" id="ms-total-size"><div class="hc-lbl">Total Issue Size</div><div class="hc-val" id="ms-total-size-v" style="font-size:1rem">—</div><div class="hc-sub">Fresh + OFS combined</div></div>
+          <div class="hc"><div class="hc-lbl">Price Band</div><div class="hc-val" id="ms-price-band" style="font-size:1rem">—</div><div class="hc-sub">Lot: <span id="ms-lot">—</span></div></div>
+          <div class="hc"><div class="hc-lbl">Subscription</div><div class="hc-val pos" id="ms-subscription">—</div><div class="hc-sub" id="ms-sub-detail">—</div></div>
+          <div class="hc"><div class="hc-lbl">GMP at Close</div><div class="hc-val pos" id="ms-gmp">—</div><div class="hc-sub" id="ms-gmp-peak">—</div></div>
+          <div class="hc"><div class="hc-lbl">Listing Price</div><div class="hc-val pos" id="ms-listing-price">—</div><div class="hc-sub" id="ms-listing-gain">—</div></div>
+          <div class="hc"><div class="hc-lbl">Listing Day Close</div><div class="hc-val pos" id="ms-listing-close">—</div><div class="hc-sub" id="ms-listing-close-gain">—</div></div>
+        </div>
+      </div>
     </div>
 
     <!-- ── 02 KPIs ── -->
@@ -597,7 +610,7 @@ tr:hover td{background:var(--surface-2)}
 
     <!-- ── 06 FINANCIALS ── -->
     <div class="sec" id="sec-financials">
-      <div class="sec-hdr"><span class="sec-num">06</span><span class="sec-ttl">Financial Performance</span><span class="sec-note">Restated consolidated · INR Millions</span></div>
+      <div class="sec-hdr"><span class="sec-num">06</span><span class="sec-ttl">Financial Performance</span><span class="sec-note">Restated consolidated · INR Crores</span></div>
       <div class="chart-row">
         <div class="chart-card">
           <div class="chart-ttl">Revenue from Operations</div>
@@ -622,18 +635,31 @@ tr:hover td{background:var(--surface-2)}
           <div class="chart-callout" data-field="fin.ronw_insight">—</div>
         </div>
       </div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-ttl">EPS — Basic vs Diluted (₹)</div>
+          <canvas id="chartEPS"></canvas>
+          <div class="chart-callout" data-field="fin.eps_insight">—</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-ttl">Borrowings Trend (₹ Cr)</div>
+          <canvas id="chartBorrowings"></canvas>
+          <div class="chart-callout">Borrowings scaled with MTF and NBFC business growth. Monitor asset quality as loan book expands post-IPO capital infusion.</div>
+        </div>
+      </div>
+
       <div class="tbl-wrap">
         <table id="fin-table">
           <thead><tr id="fin-thead-row"></tr></thead>
           <tbody id="fin-tbody"></tbody>
         </table>
       </div>
-      <div class="src-bar"><div class="src-dot"></div>Quarterly figures are not annualised. Data from restated consolidated financial statements per RHP.</div>
+      <div class="src-bar"><div class="src-dot"></div>Quarterly figures are not annualised. All values in Indian Rupees Crores (₹ Cr). Data from restated consolidated financial statements per RHP.</div>
     </div>
 
     <!-- ── 07 CASHFLOW ── -->
     <div class="sec" id="sec-cashflow">
-      <div class="sec-hdr"><span class="sec-num">07</span><span class="sec-ttl">Cash Flow & Capital Signals</span><span class="sec-note">INR Millions</span></div>
+      <div class="sec-hdr"><span class="sec-num">07</span><span class="sec-ttl">Cash Flow & Capital Signals</span><span class="sec-note">INR Crores</span></div>
       <div class="chart-row">
         <div class="chart-card">
           <div class="chart-ttl">Operating & Financing Cash Flows</div>
@@ -1184,50 +1210,73 @@ const DEMO = {
   company: {
     legal_name: "Billionbrains Garage Ventures Limited",
     brand_name: "Groww",
-    description: "India's largest and fastest growing direct-to-customer digital investment platform, offering stocks, IPOs, derivatives, bonds, mutual funds, margin trading (MTF), and personal loans through a consumer-grade app and website backed by an in-house technology stack.",
+    description: "India's largest and fastest growing direct-to-customer digital investment platform with 37 million demat accounts and ₹2.6 lakh crore AUM as of June 2025. Offers stocks, IPOs, F&O, ETFs, bonds, mutual funds, MTF, and personal loans through a consumer-grade app backed by an in-house technology stack. Covers 98.36% of Indian pin codes.",
     sector: "Fintech", subsector: "Digital Broking & Investment Platform",
     incorporated: "January 9, 2018 (Private Limited) · Converted to Public Limited: April 11, 2025",
-    registered_office: "Vaishnavi Tech Park, South Tower, 3rd Floor, Bellandur, Bengaluru 560103, Karnataka",
+    registered_office: "Vaishnavi Tech Park, South Tower, 3rd Floor, Survey No. 161 and 172, Ambalipura Village, Varthur Hobli, Bellandur, Bengaluru 560103, Karnataka, India",
     website: "www.groww.in",
-    corp_history: "Incorporated January 9, 2018 as a private limited company. Certificate dated January 17, 2018. Converted to a public limited company and renamed Billionbrains Garage Ventures Limited — fresh certificate dated April 11, 2025. Groww Inc., the erstwhile holding company, amalgamated into the company pursuant to NCLT Bengaluru Bench order dated March 28, 2024."
+    corp_history: "Incorporated January 9, 2018. Converted to public limited company April 11, 2025. Groww Inc. (erstwhile holding company) amalgamated into Billionbrains Garage Ventures pursuant to NCLT Bengaluru Bench order dated March 28, 2024. Founded 2016 per operational history; 1,415 employees as of June 30, 2025. Over 26% market share of active NSE clients as of June 2025."
   },
   offer: {
-    rhp_date: "October 29, 2025", anchor_date: "November 3, 2025 (Monday)",
-    open_date: "November 4, 2025 (Tuesday)", close_date: "November 7, 2025 (Friday)",
+    rhp_date: "October 29, 2025",
+    anchor_date: "November 3, 2025 (Monday) — raised ₹2,984.53 Cr from 102 anchor investors",
+    open_date: "November 4, 2025 (Tuesday)",
+    close_date: "November 7, 2025 (Friday)",
+    listing_date: "November 12, 2025 (Wednesday)",
     listing_exchanges: ["BSE","NSE"], designated_exchange: "NSE",
-    fresh_issue_inr_mn: 10600, ofs_shares: "557,230,051 equity shares",
-    offer_type: "Book Built Issue", qib_pct: "≥75%", nii_pct: "≤15%", retail_pct: "≤10%",
+    fresh_issue_inr_mn: 10600,
+    ofs_shares: "55.72 Cr equity shares (₹5,572.30 Cr at upper band)",
+    total_issue_size: "₹6,632.30 Cr",
+    price_band: "₹95 – ₹100 per share",
+    face_value: "₹2 per share",
+    lot_size: "150 shares (₹15,000 at upper band)",
+    offer_type: "Book Built Issue — Mainboard IPO",
+    qib_pct: "≥75% (subscribed 22.02×)",
+    nii_pct: "≤15% (subscribed 14.20×)",
+    retail_pct: "≤10% (subscribed 9.43×)",
+    overall_subscription: "17.60×",
     brlms: ["Kotak Mahindra Capital","J.P. Morgan India","Citigroup Global Markets India","Axis Capital","Motilal Oswal Investment Advisors"],
-    registrar: "MUFG Intime India Pvt Ltd", regulation: "Reg. 62 SEBI ICDR",
-    first_public_issue: true
+    registrar: "MUFG Intime India Pvt Ltd",
+    regulation: "Reg. 62 SEBI ICDR Regulations",
+    first_public_issue: true,
+    listing_price: 114,
+    listing_gain_pct: 14,
+    listing_day_close: 130.94,
+    listing_day_close_gain_pct: 30.93,
+    gmp_at_close: 11,
+    gmp_peak: 16,
+    gmp_peak_date: "November 4, 2025"
   },
   proceeds: [
-    { purpose: "Cloud Infrastructure", amount_inr_mn: 1525, fy_current: 400, fy_next: 1125, icon: "☁️", desc: "Scalable cloud infrastructure to support platform growth" },
-    { purpose: "Brand Building & Performance Marketing", amount_inr_mn: 2250, fy_current: 750, fy_next: 1500, icon: "📣", desc: "User acquisition campaigns and brand awareness" },
-    { purpose: "Investment in GCS — NBFC Capital Base", amount_inr_mn: 2050, fy_current: 400, fy_next: 1650, icon: "🏦", desc: "Augmenting capital base of Groww Creditserv Technology (NBFC)" },
-    { purpose: "Investment in GIT — MTF Business", amount_inr_mn: 1675, fy_current: 400, fy_next: 1275, icon: "📈", desc: "Funding Margin Trading Facility via Groww Invest Tech Pvt Ltd" },
+    { purpose: "Cloud Infrastructure", amount_inr_mn: 1525, fy_current: 400, fy_next: 1125, icon: "☁️", desc: "Scalable cloud infrastructure expenditure to support platform growth and reliability" },
+    { purpose: "Brand Building & Performance Marketing", amount_inr_mn: 2250, fy_current: 750, fy_next: 1500, icon: "📣", desc: "User acquisition, brand campaigns, and digital performance marketing activities" },
+    { purpose: "Investment in GCS — NBFC Capital Base", amount_inr_mn: 2050, fy_current: 400, fy_next: 1650, icon: "🏦", desc: "Augmenting capital base of Groww Creditserv Technology Pvt Ltd (NBFC arm)" },
+    { purpose: "Investment in GIT — MTF Business", amount_inr_mn: 1675, fy_current: 400, fy_next: 1275, icon: "📈", desc: "Funding Margin Trading Facility (MTF) via Groww Invest Tech Pvt Ltd" },
     { purpose: "Inorganic Growth & General Corporate Purposes", amount_inr_mn: 0, fy_current: 0, fy_next: 0, icon: "🔍", desc: "To be finalised at offer price. Combined cap ≤35% of gross proceeds; each individually ≤25%." }
   ],
-  proceeds_cap_note: "⚠ The amount for inorganic growth and general corporate purposes is to be finalised upon determination of the offer price. The combined allocation for both heads shall not exceed 35% of gross fresh issue proceeds, and each individually shall not exceed 25%.",
+  proceeds_cap_note: "⚠ Inorganic growth and general corporate purposes amounts to be finalised at offer price. Combined cap ≤35% of gross fresh issue proceeds; each individually ≤25%. Total identified proceeds: ₹750 Cr out of ₹1,060 Cr fresh issue.",
   financials: {
+    // All values in INR Millions (displayed as Crores in UI: divide by 10)
+    // Source: Restated Consolidated Financial Information, RHP dated October 29, 2025
     periods: ["Q1FY26","Q1FY25","FY25","FY24","FY23"],
-    revenue:             [9043.98, 10007.94, 39017.23, 26092.81, 11415.26],
-    profit:              [3783.67,  3380.13, 18243.73,  8049.41,  4576.63],
-    net_worth:           [59954.49,28862.80, 48553.47, 25426.36, 33167.50],
-    ronw:                [6.31,    11.71,    37.57,    31.66,    13.80],
-    eps_basic:           [0.66,     0.63,     3.34,     1.50,     0.86],
-    eps_diluted:         [0.63,     0.61,     3.19,     1.50,     0.79],
-    nav_per_share:       [10.47,    5.39,     8.89,     4.75,     6.20],
-    borrowings_current:  [2724.97,  1176.64,  2731.23,   240.64,     0],
-    borrowings_noncurrent:[515.85,  0,         788.65,     0,         0],
-    equity_capital:      [4187.70,  207.33,   3656.30,   207.33,   206.61]
+    revenue:              [9043.98,  10007.94,  39017.23,  26092.81,  11415.26],
+    profit:               [3783.67,   3380.13,  18243.73,  -8049.41,   4576.63],  // FY24 was a LOSS due to exceptional tax item
+    net_worth:            [59954.49, 28862.80,  48553.47,  25426.36,  33167.50],
+    ronw:                 [6.31,     11.71,     37.57,    -31.66,     13.80],     // FY24 negative — loss year
+    eps_basic:            [0.66,      0.63,      3.34,     -1.50,      0.86],     // FY24 negative
+    eps_diluted:          [0.63,      0.61,      3.19,     -1.50,      0.79],     // FY24 negative
+    nav_per_share:        [10.47,     5.39,      8.89,      4.75,      6.20],
+    borrowings_current:   [2724.97,  1176.64,   2731.23,    240.64,       0],
+    borrowings_noncurrent:[515.85,      0,        788.65,      0,          0],
+    equity_capital:       [4187.70,   207.33,   3656.30,    207.33,    206.61]
   },
   cashflow: {
+    // Source: Restated Consolidated Statement of Cash Flows, RHP p.92-94
     periods: ["Q1FY26","Q1FY25","FY25","FY24","FY23"],
-    operating:  [1378.60, 1791.97, 9621.60, 8849.71,  5478.18],
-    investing:  [0,       0,       0,       0,         0],
-    financing:  [6756.69,  887.28, 8756.55,   37.43,   -54.55],
-    net_change: [2996.57, 1206.57,  532.22,  222.90, -1717.36]
+    operating:  [-1378.60,  1791.97,  -9621.60,   8849.71,   5478.18],  // Q1FY26 & FY25 negative — tax payments
+    investing:  [-8374.63, -3885.82,   1396.77,  -9110.30,  -3706.49],
+    financing:  [ 6756.69,   887.28,   8756.55,     37.43,    -54.55],
+    net_change: [-2996.57, -1206.57,    532.22,   -222.90,   1717.36]   // Q1FY26 cash decreased by ₹2,996 Mn
   },
   shareholding: {
     promoters: [
@@ -1251,28 +1300,32 @@ const DEMO = {
     criminal_against: 0, tax_proceedings: 4, regulatory_actions: 0,
     material_civil_inr_mn: 1391.41,
     notes: [
-      "No criminal proceedings against the company",
-      "4 tax proceedings pending under applicable statutes",
-      "Material civil litigation aggregate (per materiality policy): ₹1,391.41 Mn",
-      "No statutory or regulatory actions disclosed"
+      "Against company: Criminal nil · Tax 4 (incl. $5.54M IRS claim under assessment) · Regulatory nil · Civil ₹139.14 Cr",
+      "Against subsidiaries: Criminal 1 · Tax 23 · Regulatory 4 (2 SEBI SCNs settled May 2025) · Civil ₹40.37 Cr",
+      "Against directors/promoters: Criminal 1 (same matter as subsidiary) · Civil ₹0.05 Cr",
+      "SEBI SCNs to Groww Invest Tech Pvt Ltd (Oct & Nov 2024) — settled without admission, disposed May 13–14, 2025",
+      "No contingent liabilities or commitments as at June 30, 2025 (RHP Note 26A)",
+      "First public issue — no prior formal market for equity shares exists"
     ]
   },
   business: {
-    market_position: "India's largest and fastest growing investment platform by active users on NSE as of June 30, 2025 (Redseer Report cited in prospectus summary).",
+    market_position: "India's largest stockbroker — 37 million demat accounts, 26%+ market share on NSE, ₹2.6 lakh crore AUM, present in 98.36% of Indian pin codes as of June 30, 2025.",
     products: [
-      { name: "Equity & IPOs",     description: "Direct stock trading and IPO applications",       icon: "📊" },
-      { name: "Derivatives",       description: "F&O trading with in-house risk framework",         icon: "⚡" },
-      { name: "Mutual Funds",      description: "Direct funds, SIPs, goal-based investing",         icon: "🗂️" },
-      { name: "Bonds & Debt",      description: "Corporate bonds, G-Secs, fixed deposits",          icon: "🔒" },
-      { name: "Margin Trading",    description: "MTF funded via Groww Invest Tech Pvt Ltd",         icon: "📈" },
-      { name: "Personal Loans",    description: "Consumer credit via GCS NBFC subsidiary",          icon: "🏦" }
+      { name: "Equity & IPOs",      description: "Direct stock trading and IPO applications via app/web",  icon: "📊" },
+      { name: "F&O / Derivatives",  description: "Futures & options with in-house risk framework",          icon: "⚡" },
+      { name: "Mutual Funds",       description: "Direct funds, SIPs, NFOs, ETFs, goal-based investing",    icon: "🗂️" },
+      { name: "Bonds & Gold",       description: "Corporate bonds, G-Secs, digital gold, fixed deposits",   icon: "🔒" },
+      { name: "Margin Trading",     description: "MTF funded via Groww Invest Tech Pvt Ltd subsidiary",     icon: "📈" },
+      { name: "Personal Loans",     description: "Consumer credit via Groww Creditserv NBFC subsidiary",    icon: "🏦" },
+      { name: "US Stock Derivatives",description: "Cross-border investment products for Indian investors",  icon: "🌐" },
+      { name: "915 by Groww",       description: "Pro-trading web terminal for high-frequency traders",     icon: "💻" }
     ],
     moat_points: [
-      "**Largest active user base** on NSE as of June 2025 — network and data moat compounds over time",
-      "**In-house technology stack** enables rapid product iteration and superior UX vs legacy incumbents",
-      "**Vertically integrated credit** via GCS NBFC — cross-sell engine leveraging existing trusted user base",
-      "**Brand-led acquisition** in mass-affluent and first-time investor segment, especially sub-35 demographic",
-      "**Low customer acquisition cost** driven by word-of-mouth virality and digital performance marketing"
+      "**#1 active client base on NSE** with 37M demat accounts and 26%+ market share — network and data moat compounding daily",
+      "**In-house technology stack** enables rapid product iteration, lower infra costs, and superior UX vs legacy incumbents",
+      "**Vertically integrated credit** via GCS NBFC — personal loans and MTF cross-sell to 37M existing trusted users",
+      "**Brand dominance** in sub-35 demographic and Tier 2/3 cities where digital-first investing is still growing",
+      "**Full-stack platform** — investing, trading, lending, and asset management all under one app/brand"
     ]
   },
   management: [
@@ -1281,32 +1334,32 @@ const DEMO = {
     { name: "Neeraj Singh",  role: "Co-Founder & CTO", holding_pct: 6.25 },
     { name: "Ishan Bansal",  role: "Co-Founder & CPO", holding_pct: 4.53 }
   ],
-  tags: ["Fresh Issue","OFS","Fintech","Tech Platform","Profitable","India","Digital Broking","NBFC"],
+  tags: ["Fresh Issue","OFS","Fintech","Book Built","Profitable","NSE Listed","17.60× Subscribed","Digital Broking"],
   research: {
     positives: [
-      "Fastest-growing investment platform by active NSE users — strong, defensible network moat",
-      "Consistent profitability: PAT ₹18,244 Mn in FY25, a 3× expansion over two years",
-      "Net worth doubled in FY25; RONW at 37.57% signals exceptional capital efficiency",
-      "Fresh issue proceeds targeted at high-ROI growth vectors: cloud, credit, MTF, and brand"
+      "IPO subscribed 17.60× — QIB 22.02×, NII 14.20×, Retail 9.43× — broad-based institutional demand",
+      "Listed Nov 12 at ₹114 (+14%), Day 1 close ₹130.94 (+30.93%), Day 2 ₹145 (+45%) vs issue price ₹100",
+      "FY25 PAT ₹1,824.37 Cr — return to strong profitability after exceptional FY24 tax charge",
+      "37M demat accounts, 26%+ NSE market share, ₹2.6L Cr AUM — dominant and still growing platform"
     ],
     watchpoints: [
-      "OFS dominates total offer volume — company receives only the ₹10,600 Mn fresh issue",
-      "Q1FY26 revenue of ₹9,044 Mn trails Q1FY25 ₹10,008 Mn — monitor for structural slowdown",
-      "First public issue: post-listing price discovery carries inherently higher uncertainty",
-      "Evolving SEBI regulations on F&O and digital brokers represent a structural regulatory risk"
+      "FY24 was a loss year (PAT -₹804.94 Cr) due to ₹1,339.68 Cr exceptional deferred tax item — investors should understand this was non-recurring",
+      "Operating cash flow negative in Q1FY26 (-₹137.86 Cr) and FY25 (-₹962.16 Cr) — driven by large advance tax payments, not operational weakness",
+      "OFS of ₹5,572 Cr dominates vs ₹1,060 Cr fresh issue — majority of IPO proceeds go to selling investors, not the company",
+      "SEBI F&O regulation tightening (Oct 2024+) impacts Groww's highest-margin revenue line — watch quarterly F&O ADT trends"
     ],
     key_drivers: [
-      "Active user and NSE active client count growth trajectory",
-      "Revenue per user (ARPU) lift via MTF and personal loan cross-sell to existing base",
-      "GCS NBFC capital deployment and NPA quality of emerging loan book",
-      "Marketing efficiency and brand penetration in Tier 2 / Tier 3 cities"
+      "Active client count and NSE market share trajectory post-F&O regulation changes",
+      "ARPU expansion via MTF, personal loans via GCS NBFC, and Groww AMC AUM growth",
+      "GCS NBFC loan book scale-up quality — 141,012 loans disbursed, 73,491 active users as of June 30, 2025",
+      "915 Pro terminal and US stock derivatives — premium segment monetisation levers"
     ],
     post_listing: [
-      "Monthly active users and NSE active client disclosures",
-      "GCS and GIT loan book size, NPA ratios, and capital adequacy",
-      "Product mix shift — share of MTF, credit, and non-broking revenues in total",
-      "F&O trading volumes amid ongoing regulatory tightening",
-      "Quarterly brand spend vs new user acquisition cost trends"
+      "Quarterly active NSE client count and market share vs Zerodha, Angel One",
+      "GCS NBFC loan book size, NPA ratio, CRAR (was 46.44% as of June 2025 — above 15% regulatory minimum)",
+      "F&O average daily turnover and contribution to revenue mix",
+      "Groww AMC AUM growth and net inflows (new business line)",
+      "Operating cash flow normalisation as advance tax timing effects wash out"
     ]
   }
 };
@@ -1377,6 +1430,7 @@ function populate(d) {
     'fin.profit_insight':       buildInsight('PAT', f.profit, f.periods),
     'fin.networth_insight':     'Net worth at ' + fmtMn(f.net_worth[0]) + ' in latest quarter vs ' + fmtMn(f.net_worth[2]) + ' in FY25.',
     'fin.ronw_insight':         'RONW peaked at ' + fmtPct(f.ronw[2]) + ' in FY25. Latest quarter: ' + fmtPct(f.ronw[0]) + ' (not annualised — denominator expanded post capital raise).',
+    'fin.eps_insight':          `EPS Basic ₹${n2(f.eps_basic[2])} in FY25 vs ₹${n2(f.eps_basic[3])} in FY24. Diluted FY25: ₹${n2(f.eps_diluted[2])}. Latest quarter (unannualised): ₹${n2(f.eps_basic[0])}.`,
 
     // Cashflow
     'cf.ops_insight':           'Operating cash flow positive across all periods. Financing surge in latest quarter signals pre-IPO capital activity.',
@@ -1443,6 +1497,26 @@ function populate(d) {
   // ── APPENDIX ──
   buildAppendix(d);
 
+  // ── MARKET STATS (GMP, subscription, listing) ──
+  const o = d.offer;
+  if (o.overall_subscription || o.gmp_at_close || o.listing_price) {
+    document.getElementById('market-stats-row').style.display = 'block';
+    if (o.total_issue_size)       document.getElementById('ms-total-size-v').textContent    = o.total_issue_size;
+    if (o.price_band)             document.getElementById('ms-price-band').textContent       = o.price_band;
+    if (o.lot_size)               document.getElementById('ms-lot').textContent              = o.lot_size;
+    if (o.overall_subscription)   document.getElementById('ms-subscription').textContent     = o.overall_subscription;
+    if (o.qib_pct)                document.getElementById('ms-sub-detail').textContent       = `QIB ${o.qib_pct} · NII ${o.nii_pct} · Retail ${o.retail_pct}`;
+    if (o.gmp_at_close)           document.getElementById('ms-gmp').textContent              = `₹${o.gmp_at_close} (${o.gmp_at_close}%)`;
+    if (o.gmp_peak)               document.getElementById('ms-gmp-peak').textContent         = `Peak ₹${o.gmp_peak} on ${o.gmp_peak_date||'open day'}`;
+    if (o.listing_price)          document.getElementById('ms-listing-price').textContent    = `₹${o.listing_price}`;
+    if (o.listing_gain_pct)       document.getElementById('ms-listing-gain').textContent     = `+${o.listing_gain_pct}% vs issue price`;
+    if (o.listing_day_close)      document.getElementById('ms-listing-close').textContent    = `₹${o.listing_day_close}`;
+    if (o.listing_day_close_gain_pct) document.getElementById('ms-listing-close-gain').textContent = `+${o.listing_day_close_gain_pct}% Day 1 close`;
+  }
+
+  // Show PDF export button
+  document.getElementById('btn-export').style.display = 'inline-block';
+
   // ── CHARTS ──
   renderCharts(d);
 }
@@ -1496,7 +1570,7 @@ function buildFinTable(f) {
   const thead = document.getElementById('fin-thead-row');
   const tbody = document.getElementById('fin-tbody');
   if (!thead || !tbody) return;
-  thead.innerHTML = '<th>Metric (₹ Mn)</th>' + f.periods.map(p=>`<th>${p}</th>`).join('');
+  thead.innerHTML = '<th>Metric (₹ Cr)</th>' + f.periods.map(p=>`<th>${p}</th>`).join('');
   const rows = [
     ['Revenue from Operations', f.revenue],
     ['Profit for Period',        f.profit],
@@ -1517,7 +1591,7 @@ function buildCFTable(cf) {
   const thead = document.getElementById('cf-thead-row');
   const tbody = document.getElementById('cf-tbody');
   if (!thead || !tbody) return;
-  thead.innerHTML = '<th>Cash Flow (₹ Mn)</th>' + cf.periods.map(p=>`<th>${p}</th>`).join('');
+  thead.innerHTML = '<th>Cash Flow (₹ Cr)</th>' + cf.periods.map(p=>`<th>${p}</th>`).join('');
   const rows = [
     ['Operating Activities',  cf.operating],
     ['Financing Activities',  cf.financing],
@@ -1712,7 +1786,37 @@ function renderCharts(d) {
     }));
   }
 
-  // Ownership bar
+  // EPS Basic vs Diluted
+  const epsEl = document.getElementById('chartEPS');
+  if (epsEl) {
+    activeCharts.push(new Chart(epsEl, {
+      type: 'bar',
+      data: {
+        labels: barLbls,
+        datasets: [
+          { label: 'Basic',   data: byPeriod(f.eps_basic),   backgroundColor: co.gold+'cc',  borderRadius: 2 },
+          { label: 'Diluted', data: byPeriod(f.eps_diluted), backgroundColor: co.blue+'88',  borderRadius: 2 }
+        ]
+      },
+      options: { ...bo, plugins: { ...bo.plugins, legend: { display: true, labels: { color: co.text, font: { family:"'DM Mono'", size: 9 }, boxWidth: 9 } } } }
+    }));
+  }
+
+  // Borrowings
+  const borEl = document.getElementById('chartBorrowings');
+  if (borEl) {
+    activeCharts.push(new Chart(borEl, {
+      type: 'bar',
+      data: {
+        labels: barLbls,
+        datasets: [
+          { label: 'Current',     data: byPeriod(f.borrowings_current).map(v => v ? v/10 : null),    backgroundColor: co.red+'99',  borderRadius: 2 },
+          { label: 'Non-current', data: byPeriod(f.borrowings_noncurrent).map(v => v ? v/10 : null), backgroundColor: co.gold+'88', borderRadius: 2 }
+        ]
+      },
+      options: { ...bo, plugins: { ...bo.plugins, legend: { display: true, labels: { color: co.text, font: { family:"'DM Mono'", size: 9 }, boxWidth: 9 } } } }
+    }));
+  }
   const owEl = document.getElementById('chartOwnership');
   if (owEl && d.shareholding.promoters) {
     const ps = d.shareholding.promoters;
@@ -1734,6 +1838,27 @@ function renderCharts(d) {
       }}
     }));
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════════════════════
+function exportPDF() {
+  // Temporarily add print class to body for clean layout
+  document.body.classList.add('printing');
+  // Add a print header with company name
+  const name = currentData?.company?.brand_name || 'IPO Research';
+  const dateStr = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const header = document.createElement('div');
+  header.id = 'print-header';
+  header.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0 .8rem;border-bottom:2px solid #c9a96e;margin-bottom:1rem">
+    <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700">${name} — IPO Research Brief</div>
+    <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:#888">IPODesk · ${dateStr}</div>
+  </div>`;
+  document.querySelector('.main').prepend(header);
+  window.print();
+  document.body.classList.remove('printing');
+  document.getElementById('print-header')?.remove();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1767,9 +1892,12 @@ function setupScrollSpy() {
 // UTIL
 // ═══════════════════════════════════════════════════════
 function fmtMn(n) {
-  if (!n || n===0) return '—';
-  if (n >= 1000) return '₹' + (n/1000).toFixed(2) + ' Bn';
-  return '₹' + n.toFixed(2) + ' Mn';
+  // Input is INR Millions; display in Crores (1 Cr = 10 Mn)
+  if (!n || n === 0) return '—';
+  const cr = n / 10;
+  if (cr >= 10000) return '₹' + (cr/100).toFixed(2) + ' Lakh Cr';
+  if (cr >= 100)   return '₹' + (Number.isInteger(cr) ? cr : cr.toFixed(2)) + ' Cr';
+  return '₹' + cr.toFixed(2) + ' Cr';
 }
 function fmtPct(n) { return n ? n+'%' : '—'; }
 function n2(n) { return typeof n==='number' ? (Number.isInteger(n)?n:parseFloat(n.toFixed(2))) : n; }
