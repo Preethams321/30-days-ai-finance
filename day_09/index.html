@@ -1,0 +1,630 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolicyPulse — RBI MPC Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#09090e;--bg2:#111118;--bg3:#1a1a24;--bg4:#22222f;--gold:#c9a96e;--gold-dim:#a07840;--gold-pale:#f0dbb0;--green:#4ab87a;--red:#e05c6c;--blue:#5b9bd5;--amber:#e8a030;--text:#eeeef5;--text2:#9999b3;--text3:#5a5a7a;--border:#2a2a3a;--border2:#1e1e2e;--radius:12px;--radius-sm:8px;}
+.light-mode{--bg:#f4f4f8;--bg2:#ffffff;--bg3:#eeeef4;--bg4:#e4e4ec;--text:#111118;--text2:#44445a;--text3:#888899;--border:#d4d4e4;--border2:#e4e4f0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:"Syne",sans-serif;font-size:15px;line-height:1.6;}
+#topbar{position:sticky;top:0;z-index:100;background:rgba(9,9,14,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;}
+.light-mode #topbar{background:rgba(244,244,248,0.96);}
+.tb-brand{display:flex;align-items:center;gap:10px;}
+.tb-logo{font-family:"Playfair Display",serif;font-weight:700;font-size:1.2rem;color:var(--gold);letter-spacing:.5px;}
+.tb-sub{font-size:.7rem;color:var(--text3);font-family:"DM Mono",monospace;text-transform:uppercase;letter-spacing:1px;}
+.tb-actions{display:flex;align-items:center;gap:10px;}
+.btb{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:6px;font-size:.8rem;font-family:"Syne",sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.btb:hover{border-color:var(--gold);color:var(--gold);}
+#back-home-btn{display:none;}
+#homepage{display:block;}
+.hero{max-width:900px;margin:0 auto;text-align:center;padding:80px 24px 60px;}
+.hero-ey{font-family:"DM Mono",monospace;font-size:.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.hero-ey::before,.hero-ey::after{content:"";display:block;width:32px;height:1px;background:var(--gold-dim);}
+.hero h1{font-family:"Playfair Display",serif;font-size:clamp(2.4rem,5vw,4rem);font-weight:700;line-height:1.15;margin-bottom:20px;}
+.hero h1 span{color:var(--gold);}
+.hero-desc{font-size:1.05rem;color:var(--text2);max-width:600px;margin:0 auto 36px;line-height:1.7;}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-bottom:44px;flex-wrap:wrap;}
+.hsv{font-family:"Playfair Display",serif;font-size:2rem;color:var(--gold);font-weight:700;}
+.hsl{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-family:"DM Mono",monospace;}
+.hero-cta{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.btn-primary{background:var(--gold);color:#09090e;border:none;font-weight:700;padding:15px 36px;border-radius:8px;font-size:1rem;font-family:"Syne",sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:var(--gold-pale);transform:translateY(-1px);box-shadow:0 8px 24px rgba(201,169,110,.3);}
+.btn-demo{background:transparent;color:var(--text2);border:1px solid var(--border);padding:12px 28px;border-radius:8px;font-size:.9rem;font-family:"Syne",sans-serif;cursor:pointer;transition:all .2s;}
+.btn-demo:hover{border-color:var(--gold);color:var(--gold);}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:960px;margin:0 auto 60px;padding:0 24px;}
+.fc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;}
+.fc-icon{font-size:1.5rem;margin-bottom:10px;}
+.fc-title{font-family:"Playfair Display",serif;font-size:1rem;font-weight:600;margin-bottom:6px;}
+.fc-desc{font-size:.82rem;color:var(--text2);line-height:1.6;}
+.src-bar{border-top:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;font-size:.75rem;color:var(--text3);font-family:"DM Mono",monospace;max-width:800px;margin:0 auto;}
+.src-item{display:flex;align-items:center;gap:6px;}
+.src-dot{width:6px;height:6px;border-radius:50%;background:var(--gold-dim);}
+#upload-screen{display:none;max-width:720px;margin:0 auto;padding:48px 24px;}
+.uh h2{font-family:"Playfair Display",serif;font-size:1.8rem;margin-bottom:8px;text-align:center;}
+.uh p{color:var(--text2);font-size:.9rem;text-align:center;margin-bottom:36px;}
+.plbl{font-family:"DM Mono",monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:10px;}
+.pg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px;}
+.pb{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.pb:hover,.pb.active{border-color:var(--gold);background:rgba(201,169,110,.08);}
+.pb.active .pn{color:var(--gold);}
+.pn{font-size:.82rem;font-weight:600;color:var(--text);}
+.pm{font-size:.68rem;color:var(--text3);font-family:"DM Mono",monospace;margin-top:3px;}
+.pbadge{font-size:.62rem;padding:2px 6px;border-radius:4px;margin-top:4px;display:inline-block;}
+.pbadge.free{background:rgba(74,184,122,.15);color:var(--green);}
+.pbadge.paid{background:rgba(224,92,108,.15);color:var(--red);}
+.akin{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-family:"DM Mono",monospace;font-size:.82rem;outline:none;transition:border .2s;}
+.akin:focus{border-color:var(--gold);}
+.aknote{font-size:.75rem;color:var(--text3);margin-top:6px;margin-bottom:24px;}
+.fus{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
+.fur{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;align-items:center;gap:14px;}
+.fbadge{font-family:"DM Mono",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:4px;white-space:nowrap;}
+.fbadge.mand{background:rgba(201,169,110,.15);color:var(--gold);}
+.fbadge.recd{background:rgba(91,155,213,.15);color:var(--blue);}
+.fbadge.opt{background:rgba(153,153,179,.1);color:var(--text3);}
+.fi{flex:1;}
+.fn{font-size:.85rem;font-weight:600;}
+.fd{font-size:.75rem;color:var(--text3);margin-top:2px;}
+.fok{font-size:.72rem;color:var(--green);margin-top:4px;display:none;}
+.fiw{position:relative;overflow:hidden;}
+.fiw input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.abtn{width:100%;background:var(--gold);color:#09090e;border:none;padding:14px;border-radius:8px;font-size:1rem;font-weight:700;font-family:"Syne",sans-serif;cursor:pointer;transition:all .2s;}
+.abtn:hover{background:var(--gold-pale);}
+.abtn:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed;}
+.ebox{background:rgba(224,92,108,.08);border:1px solid rgba(224,92,108,.3);border-radius:var(--radius-sm);padding:14px 18px;margin:12px 0;font-size:.85rem;color:var(--red);line-height:1.6;}
+#processing-screen{display:none;max-width:500px;margin:0 auto;padding:80px 24px;text-align:center;}
+.pspin{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto 24px;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ptitle{font-family:"Playfair Display",serif;font-size:1.4rem;margin-bottom:8px;}
+.psub{font-size:.85rem;color:var(--text2);margin-bottom:32px;}
+.psteps{text-align:left;display:inline-block;}
+.pstep{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:.85rem;color:var(--text3);}
+.pstep.active{color:var(--text);}
+.pstep.done{color:var(--green);}
+.picon{width:18px;height:18px;border-radius:50%;border:1px solid var(--text3);display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0;}
+.pstep.active .picon{border-color:var(--gold);background:rgba(201,169,110,.15);}
+.pstep.done .picon{border-color:var(--green);background:rgba(74,184,122,.15);color:var(--green);}
+.back-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:"Syne",sans-serif;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:all .2s;margin-top:16px;}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);}
+#dashboard{display:none;}
+.dh{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border-bottom:1px solid var(--border);padding:28px 32px 24px;}
+.dh-in{max-width:1200px;margin:0 auto;}
+.dh-badge{font-family:"DM Mono",monospace;font-size:.72rem;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.dh-badge::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);}
+.dh-title{font-family:"Playfair Display",serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:700;margin-bottom:4px;}
+.dh-sub{font-size:.85rem;color:var(--text2);}
+.dh-meta{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;}
+.dh-mi{font-family:"DM Mono",monospace;font-size:.72rem;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.dh-mi span{color:var(--text2);}
+.sw{max-width:1200px;margin:0 auto;padding:0 24px;}
+.ds{padding:40px 0;border-bottom:1px solid var(--border2);}
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.snum{font-family:"DM Mono",monospace;font-size:.7rem;color:var(--gold-dim);letter-spacing:1px;}
+.stitle{font-family:"Playfair Display",serif;font-size:1.25rem;font-weight:600;}
+.sdesc{font-size:.8rem;color:var(--text3);margin-top:2px;}
+.pb-box{background:rgba(201,169,110,.06);border:1px solid rgba(201,169,110,.2);border-radius:var(--radius-sm);padding:16px 20px;margin-top:20px;}
+.pb-lbl{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+.pb-txt{font-size:.85rem;color:var(--text2);line-height:1.7;}
+.snap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.snap-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.snap-card.acc{border-color:var(--gold-dim);background:rgba(201,169,110,.04);}
+.mspan{grid-column:span 2;}
+@media(max-width:500px){.mspan{grid-column:span 1;}}
+.slbl{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;}
+.sv{font-family:"Playfair Display",serif;font-size:1.8rem;font-weight:700;color:var(--gold);line-height:1;}
+.sv.sm{font-size:1.1rem;color:var(--text);font-family:"Syne",sans-serif;font-weight:600;}
+.ssub{font-size:.78rem;color:var(--text3);margin-top:4px;}
+.stance-pill{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:.78rem;font-weight:600;background:rgba(232,160,48,.15);color:var(--amber);border:1px solid rgba(232,160,48,.3);margin-top:6px;}
+.vbadge{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:.78rem;font-weight:600;background:rgba(74,184,122,.12);color:var(--green);border:1px solid rgba(74,184,122,.25);margin-top:6px;}
+.b-hold{background:rgba(91,155,213,.12)!important;color:var(--blue)!important;border-color:rgba(91,155,213,.25)!important;}
+.b-hike{background:rgba(224,92,108,.12)!important;color:var(--red)!important;border-color:rgba(224,92,108,.25)!important;}
+.b-cut{background:rgba(74,184,122,.12)!important;color:var(--green)!important;border-color:rgba(74,184,122,.25)!important;}
+.mlist{list-style:none;}
+.mlist li{font-size:.8rem;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:6px;}
+.mlist li:last-child{border-bottom:none;}
+.mlist li::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold-dim);flex-shrink:0;}
+.gauge-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+@media(max-width:680px){.gauge-wrap{grid-template-columns:1fr;}}
+.gauge-vis{display:flex;flex-direction:column;align-items:center;}
+.gauge-svg{width:100%;max-width:320px;}
+.gauge-score{text-align:center;margin-top:-12px;}
+.gauge-num{font-family:"Playfair Display",serif;font-size:3rem;font-weight:700;color:var(--gold);line-height:1;}
+.gauge-lbl{font-size:.85rem;color:var(--text2);margin-top:4px;}
+.gauge-sub{font-family:"DM Mono",monospace;font-size:.72rem;color:var(--text3);}
+.gf-title{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;}
+.gf-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);font-size:.82rem;color:var(--text2);line-height:1.5;}
+.gf-item:last-child{border-bottom:none;}
+.gf-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:6px;flex-shrink:0;}
+.rate-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:680px){.rate-cols{grid-template-columns:1fr;}}
+.rate-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.rstrip-title{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px;}
+.rsi{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.rsi:last-child{margin-bottom:0;}
+.rsi-date{font-family:"DM Mono",monospace;color:var(--text3);width:90px;font-size:.72rem;flex-shrink:0;}
+.rsi-outer{flex:1;background:var(--bg4);border-radius:4px;height:22px;overflow:hidden;}
+.rsi-inner{height:100%;border-radius:4px;background:var(--gold-dim);display:flex;align-items:center;padding-left:8px;}
+.rsi-inner.cur{background:var(--gold);}
+.rsi-val{font-family:"DM Mono",monospace;font-size:.72rem;color:#09090e;font-weight:500;}
+.rsi-ch{font-family:"DM Mono",monospace;font-size:.72rem;width:54px;text-align:right;flex-shrink:0;}
+.rsi-ch.neg{color:var(--red);}
+.rsi-ch.pos{color:var(--green);}
+.rsi-ch.neu{color:var(--text3);}
+.prob-title{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px;}
+.prob-item{margin-bottom:14px;}
+.prob-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.prob-lbl{font-size:.82rem;font-weight:600;}
+.prob-pct{font-family:"DM Mono",monospace;font-size:.85rem;font-weight:600;}
+.prob-pct.hold{color:var(--blue);}
+.prob-pct.hike{color:var(--red);}
+.prob-pct.cut{color:var(--green);}
+.prob-bar{background:var(--bg4);border-radius:4px;height:8px;overflow:hidden;}
+.prob-fill{height:100%;border-radius:4px;}
+.prob-fill.hold{background:var(--blue);}
+.prob-fill.hike{background:var(--red);}
+.prob-fill.cut{background:var(--green);}
+.cycle-box{margin-top:16px;background:var(--bg3);border-radius:var(--radius-sm);padding:14px;}
+.fcast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+.fkpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+.fkpi-lbl{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.fkpi-val{font-family:"Playfair Display",serif;font-size:2rem;font-weight:700;line-height:1;}
+.fkpi-sub{font-size:.75rem;color:var(--text3);margin-top:4px;}
+.fkpi-delta{font-family:"DM Mono",monospace;font-size:.75rem;margin-top:6px;display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:4px;}
+.fkpi-delta.up{background:rgba(224,92,108,.12);color:var(--red);}
+.fkpi-delta.dn{background:rgba(74,184,122,.12);color:var(--green);}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:680px){.charts-row{grid-template-columns:1fr;}}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.chart-title{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px;}
+.chart-wrap{position:relative;height:200px;width:100%;}
+.sig-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+.sig-card:last-child{margin-bottom:0;}
+.sig-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+.sig-phrase{font-family:"Playfair Display",serif;font-size:1rem;font-style:italic;color:var(--gold-pale);line-height:1.4;flex:1;}
+.sig-badges{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;}
+.sig-src{font-family:"DM Mono",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:4px;background:var(--bg4);color:var(--text3);border:1px solid var(--border);white-space:nowrap;}
+.sent{font-size:.68rem;padding:3px 8px;border-radius:4px;font-weight:600;white-space:nowrap;}
+.sent.hawkish{background:rgba(224,92,108,.15);color:var(--red);}
+.sent.hawk-watch{background:rgba(232,160,48,.15);color:var(--amber);}
+.sent.cautious{background:rgba(91,155,213,.15);color:var(--blue);}
+.sent.defensive{background:rgba(153,153,179,.12);color:var(--text2);}
+.sent.balanced{background:rgba(74,184,122,.12);color:var(--green);}
+.sig-impl{font-size:.82rem;color:var(--text2);margin-bottom:8px;line-height:1.6;}
+.sig-plain{font-size:.82rem;color:var(--text3);font-style:italic;border-left:2px solid var(--gold-dim);padding-left:10px;line-height:1.6;}
+.sector-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+.sec-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.sec-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sec-name{font-weight:700;font-size:.92rem;}
+.imp{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:4px;font-family:"DM Mono",monospace;}
+.imp.pos{background:rgba(74,184,122,.15);color:var(--green);}
+.imp.neu{background:rgba(91,155,213,.12);color:var(--blue);}
+.imp.neg{background:rgba(224,92,108,.15);color:var(--red);}
+.imp.neu-neg{background:rgba(232,160,48,.12);color:var(--amber);}
+.sec-bar{background:var(--bg4);border-radius:4px;height:6px;margin-bottom:10px;overflow:hidden;}
+.sec-fill{height:100%;border-radius:4px;}
+.sec-reason{font-size:.8rem;color:var(--text2);line-height:1.6;margin-bottom:8px;}
+.sec-plain{font-size:.78rem;color:var(--text3);font-style:italic;border-left:2px solid var(--border);padding-left:8px;line-height:1.5;}
+.cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.cap-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.cap-measure{font-weight:700;font-size:.88rem;color:var(--gold-pale);margin-bottom:6px;}
+.cap-detail{font-size:.8rem;color:var(--text2);line-height:1.6;margin-bottom:8px;}
+.cap-impact{font-size:.78rem;color:var(--text3);font-style:italic;border-left:2px solid var(--gold-dim);padding-left:8px;line-height:1.5;}
+.macro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
+.mkpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;}
+.mkpi-lbl{font-family:"DM Mono",monospace;font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.mkpi-val{font-family:"Playfair Display",serif;font-size:1.4rem;font-weight:700;line-height:1.1;}
+.mkpi-sub{font-size:.72rem;color:var(--text3);margin-top:3px;}
+.mkpi-st{font-family:"DM Mono",monospace;font-size:.65rem;margin-top:5px;padding:2px 6px;border-radius:4px;display:inline-block;}
+.st-good{background:rgba(74,184,122,.12);color:var(--green);}
+.st-warn{background:rgba(232,160,48,.12);color:var(--amber);}
+.st-bad{background:rgba(224,92,108,.12);color:var(--red);}
+.risk-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;gap:16px;margin-bottom:12px;}
+.risk-card:last-child{margin-bottom:0;}
+.risk-bar{width:4px;border-radius:2px;flex-shrink:0;}
+.rb-crit{background:var(--red);}
+.rb-high{background:var(--amber);}
+.rb-med{background:var(--blue);}
+.rb-glob{background:var(--text3);}
+.risk-content{flex:1;}
+.risk-lrow{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.rbadge{font-family:"DM Mono",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:4px;}
+.rbadge.crit{background:rgba(224,92,108,.15);color:var(--red);}
+.rbadge.high{background:rgba(232,160,48,.12);color:var(--amber);}
+.rbadge.med{background:rgba(91,155,213,.12);color:var(--blue);}
+.rbadge.glob{background:rgba(153,153,179,.1);color:var(--text3);}
+.risk-txt{font-size:.83rem;color:var(--text2);line-height:1.6;}
+.gov-item{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold-dim);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 16px;font-size:.85rem;color:var(--text2);line-height:1.6;margin-bottom:10px;}
+.gov-item:last-child{margin-bottom:0;}
+.pc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;}
+.pc-card:last-child{margin-bottom:0;}
+.pc-q{font-size:.85rem;font-weight:600;margin-bottom:8px;display:flex;gap:8px;}
+.pc-ql{font-family:"DM Mono",monospace;font-size:.7rem;color:var(--blue);flex-shrink:0;margin-top:2px;}
+.pc-a{font-size:.82rem;color:var(--text2);line-height:1.6;margin-bottom:8px;display:flex;gap:8px;}
+.pc-al{font-family:"DM Mono",monospace;font-size:.7rem;color:var(--gold-dim);flex-shrink:0;margin-top:2px;}
+.pc-sig{font-family:"DM Mono",monospace;font-size:.7rem;padding:4px 10px;border-radius:4px;background:rgba(201,169,110,.08);color:var(--gold-dim);border:1px solid rgba(201,169,110,.15);display:inline-block;}
+.pers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+.pers-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.pers-icon{font-size:1.5rem;margin-bottom:10px;}
+.pers-title{font-weight:700;font-size:.92rem;margin-bottom:8px;}
+.pers-txt{font-size:.82rem;color:var(--text2);line-height:1.7;}
+.res-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:680px){.res-cols{grid-template-columns:1fr;}}
+.res-col{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.res-title{font-family:"DM Mono",monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px;}
+.res-title.pos{color:var(--green);}
+.res-title.watch{color:var(--amber);}
+.res-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);font-size:.82rem;color:var(--text2);line-height:1.5;}
+.res-item:last-child{border-bottom:none;}
+.res-dot{width:6px;height:6px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.res-dot.g{background:var(--green);}
+.res-dot.a{background:var(--amber);}
+.fwd{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-top:16px;}
+.fwd-title{font-family:"DM Mono",monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px;}
+.fwd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.fwd-lbl{font-size:.72rem;color:var(--text3);font-family:"DM Mono",monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.fwd-val{font-size:.85rem;line-height:1.5;}
+@media(max-width:600px){.tb-sub{display:none;}.hero{padding:48px 16px 36px;}.fcast-grid{grid-template-columns:1fr 1fr;}.macro-grid{grid-template-columns:1fr 1fr;}.snap-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+ 
+<div id="topbar">
+  <div class="tb-brand">
+    <div><div class="tb-logo">PolicyPulse</div><div class="tb-sub">Monetary Policy Research</div></div>
+  </div>
+  <div class="tb-actions">
+    <button class="btb" id="theme-toggle" onclick="toggleTheme()">&#9728;</button>
+    <button class="btb" id="back-home-btn" onclick="showHomepage()">&#8592; Home</button>
+  </div>
+</div>
+ 
+<div id="homepage">
+  <div class="hero">
+    <div class="hero-ey">RBI Monetary Policy Intelligence</div>
+    <h1>Decode Every<br><span>RBI MPC Meeting</span><br>in Seconds</h1>
+    <p class="hero-desc">Upload up to 3 official RBI documents and get a comprehensive plain-English analysis of every rate decision, forecast, and signal that matters to you.</p>
+    <div class="hero-stats">
+      <div><div class="hsv">3</div><div class="hsl">Documents</div></div>
+      <div><div class="hsv">13</div><div class="hsl">Sections</div></div>
+      <div><div class="hsv">5</div><div class="hsl">AI Providers</div></div>
+      <div><div class="hsv">Free</div><div class="hsl">No Login</div></div>
+    </div>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="showUpload()">&#8594; Analyse Latest MPC</button>
+      <button class="btn-demo" onclick="loadDemo()">&#9889; Load June 2026 Demo &mdash; No API Key Needed</button>
+    </div>
+  </div>
+  <div class="feat-grid">
+    <div class="fc"><div class="fc-icon">&#9878;&#65039;</div><div class="fc-title">Hawkish/Dovish Gauge</div><div class="fc-desc">A calibrated 0&ndash;100 score with the six factors driving it.</div></div>
+    <div class="fc"><div class="fc-icon">&#128202;</div><div class="fc-title">GDP &amp; Inflation Forecasts</div><div class="fc-desc">Quarterly projections as charts with plain English interpretation.</div></div>
+    <div class="fc"><div class="fc-icon">&#128269;</div><div class="fc-title">Key Signals Decoded</div><div class="fc-desc">Five exact phrases from official documents with full context.</div></div>
+    <div class="fc"><div class="fc-icon">&#127970;</div><div class="fc-title">Sector Impact Cards</div><div class="fc-desc">Traffic-light scoring for Banks, IT, Real Estate, Oil, FMCG, Infra.</div></div>
+    <div class="fc"><div class="fc-icon">&#127908;</div><div class="fc-title">Press Conference Decoded</div><div class="fc-desc">What journalists asked and what the Governor&rsquo;s answers signal.</div></div>
+    <div class="fc"><div class="fc-icon">&#128104;&#8205;&#128188;</div><div class="fc-title">What It Means For You</div><div class="fc-desc">Home loan, equity, debt, NRI profiles &mdash; plain language, no jargon.</div></div>
+  </div>
+  <div class="src-bar">
+    <div class="src-item"><div class="src-dot"></div>Source: RBI.org.in</div>
+    <div class="src-item"><div class="src-dot"></div>Official Documents Only</div>
+    <div class="src-item"><div class="src-dot"></div>Free to Use</div>
+    <div class="src-item"><div class="src-dot"></div>No Login Required</div>
+    <div class="src-item"><div class="src-dot"></div>No Data Stored</div>
+  </div>
+</div>
+ 
+<div id="upload-screen">
+  <button class="back-btn" onclick="showHomepage()" style="margin-bottom:24px;">&#8592; Back</button>
+  <div class="uh"><h2>Upload RBI Documents</h2><p>Upload 1&ndash;3 official RBI documents. More documents = richer analysis.</p></div>
+  <div class="plbl">Choose AI Provider</div>
+  <div class="pg">
+    <div class="pb active" id="prov-gemini" onclick="selectProvider('gemini')"><div class="pn">Google Gemini</div><div class="pm">gemini-2.0-flash</div><div class="pbadge free">Free</div></div>
+    <div class="pb" id="prov-groq" onclick="selectProvider('groq')"><div class="pn">Groq</div><div class="pm">llama-3.3-70b</div><div class="pbadge free">Free</div></div>
+    <div class="pb" id="prov-deepseek" onclick="selectProvider('deepseek')"><div class="pn">DeepSeek</div><div class="pm">deepseek-chat</div><div class="pbadge free">Free</div></div>
+    <div class="pb" id="prov-claude" onclick="selectProvider('claude')"><div class="pn">Claude</div><div class="pm">claude-sonnet-4-5</div><div class="pbadge paid">Paid</div></div>
+    <div class="pb" id="prov-openai" onclick="selectProvider('openai')"><div class="pn">OpenAI</div><div class="pm">gpt-4o</div><div class="pbadge paid">Paid</div></div>
+  </div>
+  <input type="password" class="akin" id="api-key-input" placeholder="Paste your API key here&hellip;">
+  <div class="aknote" id="api-key-note">Your API key is used only in your browser &mdash; never stored or sent to any server.</div>
+  <div class="fus">
+    <div class="fur"><div class="fbadge mand">Mandatory</div><div class="fi"><div class="fn">MPC Policy Statement / Resolution</div><div class="fd">4 pages &mdash; the verdict: what was decided and how the vote went</div><div class="fok" id="fok-policy"></div></div><div class="fiw"><button class="btb">Choose PDF</button><input type="file" accept=".pdf" id="file-policy" onchange="fileChosen('policy')"></div></div>
+    <div class="fur"><div class="fbadge recd">Recommended</div><div class="fi"><div class="fn">Governor&rsquo;s Statement</div><div class="fd">7 pages &mdash; the rationale: why it was decided, forecasts, sector detail</div><div class="fok" id="fok-governor"></div></div><div class="fiw"><button class="btb">Choose PDF</button><input type="file" accept=".pdf" id="file-governor" onchange="fileChosen('governor')"></div></div>
+    <div class="fur"><div class="fbadge opt">Optional</div><div class="fi"><div class="fn">Press Conference Transcript</div><div class="fd">Adds depth: candid tone, watch factors, what journalists probed</div><div class="fok" id="fok-transcript"></div></div><div class="fiw"><button class="btb">Choose PDF</button><input type="file" accept=".pdf" id="file-transcript" onchange="fileChosen('transcript')"></div></div>
+  </div>
+  <div id="upload-err" class="ebox" style="display:none;"></div>
+  <button class="abtn" id="analyse-btn" onclick="startAnalysis()" disabled>Upload the Policy Statement to begin</button>
+</div>
+ 
+<div id="processing-screen">
+  <div class="pspin"></div>
+  <div class="ptitle">Analysing MPC Documents</div>
+  <div class="psub">AI is reading the documents and extracting structured intelligence&hellip;</div>
+  <div class="psteps">
+    <div class="pstep" id="step1"><div class="picon">1</div>Reading uploaded documents</div>
+    <div class="pstep" id="step2"><div class="picon">2</div>Identifying rate decision &amp; vote</div>
+    <div class="pstep" id="step3"><div class="picon">3</div>Extracting forecasts &amp; signals</div>
+    <div class="pstep" id="step4"><div class="picon">4</div>Scoring hawkish/dovish gauge</div>
+    <div class="pstep" id="step5"><div class="picon">5</div>Building sector impact analysis</div>
+    <div class="pstep" id="step6"><div class="picon">6</div>Generating dashboard</div>
+  </div>
+  <div id="proc-err" class="ebox" style="display:none;margin-top:20px;"></div>
+  <button class="back-btn" id="proc-back" style="display:none;margin:16px auto 0;" onclick="showUpload()">&#8592; Try Again</button>
+</div>
+ 
+<div id="dashboard">
+  <div class="dh"><div class="dh-in">
+    <div class="dh-badge">PolicyPulse &mdash; Analysis</div>
+    <div class="dh-title">RBI MPC Meeting &mdash; <span id="d-num"></span></div>
+    <div class="dh-sub">Monetary Policy Committee &middot; Reserve Bank of India</div>
+    <div class="dh-meta">
+      <div class="dh-mi">&#128197; <span id="d-dates"></span></div>
+      <div class="dh-mi">&#128100; <span id="d-gov"></span></div>
+      <div class="dh-mi">&#128204; Next: <span id="d-next"></span></div>
+      <div class="dh-mi">&#128203; Minutes: <span id="d-min"></span></div>
+    </div>
+  </div></div>
+ 
+  <div class="ds" id="sec-1"><div class="sw">
+    <div class="sh"><div class="snum">01</div><div><div class="stitle">Policy Snapshot</div><div class="sdesc">The verdict &mdash; what was decided</div></div></div>
+    <div class="snap-grid">
+      <div class="snap-card acc"><div class="slbl">Repo Rate</div><div class="sv" id="d-repo"></div><div class="ssub">SDF: <span id="d-sdf"></span>% &middot; MSF: <span id="d-msf"></span>%</div><div style="margin-top:8px"><span class="vbadge b-hold" id="d-action"></span></div></div>
+      <div class="snap-card"><div class="slbl">MPC Stance</div><div class="sv sm" id="d-stance"></div><div><span class="stance-pill" id="d-stance-pill"></span></div></div>
+      <div class="snap-card"><div class="slbl">Vote</div><div class="sv sm" id="d-vote"></div><div><span class="vbadge" id="d-vote-b"></span></div><div class="ssub" style="margin-top:8px">Bank Rate: <span id="d-bank"></span>%</div></div>
+      <div class="snap-card"><div class="slbl">Next Meeting</div><div class="sv sm" id="d-next2"></div><div class="ssub" style="margin-top:8px">Minutes: <span id="d-min2"></span></div></div>
+      <div class="snap-card mspan"><div class="slbl" style="margin-bottom:10px">MPC Members</div><ul class="mlist" id="d-members"></ul></div>
+    </div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; Plain English</div><div class="pb-txt">The RBI Monetary Policy Committee meets every two months to decide whether to raise, cut, or hold interest rates. This snapshot shows the outcome &mdash; what rate was set, how unanimous the vote was, and what the stance signals. A Neutral stance means flexibility is preserved in either direction.</div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-2"><div class="sw">
+    <div class="sh"><div class="snum">02</div><div><div class="stitle">Hawkish / Dovish Gauge</div><div class="sdesc">RBI&rsquo;s policy mood on a 0&ndash;100 scale</div></div></div>
+    <div class="gauge-wrap">
+      <div class="gauge-vis">
+        <svg class="gauge-svg" viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 140 A110 110 0 0 1 250 140" fill="none" stroke="#2a2a3a" stroke-width="18" stroke-linecap="round"/>
+          <path d="M30 140 A110 110 0 0 1 80 47" fill="none" stroke="#4ab87a" stroke-width="18" stroke-linecap="round" opacity=".4"/>
+          <path d="M80 47 A110 110 0 0 1 140 30" fill="none" stroke="#5b9bd5" stroke-width="18" stroke-linecap="round" opacity=".4"/>
+          <path d="M140 30 A110 110 0 0 1 200 47" fill="none" stroke="#e8a030" stroke-width="18" stroke-linecap="round" opacity=".4"/>
+          <path d="M200 47 A110 110 0 0 1 250 140" fill="none" stroke="#e05c6c" stroke-width="18" stroke-linecap="round" opacity=".4"/>
+          <path id="gauge-arc" d="M30 140 A110 110 0 0 1 140 30" fill="none" stroke="#c9a96e" stroke-width="5" stroke-linecap="round"/>
+          <line id="gauge-needle" x1="140" y1="140" x2="30" y2="140" stroke="#c9a96e" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="140" cy="140" r="5" fill="#c9a96e"/>
+          <text x="24" y="158" fill="#4ab87a" font-size="9" font-family="monospace">DOVE</text>
+          <text x="220" y="158" fill="#e05c6c" font-size="9" font-family="monospace">HAWK</text>
+          <text x="112" y="22" fill="#9999b3" font-size="8" font-family="monospace">NEUTRAL</text>
+        </svg>
+        <div class="gauge-score"><div class="gauge-num" id="d-gscore"></div><div class="gauge-lbl" id="d-glbl"></div><div class="gauge-sub">out of 100</div></div>
+      </div>
+      <div>
+        <div class="gf-title">Key Factors Driving the Score</div>
+        <div id="d-gfactors"></div>
+        <div class="pb-box" style="margin-top:16px"><div class="pb-lbl">&#128214; What This Means</div><div class="pb-txt" id="d-greason"></div></div>
+      </div>
+    </div>
+  </div></div>
+ 
+  <div class="ds" id="sec-3"><div class="sw">
+    <div class="sh"><div class="snum">03</div><div><div class="stitle">Rate Decision &amp; Cycle Position</div><div class="sdesc">Where are we in the rate cycle?</div></div></div>
+    <div class="rate-cols">
+      <div class="rate-card">
+        <div class="rstrip-title">Repo Rate History &mdash; Easing Cycle</div>
+        <div id="d-rstrip"></div>
+        <div class="pb-box" style="margin-top:16px"><div class="pb-lbl">&#128214; The Cycle Story</div><div class="pb-txt" id="d-cplain"></div></div>
+      </div>
+      <div class="rate-card">
+        <div class="prob-title">Next Meeting Probabilities</div>
+        <div class="prob-item"><div class="prob-row"><div class="prob-lbl">Hold</div><div class="prob-pct hold" id="d-holdp"></div></div><div class="prob-bar"><div class="prob-fill hold" id="d-holdbar"></div></div></div>
+        <div class="prob-item"><div class="prob-row"><div class="prob-lbl">Hike</div><div class="prob-pct hike" id="d-hikep"></div></div><div class="prob-bar"><div class="prob-fill hike" id="d-hikebar"></div></div></div>
+        <div class="prob-item"><div class="prob-row"><div class="prob-lbl">Cut</div><div class="prob-pct cut" id="d-cutp"></div></div><div class="prob-bar"><div class="prob-fill cut" id="d-cutbar"></div></div></div>
+        <div class="cycle-box">
+          <div class="prob-title" style="margin-bottom:8px">Cycle Position</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--gold-pale)" id="d-cpos"></div>
+          <div style="font-size:.78rem;color:var(--text3);margin-top:4px">Cuts since Feb 2025: <span style="color:var(--green)" id="d-tcuts"></span> bps</div>
+          <div style="font-size:.78rem;color:var(--text3);margin-top:3px">Next likely move: <span style="color:var(--amber)" id="d-nmove"></span></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+ 
+  <div class="ds" id="sec-4"><div class="sw">
+    <div class="sh"><div class="snum">04</div><div><div class="stitle">GDP &amp; Inflation Forecasts</div><div class="sdesc">RBI&rsquo;s quarterly projections for FY2026&ndash;27</div></div></div>
+    <div class="fcast-grid">
+      <div class="fkpi"><div class="fkpi-lbl">GDP FY27 Full Year</div><div class="fkpi-val"><span id="d-gdpfy"></span><span style="font-size:1rem;color:var(--text3)">%</span></div><div class="fkpi-sub">FY26 Actual: <span id="d-gdp26"></span>%</div><div class="fkpi-delta dn">&#9660; from FY26</div></div>
+      <div class="fkpi"><div class="fkpi-lbl">CPI Inflation FY27</div><div class="fkpi-val"><span id="d-cpifw"></span><span style="font-size:1rem;color:var(--text3)">%</span></div><div class="fkpi-sub">Mar: <span id="d-cpimar"></span>% &middot; Apr: <span id="d-cpiapr"></span>%</div><div class="fkpi-delta up">&#9650; Revised up</div></div>
+      <div class="fkpi"><div class="fkpi-lbl">Core CPI FY27</div><div class="fkpi-val"><span id="d-corecpi"></span><span style="font-size:1rem;color:var(--text3)">%</span></div><div class="fkpi-sub">Excludes food &amp; energy</div></div>
+      <div class="fkpi"><div class="fkpi-lbl">Crude Oil Assumption</div><div class="fkpi-val">$<span id="d-crude"></span></div><div class="fkpi-sub">Apr&ndash;May Actual: $<span id="d-crudea"></span>/bbl</div><div class="fkpi-delta up">&#9650; Risk to inflation</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card"><div class="chart-title">GDP Growth &mdash; Quarterly FY27 (%)</div><div class="chart-wrap"><canvas id="gdp-chart"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">CPI Inflation &mdash; Quarterly FY27 (%)</div><div class="chart-wrap"><canvas id="cpi-chart"></canvas></div></div>
+    </div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; Why This Matters</div><div class="pb-txt" id="d-fplain"></div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-5"><div class="sw">
+    <div class="sh"><div class="snum">05</div><div><div class="stitle">Key Signals</div><div class="sdesc">Exact phrases from RBI documents &mdash; decoded</div></div></div>
+    <div id="d-signals"></div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; How to Read These</div><div class="pb-txt">Central banks communicate in carefully chosen language. The difference between &ldquo;vigilant&rdquo; and &ldquo;watchful&rdquo;, or &ldquo;prudent to wait&rdquo; versus &ldquo;monitoring closely&rdquo;, tells you how close the RBI is to its next move. Read the plain English translation under each signal.</div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-6"><div class="sw">
+    <div class="sh"><div class="snum">06</div><div><div class="stitle">Sector Impact</div><div class="sdesc">How this MPC decision affects key sectors</div></div></div>
+    <div class="sector-grid" id="d-sectors"></div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; How to Use This</div><div class="pb-txt">Each sector score (0&ndash;100) reflects how positive or negative this MPC outcome is. Green (above 60) means tailwinds. Amber (40&ndash;60) is mixed. Red (below 40) means headwinds. These are relative to this meeting&rsquo;s decision &mdash; not absolute business quality assessments.</div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-7"><div class="sw">
+    <div class="sh"><div class="snum">07</div><div><div class="stitle">Capital Flow Measures</div><div class="sdesc">Policy actions announced alongside the rate decision</div></div></div>
+    <div class="cap-grid" id="d-capital"></div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; Why Capital Flows Matter</div><div class="pb-txt">The RBI doesn&rsquo;t just set rates &mdash; it also manages India&rsquo;s balance of payments. When FPI outflows are high, RBI takes steps to attract dollar inflows through NRI deposits, bond market access, and borrowing incentives. These measures show RBI actively managing external account pressures.</div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-8"><div class="sw">
+    <div class="sh"><div class="snum">08</div><div><div class="stitle">Macro Snapshot</div><div class="sdesc">Key economic indicators from the Governor&rsquo;s statement</div></div></div>
+    <div class="macro-grid" id="d-macro"></div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; Reading the Dashboard</div><div class="pb-txt" id="d-mplain"></div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-9"><div class="sw">
+    <div class="sh"><div class="snum">09</div><div><div class="stitle">Risk Radar</div><div class="sdesc">What could derail the outlook</div></div></div>
+    <div id="d-risks"></div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; Primary Risk</div><div class="pb-txt" id="d-prisk"></div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-10"><div class="sw">
+    <div class="sh"><div class="snum">10</div><div><div class="stitle">Governor&rsquo;s Statement Highlights</div><div class="sdesc">Six key takeaways from the speech</div></div></div>
+    <div id="d-govitems"></div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; Governor&rsquo;s Tone</div><div class="pb-txt" id="d-gtone"></div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-11"><div class="sw">
+    <div class="sh"><div class="snum">11</div><div><div class="stitle">Press Conference Decoded</div><div class="sdesc">What journalists asked &mdash; what the answers signal</div></div></div>
+    <div id="d-pressconf"></div>
+    <div class="pb-box"><div class="pb-lbl">&#128214; Why the Press Conference Matters</div><div class="pb-txt">The official statement is carefully worded. The press conference is where the Governor&rsquo;s answers reveal real thinking. Pay attention to the signal labels &mdash; they tell you whether the response was hawkish, dovish, or deliberately ambiguous.</div></div>
+  </div></div>
+ 
+  <div class="ds" id="sec-12"><div class="sw">
+    <div class="sh"><div class="snum">12</div><div><div class="stitle">What It Means For You</div><div class="sdesc">Four profiles &mdash; plain English impact</div></div></div>
+    <div class="pers-grid">
+      <div class="pers-card"><div class="pers-icon">&#127968;</div><div class="pers-title">Home Loan Borrower</div><div class="pers-txt" id="d-p1"></div></div>
+      <div class="pers-card"><div class="pers-icon">&#128200;</div><div class="pers-title">Equity Investor</div><div class="pers-txt" id="d-p2"></div></div>
+      <div class="pers-card"><div class="pers-icon">&#128176;</div><div class="pers-title">Debt Investor</div><div class="pers-txt" id="d-p3"></div></div>
+      <div class="pers-card"><div class="pers-icon">&#9992;&#65039;</div><div class="pers-title">NRI Depositor</div><div class="pers-txt" id="d-p4"></div></div>
+    </div>
+  </div></div>
+ 
+  <div class="ds" id="sec-13" style="border-bottom:none;"><div class="sw">
+    <div class="sh"><div class="snum">13</div><div><div class="stitle">Research Lens</div><div class="sdesc">Positives, watchpoints, forward guidance</div></div></div>
+    <div class="res-cols">
+      <div class="res-col"><div class="res-title pos">&#10003; Positives</div><div id="d-pos"></div></div>
+      <div class="res-col"><div class="res-title watch">&#9888; Watchpoints</div><div id="d-watch"></div></div>
+    </div>
+    <div class="fwd">
+      <div class="fwd-title">Forward Guidance</div>
+      <div class="fwd-grid">
+        <div><div class="fwd-lbl">Next Action</div><div class="fwd-val" id="d-fgnext"></div></div>
+        <div><div class="fwd-lbl">Hike Trigger</div><div class="fwd-val" style="color:var(--red)" id="d-fghike"></div></div>
+        <div><div class="fwd-lbl">Cut Trigger</div><div class="fwd-val" style="color:var(--green)" id="d-fgcut"></div></div>
+        <div><div class="fwd-lbl">Timeline</div><div class="fwd-val" id="d-fgtl"></div></div>
+      </div>
+      <div class="pb-box" style="margin-top:16px"><div class="pb-lbl">&#128214; Bottom Line</div><div class="pb-txt" id="d-fgplain"></div></div>
+    </div>
+  </div></div>
+ 
+  <div style="background:var(--bg2);border-top:1px solid var(--border);padding:20px 32px;text-align:center;">
+    <div style="font-size:.75rem;color:var(--text3);font-family:'DM Mono',monospace;">PolicyPulse &middot; Based on official RBI documents &middot; rbi.org.in &middot; Not investment advice</div>
+  </div>
+</div>
+ 
+<script>
+var DEMO={meeting:{number:"61st",dates:"June 3–5, 2026",governor:"Shri Sanjay Malhotra",members:["Dr. Nagesh Kumar","Shri Saugata Bhattacharya","Prof. Ram Singh","Dr. Poonam Gupta","Shri Indranil Bhattacharyya"],next_meeting:"August 3–5, 2026",minutes_date:"June 19, 2026"},decision:{repo_rate:5.25,sdf_rate:5.00,msf_rate:5.50,bank_rate:5.50,stance:"Neutral",vote:"6-0 Unanimous",action:"Hold"},gauge:{score:58,label:"Cautiously Hawkish",reasoning:"RBI held rates but the inflation alarm is getting louder. They are not panicking yet — but if the next two months of data show prices spreading beyond oil into everyday goods, expect a hike at the August meeting.",factors:["CPI raised 50bps to 5.1% for FY27 — heading toward upper tolerance in Q3","Crude assumption raised to $95/barrel — supply shock driven","Growth moderated to 6.6% from FY26 actual of 7.6%","Real rate near zero / negative — acknowledged in press conference","Neutral stance retained — flexibility preserved for either direction","West Asia conflict prolonging — uncertainty prevents preemptive action"]},forecasts:{gdp_fy27:6.6,gdp_q1:6.6,gdp_q2:6.3,gdp_q3:6.5,gdp_q4:6.8,gdp_fy26_actual:7.6,cpi_fy27:5.1,cpi_q1:4.2,cpi_q2:5.1,cpi_q3:5.9,cpi_q4:5.4,core_cpi_fy27:4.7,cpi_march_actual:3.4,cpi_april_actual:3.5,crude_assumption_usd:95,crude_actual_apr_may:110},key_signals:[{phrase:"Prudent to wait for greater clarity to emerge",source:"MPC Resolution",sentiment:"Cautious",implication:"RBI is not ready to hike yet — wants to see if the inflation shock is temporary or getting embedded",plain_english:"RBI is saying: we see the risk but we are not panicking. Give us one more meeting’s worth of data."},{phrase:"Generalisation of inflation through second-round effects is a distinct possibility",source:"Governor’s Statement",sentiment:"Hawkish Watch",implication:"This is the trigger RBI is watching. If wage growth and inflation expectations start rising, a hike follows",plain_english:"If the oil price shock spreads to everything else — food, services, wages — RBI will act."},{phrase:"4% target is sacrosanct — not in abeyance",source:"Press Conference",sentiment:"Hawkish",implication:"Governor pushed back firmly when asked if RBI had abandoned the 4% target. They have not.",plain_english:"Do not expect RBI to ignore inflation just because growth is slowing. The 4% target is non-negotiable."},{phrase:"We will curb excessive volatility and prevent disorderly market movements",source:"Governor’s Statement",sentiment:"Defensive",implication:"Clear signal that RBI will intervene in forex markets if rupee moves become speculative",plain_english:"RBI has $682 billion in reserves and is watching the rupee closely."},{phrase:"All possibilities discussed — whether to hike, retain, or reduce",source:"Press Conference",sentiment:"Balanced",implication:"Rate hike was on the table at this meeting. The unanimous hold was a close call.",plain_english:"The MPC seriously considered hiking. They held back only because the inflation shock may be temporary."}],sector_impact:[{sector:"Banks & NBFCs",impact:"Neutral-Negative",score:40,reason:"Rate hold is neutral for margins. NIM compression already happening — net profit growth slowed from 14.67% to 6% in FY26. If inflation forces a hike, deposit costs rise faster than lending rates.",plain_english:"Banks are under margin pressure. The rate hold gives breathing room but does not help. A hike would squeeze them further."},{sector:"Real Estate & Housing",impact:"Neutral",score:50,reason:"Rate hold means no immediate EMI relief. Existing 125bps of cuts since Feb 2025 are still transmitting — WALR down 83bps on fresh loans.",plain_english:"Home loan EMIs will not change. The rate cuts from earlier this year are still feeding through. No new relief, but no new pain either."},{sector:"Oil & Energy (OMCs)",impact:"Negative",score:25,reason:"Crude at $110/barrel actual vs $95 assumption. Petrol +7.4%, Diesel +8.4% since May. OMC under-recoveries likely if crude stays elevated.",plain_english:"Oil companies are in a tough spot. Either they lose money or fuel prices go up again — both are bad."},{sector:"IT & Services Exports",impact:"Positive",score:65,reason:"Services PMI at 59.8. Services exports up 12.7% in April. Demand for Indian IT resilient. Rupee depreciation helps export earnings.",plain_english:"IT sector is doing well. Global demand for Indian services is strong and a weaker rupee means more rupees per dollar earned."},{sector:"FMCG & Rural Consumption",impact:"Negative",score:35,reason:"Monsoon forecast deficient at 90% LPA. El Nino risk. Agricultural income uncertain.",plain_english:"Rural India faces a tough monsoon. If rains fail, farm income drops and rural spending slows."},{sector:"Infrastructure & Capex",impact:"Positive",score:68,reason:"Government capex budgeted +11.5% in FY27. CPSE capex +63% YoY in April 2026. Capacity utilisation at 75.2%.",plain_english:"Government is spending heavily on infrastructure. Companies building roads, ports, and factories are in a good position."}],macro_context:{fx_reserves_bn:682.3,import_cover_months:11,fpi_outflow_ytd_bn:13.7,gross_fdi_fy26_bn:94.5,credit_growth_pct:16.2,bank_crar_pct:17.68,bank_gnpa_pct:1.73,nbfc_crar_pct:24.70,nbfc_gnpa_pct:1.83,wpi_april:8.3,liquidity_surplus_lakh_cr:2.63,unemployment_pct:5.2,services_pmi_may:59.8,manufacturing_pmi_may:55.0,walr_decline_bps:83},capital_flow_measures:[{measure:"FAR G-Secs Expanded",detail:"15, 30, 40-year tenor G-secs added to Fully Accessible Route. FPI limits and concentration rules removed.",impact:"Makes Indian government bonds more accessible to foreign investors."},{measure:"NRI/OCI Equity Investment Limits Increased",detail:"Extended to all Persons Resident Outside India at par with NRIs and OCIs.",impact:"Broader base of non-resident investors can now buy Indian stocks directly."},{measure:"Concessional Forex Swap for PSU ECBs",detail:"Available till September 30, 2026 for PSUs raising External Commercial Borrowings.",impact:"Lowers cost of foreign borrowing for government companies."},{measure:"Full Hedging Cost for FCNR(B) Deposits",detail:"RBI bears full hedging cost for AD banks raising fresh 3–5 year FCNR(B) deposits till September 30, 2026.",impact:"Banks can offer better returns to NRI depositors — expected to attract significant dollar inflows."},{measure:"Export Proceeds Window Restored to 9 Months",detail:"Time for realisation of export proceeds restored to nine months.",impact:"Exporters get more time to bring back foreign earnings."}],risks:{primary:"West Asia conflict prolonging — supply chain disruption and elevated energy prices ($110/barrel vs $95 assumed) are the number one risk.",secondary:"Sub-normal monsoon forecast (90% of LPA) with El Nino conditions likely. IMD forecasts 82% probability of El Nino developing May–July 2026.",tertiary:"Second-round inflation effects — if oil shock embeds into wage expectations, RBI will be forced to hike.",global:"Major advanced economy central banks pivoting toward tightening. US dollar appreciating. Risk-off sentiment pushing capital out of EMs.",domestic:"FPI outflows of $13.7 billion in first two months of FY27. Rupee under depreciation pressure. Real rate near zero."},forward_guidance:{next_action:"Data dependent — hold most likely if inflation shock proves temporary",hike_trigger:"If inflation gets generalised — second-round effects on wages and expectations materialise",cut_trigger:"Not in consideration given current inflation trajectory",governor_tone:"Cautiously optimistic on India’s resilience. Firm on 4% target. Not committing on next move.",timeline:"August 3–5, 2026 meeting is live — depends on June–July inflation data and monsoon progress",plain_english:"RBI is in wait-and-watch mode. One more bad inflation print and they hike. One print of comfort and they stay on hold. A cut is off the table for now."},press_conference_highlights:[{q:"Is the 4% inflation target in abeyance?",a_summary:"No — emphatically. Governor called it sacrosanct. It is a medium-term target, not a monthly one.",signal:"Hawkish on intent, patient on timing"},{q:"Is the real rate negative and should RBI hike sooner?",a_summary:"Governor acknowledged real rate is very small or negative but said it must be looked at over a longer period.",signal:"Aware of the pressure but not ready to act yet"},{q:"Did the MPC discuss a rate hike at this meeting?",a_summary:"Yes — all possibilities were discussed. The unanimous hold means they chose patience, not that a hike was not on the table.",signal:"Hike was considered. Unanimous hold is not the same as dovish consensus."},{q:"What is the crude oil assumption?",a_summary:"$95 per barrel. Actual average April–May was $110. This gap is why inflation is being revised upward.",signal:"If crude stays above $95, every future MPC faces upward inflation pressure."},{q:"Is RBI concerned about rupee speculation?",a_summary:"Governor said RBI will intervene against speculative movements. $682bn reserves give firepower to defend.",signal:"RBI is watching forex closely."}],governor_statement_highlights:["Indian economy entered this global turbulence with better fundamentals than previous episodes","West Asia conflict lingering in fragile truce — extended supply disruption now the base case","Major advanced economy central banks likely to pivot to tightening — global liquidity tightening ahead","Passthrough to domestic prices limited so far — but petrol/diesel hike since May will hit CPI in coming months","Five capital flow measures announced to strengthen balance of payments","India GDP FY26 actual: 7.6% — economy entered FY27 from a position of strength"],rate_cycle:{position:"End of Easing Cycle",total_cuts_since_feb25_bps:125,current_rate:5.25,next_likely_move:"Hold or Hike",cut_probability_pct:5,hold_probability_pct:65,hike_probability_pct:30,plain_english:"RBI cut rates 125bps in quick succession from February 2025. That cycle is now over. The next move, when it comes, is more likely to be a hike than a cut."},research_lens:{positives:["India’s macro fundamentals entering FY27 are strong — 7.6% FY26 GDP, credit growth 16.2%, banks well capitalised at 17.68% CRAR","Five capital flow measures in one announcement — shows RBI proactively managing BoP","Services sector firing — PMI 59.8, exports +12.7% April. IT resilient despite AI concerns","Inflation still below 4% target in March and April despite global shock"],watchpoints:["CPI heading to 5.9% in Q3 FY27 — approaching the 6% upper tolerance. If it breaches, a hike is near-certain","FPI outflows of $13.7 billion in first two months — capital is leaving India","Real interest rate near zero — savers are losing to inflation. This is unsustainable","Monsoon deficiency + El Nino could hit food prices in H2"],what_it_means_for_you:{home_loan_borrower:"EMIs will not change right now. The 83bps of lending rate cuts since Feb 2025 are still feeding through. But if inflation forces a hike by October, EMIs could go up.",equity_investor:"Rate hold plus neutral stance is broadly neutral for markets. Infrastructure, IT, and export-facing sectors look better placed than banks and rural FMCG near-term.",debt_investor:"10-year G-sec yields hardened in May. If inflation prints above 5.5%, yields could rise further. Short-duration funds are safer than long-duration right now.",nri_depositor:"New FCNR(B) scheme with full hedging cost — this is a good window. Banks can offer better returns. Worth exploring if you are holding dollars."}}};
+ 
+var prov="gemini",charts={},isDark=true;
+ 
+function sd(id,v){var e=document.getElementById(id);if(e)e.style.display=v;}
+function st(id,v){var e=document.getElementById(id);if(e&&v!=null)e.textContent=String(v);}
+ 
+function showHomepage(){sd("upload-screen","none");sd("processing-screen","none");sd("dashboard","none");sd("homepage","block");sd("back-home-btn","none");}
+function showUpload(){sd("homepage","none");sd("processing-screen","none");sd("dashboard","none");sd("upload-screen","block");sd("back-home-btn","flex");}
+function showProcessing(){sd("homepage","none");sd("upload-screen","none");sd("dashboard","none");sd("processing-screen","block");sd("back-home-btn","none");resetSteps();}
+function showDashboard(){sd("homepage","none");sd("upload-screen","none");sd("processing-screen","none");sd("dashboard","block");sd("back-home-btn","flex");}
+function toggleTheme(){isDark=!isDark;document.body.classList.toggle("light-mode",!isDark);document.getElementById("theme-toggle").textContent=isDark?"&#9728;":"&#127769;";}
+function selectProvider(n){prov=n;document.querySelectorAll(".pb").forEach(function(b){b.classList.remove("active");});document.getElementById("prov-"+n).classList.add("active");var notes={gemini:"Free tier API key from aistudio.google.com",groq:"Free tier from console.groq.com — text-only",deepseek:"Free tier from platform.deepseek.com — text-only",claude:"Paid key from console.anthropic.com",openai:"Paid key from platform.openai.com — text-only"};document.getElementById("api-key-note").textContent=notes[n];}
+var ufiles={policy:null,governor:null,transcript:null};
+function fileChosen(t){var f=document.getElementById("file-"+t).files[0]||null;ufiles[t]=f;var ind=document.getElementById("fok-"+t);if(f){ind.textContent="✓ "+f.name;ind.style.display="block";}else{ind.style.display="none";}var b=document.getElementById("analyse-btn");if(ufiles.policy){b.disabled=false;b.textContent="Analyse Documents →";}else{b.disabled=true;b.textContent="Upload the Policy Statement to begin";}}
+function resetSteps(){for(var i=1;i<=6;i++){var s=document.getElementById("step"+i);s.className="pstep";s.querySelector(".picon").textContent=i;}sd("proc-err","none");sd("proc-back","none");}
+function animStep(n){return new Promise(function(res){for(var i=1;i<=6;i++){var s=document.getElementById("step"+i);if(i<n){s.className="pstep done";s.querySelector(".picon").textContent="✓";}else if(i===n){s.className="pstep active";}}setTimeout(res,450);});}
+function b64(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(",")[1]);};r.onerror=rej;r.readAsDataURL(f);});}
+var SP='Return ONLY raw JSON, no markdown, no backticks. Schema exactly: {"meeting":{"number":"","dates":"","governor":"","members":[],"next_meeting":"","minutes_date":""},"decision":{"repo_rate":0,"sdf_rate":0,"msf_rate":0,"bank_rate":0,"stance":"","vote":"","action":""},"gauge":{"score":50,"label":"","reasoning":"","factors":[]},"forecasts":{"gdp_fy27":0,"gdp_q1":0,"gdp_q2":0,"gdp_q3":0,"gdp_q4":0,"gdp_fy26_actual":0,"cpi_fy27":0,"cpi_q1":0,"cpi_q2":0,"cpi_q3":0,"cpi_q4":0,"core_cpi_fy27":0,"cpi_march_actual":0,"cpi_april_actual":0,"crude_assumption_usd":0,"crude_actual_apr_may":0},"key_signals":[{"phrase":"","source":"","sentiment":"","implication":"","plain_english":""}],"sector_impact":[{"sector":"","impact":"","score":50,"reason":"","plain_english":""}],"macro_context":{"fx_reserves_bn":0,"import_cover_months":0,"fpi_outflow_ytd_bn":0,"gross_fdi_fy26_bn":0,"credit_growth_pct":0,"bank_crar_pct":0,"bank_gnpa_pct":0,"nbfc_crar_pct":0,"nbfc_gnpa_pct":0,"wpi_april":0,"liquidity_surplus_lakh_cr":0,"unemployment_pct":0,"services_pmi_may":0,"manufacturing_pmi_may":0,"walr_decline_bps":0},"capital_flow_measures":[{"measure":"","detail":"","impact":""}],"risks":{"primary":"","secondary":"","tertiary":"","global":"","domestic":""},"forward_guidance":{"next_action":"","hike_trigger":"","cut_trigger":"","governor_tone":"","timeline":"","plain_english":""},"press_conference_highlights":[{"q":"","a_summary":"","signal":""}],"governor_statement_highlights":[],"rate_cycle":{"position":"","total_cuts_since_feb25_bps":0,"current_rate":0,"next_likely_move":"","cut_probability_pct":5,"hold_probability_pct":65,"hike_probability_pct":30,"plain_english":""},"research_lens":{"positives":[],"watchpoints":[],"what_it_means_for_you":{"home_loan_borrower":"","equity_investor":"","debt_investor":"","nri_depositor":""}}}';
+async function callGemini(k,fs){var parts=[];for(var i=0;i<fs.length;i++){var d=await b64(fs[i][1]);parts.push({inline_data:{mime_type:"application/pdf",data:d}});parts.push({text:"[Document: "+fs[i][0]+"]"});}parts.push({text:"Analyse above RBI MPC documents. "+SP});var r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+k,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:parts}]})});if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||"Gemini error "+r.status);}var d=await r.json();return(d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]&&d.candidates[0].content.parts[0].text)||"";}
+async function callClaude(k,fs){var c=[];for(var i=0;i<fs.length;i++){var d=await b64(fs[i][1]);c.push({type:"document",source:{type:"base64",media_type:"application/pdf",data:d}});c.push({type:"text",text:"[Document: "+fs[i][0]+"]"});}c.push({type:"text",text:"Analyse above RBI MPC documents. "+SP});var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,messages:[{role:"user",content:c}]})});if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||"Claude error "+r.status);}var d=await r.json();return(d.content&&d.content[0]&&d.content[0].text)||"";}
+async function callOAI(k,fs,model,ep){var docs=fs.map(function(f){return "=== "+f[0]+" ===\n[PDF: "+f[1].name+"]";}).join("\n\n");var r=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+k},body:JSON.stringify({model:model,messages:[{role:"system",content:"Expert RBI MPC analyst. Return only raw JSON."},{role:"user",content:"Analyse:\n\n"+docs+"\n\n"+SP}],max_tokens:4000})});if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||"API error "+r.status);}var d=await r.json();return(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||"";}
+function parseJ(t){t=t.trim().replace(/^```json\s*/i,"").replace(/^```/,"").replace(/```$/,"").trim();var s=t.indexOf("{"),e=t.lastIndexOf("}");if(s>-1&&e>-1)t=t.slice(s,e+1);return JSON.parse(t);}
+async function startAnalysis(){var key=document.getElementById("api-key-input").value.trim();if(!key){document.getElementById("upload-err").textContent="Please enter your API key.";sd("upload-err","block");return;}sd("upload-err","none");if(!ufiles.policy)return;showProcessing();var fs=[];if(ufiles.policy)fs.push(["MPC Policy Statement",ufiles.policy]);if(ufiles.governor)fs.push(["Governor's Statement",ufiles.governor]);if(ufiles.transcript)fs.push(["Press Conference Transcript",ufiles.transcript]);try{await animStep(1);await animStep(2);await animStep(3);var raw="";if(prov==="gemini")raw=await callGemini(key,fs);else if(prov==="claude")raw=await callClaude(key,fs);else if(prov==="openai")raw=await callOAI(key,fs,"gpt-4o","https://api.openai.com/v1/chat/completions");else if(prov==="groq")raw=await callOAI(key,fs,"llama-3.3-70b-versatile","https://api.groq.com/openai/v1/chat/completions");else if(prov==="deepseek")raw=await callOAI(key,fs,"deepseek-chat","https://api.deepseek.com/chat/completions");await animStep(4);var parsed=parseJ(raw);await animStep(5);await animStep(6);await new Promise(function(r){setTimeout(r,400);});renderDash(parsed);showDashboard();}catch(err){var eb=document.getElementById("proc-err");eb.textContent="Error: "+(err.message||String(err))+". Check your API key and try again.";sd("proc-err","block");sd("proc-back","block");}}
+function loadDemo(){renderDash(DEMO);showDashboard();}
+ 
+function renderDash(D){
+  Object.keys(charts).forEach(function(k){try{charts[k].destroy();}catch(e){}});charts={};
+  var M=D.meeting||{},DC=D.decision||{},G=D.gauge||{},F=D.forecasts||{},RC=D.rate_cycle||{},FG=D.forward_guidance||{},R=D.risks||{},MC=D.macro_context||{},RL=D.research_lens||{},WY=(RL.what_it_means_for_you)||{};
+  st("d-num",M.number);st("d-dates",M.dates);st("d-gov",M.governor);st("d-next",M.next_meeting);st("d-min",M.minutes_date);
+  var repoEl=document.getElementById("d-repo");if(repoEl)repoEl.textContent=(DC.repo_rate||"")+"%";
+  st("d-sdf",DC.sdf_rate);st("d-msf",DC.msf_rate);st("d-bank",DC.bank_rate);
+  st("d-stance",DC.stance);st("d-vote",DC.vote);st("d-next2",M.next_meeting);st("d-min2",M.minutes_date);
+  var sp=document.getElementById("d-stance-pill");if(sp)sp.textContent=DC.stance||"";
+  var ab=document.getElementById("d-action");if(ab){ab.textContent=DC.action||"Hold";ab.className="vbadge "+(DC.action==="Hike"?"b-hike":DC.action==="Cut"?"b-cut":"b-hold");}
+  var vb=document.getElementById("d-vote-b");if(vb)vb.textContent=DC.vote||"";
+  var ml=document.getElementById("d-members");if(ml&&M.members)ml.innerHTML=M.members.map(function(m){return"<li>"+m+"</li>";}).join("");
+  st("d-gscore",G.score);st("d-glbl",G.label);st("d-greason",G.reasoning);
+  renderNeedle(parseFloat(G.score)||50);
+  var gfl=document.getElementById("d-gfactors");if(gfl&&G.factors)gfl.innerHTML=G.factors.map(function(f){return'<div class="gf-item"><div class="gf-dot"></div><div>'+f+"</div></div>";}).join("");
+  renderStrip(DC.repo_rate||RC.current_rate||5.25);
+  st("d-holdp",(RC.hold_probability_pct||0)+"%");st("d-hikep",(RC.hike_probability_pct||0)+"%");st("d-cutp",(RC.cut_probability_pct||0)+"%");
+  var hb=document.getElementById("d-holdbar");if(hb)hb.style.width=(RC.hold_probability_pct||0)+"%";
+  var kb=document.getElementById("d-hikebar");if(kb)kb.style.width=(RC.hike_probability_pct||0)+"%";
+  var cb=document.getElementById("d-cutbar");if(cb)cb.style.width=(RC.cut_probability_pct||0)+"%";
+  st("d-cpos",RC.position);st("d-tcuts",RC.total_cuts_since_feb25_bps);st("d-nmove",RC.next_likely_move);st("d-cplain",RC.plain_english);
+  st("d-gdpfy",F.gdp_fy27);st("d-gdp26",F.gdp_fy26_actual);st("d-cpifw",F.cpi_fy27);st("d-cpimar",F.cpi_march_actual);st("d-cpiapr",F.cpi_april_actual);st("d-corecpi",F.core_cpi_fy27);st("d-crude",F.crude_assumption_usd);st("d-crudea",F.crude_actual_apr_may);
+  st("d-fplain","RBI projects GDP at "+F.gdp_fy27+"% for FY27, down from "+F.gdp_fy26_actual+"% last year but still strong. Inflation is the concern: heading toward "+F.cpi_q3+"% in Q3, approaching the 6% upper tolerance. The gap between crude assumption ($"+F.crude_assumption_usd+") and actual ($"+F.crude_actual_apr_may+") is the single biggest risk.");
+  renderGDP(F);renderCPI(F);
+  var sl=document.getElementById("d-signals");if(sl&&D.key_signals)sl.innerHTML=D.key_signals.map(function(s){return'<div class="sig-card"><div class="sig-top"><div class="sig-phrase">&ldquo;'+s.phrase+'&rdquo;</div><div class="sig-badges"><span class="sig-src">'+s.source+'</span><span class="sent '+sentClass(s.sentiment)+'">'+s.sentiment+'</span></div></div><div class="sig-impl">'+s.implication+'</div><div class="sig-plain">'+s.plain_english+"</div></div>";}).join("");
+  var sg=document.getElementById("d-sectors");if(sg&&D.sector_impact)sg.innerHTML=D.sector_impact.map(function(s){return'<div class="sec-card"><div class="sec-top"><div class="sec-name">'+s.sector+'</div><span class="imp '+impClass(s.impact)+'">'+s.impact+'</span></div><div class="sec-bar"><div class="sec-fill" style="width:'+s.score+'%;background:'+scoreCol(s.score)+'"></div></div><div class="sec-reason">'+s.reason+'</div><div class="sec-plain">'+s.plain_english+"</div></div>";}).join("");
+  var cg=document.getElementById("d-capital");if(cg&&D.capital_flow_measures)cg.innerHTML=D.capital_flow_measures.map(function(m){return'<div class="cap-card"><div class="cap-measure">'+m.measure+'</div><div class="cap-detail">'+m.detail+'</div><div class="cap-impact">'+m.impact+"</div></div>";}).join("");
+  st("d-mplain","India’s macro fundamentals are strong. FX reserves at $"+MC.fx_reserves_bn+"bn provide "+MC.import_cover_months+" months of import cover. Bank CRAR "+MC.bank_crar_pct+"% and GNPA "+MC.bank_gnpa_pct+"% are at decade-best levels. Concern is on the external side: FPI outflows of $"+MC.fpi_outflow_ytd_bn+"bn and rupee pressure.");
+  var mg=document.getElementById("d-macro");if(mg){var items=[{l:"FX Reserves",v:"$"+MC.fx_reserves_bn+"bn",s:MC.import_cover_months+" months import cover",st:"good"},{l:"FPI Outflows YTD",v:"-$"+MC.fpi_outflow_ytd_bn+"bn",s:"First 2 months FY27",st:"warn"},{l:"Bank CRAR",v:MC.bank_crar_pct+"%",s:"Capital adequacy",st:"good"},{l:"Bank GNPA",v:MC.bank_gnpa_pct+"%",s:"Gross NPAs — decade low",st:"good"},{l:"Credit Growth",v:MC.credit_growth_pct+"%",s:"Bank credit expansion",st:"good"},{l:"Services PMI",v:MC.services_pmi_may,s:"May 2026 (>50 = expansion)",st:"good"},{l:"Mfg PMI",v:MC.manufacturing_pmi_may,s:"May 2026",st:"good"},{l:"Liquidity",v:"₹"+MC.liquidity_surplus_lakh_cr+"L Cr",s:"System surplus",st:"good"},{l:"WALR Decline",v:MC.walr_decline_bps+" bps",s:"Rate cut transmission",st:"good"},{l:"WPI April",v:MC.wpi_april+"%",s:"Wholesale inflation",st:"warn"},{l:"NBFC CRAR",v:MC.nbfc_crar_pct+"%",s:"NBFC capital adequacy",st:"good"},{l:"Gross FDI FY26",v:"$"+MC.gross_fdi_fy26_bn+"bn",s:"Foreign direct investment",st:"good"}];mg.innerHTML=items.map(function(x){return'<div class="mkpi"><div class="mkpi-lbl">'+x.l+'</div><div class="mkpi-val">'+x.v+'</div><div class="mkpi-sub">'+x.s+'</div><div class="mkpi-st st-'+x.st+'">'+(x.st==="good"?"● Healthy":x.st==="warn"?"● Watch":"● Risk")+"</div></div>";}).join("");}
+  var rg=document.getElementById("d-risks");if(rg){var rlist=[{cls:"crit",bc:"rb-crit",lbl:"Critical",txt:R.primary},{cls:"high",bc:"rb-high",lbl:"High",txt:R.secondary},{cls:"med",bc:"rb-med",lbl:"Medium",txt:R.tertiary},{cls:"glob",bc:"rb-glob",lbl:"Global",txt:R.global},{cls:"med",bc:"rb-med",lbl:"Domestic",txt:R.domestic}].filter(function(x){return x.txt;});rg.innerHTML=rlist.map(function(r){return'<div class="risk-card"><div class="risk-bar '+r.bc+'"></div><div class="risk-content"><div class="risk-lrow"><span class="rbadge '+r.cls+'">'+r.lbl+' Risk</span></div><div class="risk-txt">'+r.txt+"</div></div></div>";}).join("");}
+  st("d-prisk",R.primary);
+  var gi=document.getElementById("d-govitems");if(gi&&D.governor_statement_highlights)gi.innerHTML=D.governor_statement_highlights.map(function(x){return'<div class="gov-item">'+x+"</div>";}).join("");
+  st("d-gtone",FG.governor_tone);
+  var pc=document.getElementById("d-pressconf");if(pc&&D.press_conference_highlights)pc.innerHTML=D.press_conference_highlights.map(function(x){return'<div class="pc-card"><div class="pc-q"><span class="pc-ql">Q</span><span>'+x.q+'</span></div><div class="pc-a"><span class="pc-al">A</span><span>'+x.a_summary+'</span></div><span class="pc-sig">&#128225; '+x.signal+"</span></div>";}).join("");
+  st("d-p1",WY.home_loan_borrower);st("d-p2",WY.equity_investor);st("d-p3",WY.debt_investor);st("d-p4",WY.nri_depositor);
+  var rp=document.getElementById("d-pos");if(rp&&RL.positives)rp.innerHTML=RL.positives.map(function(x){return'<div class="res-item"><div class="res-dot g"></div><div>'+x+"</div></div>";}).join("");
+  var rw=document.getElementById("d-watch");if(rw&&RL.watchpoints)rw.innerHTML=RL.watchpoints.map(function(x){return'<div class="res-item"><div class="res-dot a"></div><div>'+x+"</div></div>";}).join("");
+  st("d-fgnext",FG.next_action);st("d-fghike",FG.hike_trigger);st("d-fgcut",FG.cut_trigger);st("d-fgtl",FG.timeline);st("d-fgplain",FG.plain_english);
+}
+ 
+function renderNeedle(score){
+  var n=document.getElementById("gauge-needle"),a=document.getElementById("gauge-arc");
+  if(!n)return;
+  var ang=-180+(score/100)*180,rad=ang*Math.PI/180,cx=140,cy=140,r=90;
+  n.setAttribute("x2",(cx+r*Math.cos(rad)).toFixed(1));
+  n.setAttribute("y2",(cy+r*Math.sin(rad)).toFixed(1));
+  if(a){var ar=110,erd=(-180+(score/100)*180)*Math.PI/180,ex=(cx+ar*Math.cos(erd)).toFixed(1),ey=(cy+ar*Math.sin(erd)).toFixed(1),la=score>50?1:0;a.setAttribute("d","M30 140 A"+ar+" "+ar+" 0 "+la+" 1 "+ex+" "+ey);}
+}
+ 
+function renderStrip(rate){
+  var el=document.getElementById("d-rstrip");if(!el)return;
+  var hist=[{d:"Feb 2025",r:6.50,ch:0},{d:"Apr 2025",r:6.25,ch:-25},{d:"Jun 2025",r:6.00,ch:-25},{d:"Aug 2025",r:5.75,ch:-25},{d:"Oct 2025",r:5.50,ch:-25},{d:"Dec 2025",r:5.50,ch:0},{d:"Feb 2026",r:5.25,ch:-25},{d:"Jun 2026 ★",r:parseFloat(rate)||5.25,ch:0}];
+  el.innerHTML=hist.map(function(x,i){var cur=i===hist.length-1,pct=Math.round((x.r/6.5)*100),cs=x.ch===0?"neu":x.ch<0?"neg":"pos",ct=x.ch===0?"Hold":x.ch<0?x.ch+"bps":"+"+x.ch+"bps";return'<div class="rsi"><div class="rsi-date">'+x.d+'</div><div class="rsi-outer"><div class="rsi-inner'+(cur?" cur":"")+'" style="width:'+pct+'%"><span class="rsi-val">'+x.r.toFixed(2)+'%</span></div></div><div class="rsi-ch '+cs+'">'+ct+"</div></div>";}).join("");
+}
+ 
+var CF={family:"DM Mono, monospace",size:11};
+function CC(){return{txt:isDark?"#9999b3":"#44445a",grid:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.07)",gold:"#c9a96e",red:"#e05c6c",green:"#4ab87a"};}
+ 
+function renderGDP(F){
+  var el=document.getElementById("gdp-chart");if(!el)return;
+  var C=CC();if(charts.gdp){charts.gdp.destroy();charts.gdp=null;}
+  var vals=[F.gdp_q1,F.gdp_q2,F.gdp_q3,F.gdp_q4].map(Number),act=Number(F.gdp_fy26_actual);
+  var all=vals.concat([act]),yMin=Math.max(0,Math.floor(Math.min.apply(null,all)-0.5)),yMax=Math.ceil(Math.max.apply(null,all)+0.5);
+  charts.gdp=new Chart(el,{type:"bar",data:{labels:["Q1 FY27","Q2 FY27","Q3 FY27","Q4 FY27"],datasets:[{type:"bar",label:"GDP Growth %",data:vals,backgroundColor:C.gold+"99",borderColor:C.gold,borderWidth:1.5,borderRadius:5,order:2},{type:"line",label:"FY26 Actual ("+act+"%)",data:[act,act,act,act],borderColor:C.green,borderWidth:2,borderDash:[6,4],pointRadius:0,tension:0,fill:false,order:1}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:500},plugins:{legend:{labels:{color:C.txt,font:CF,boxWidth:12,padding:10}},tooltip:{callbacks:{label:function(x){return" "+x.dataset.label.split("(")[0].trim()+": "+x.parsed.y.toFixed(1)+"%";}}}},scales:{x:{ticks:{color:C.txt,font:CF},grid:{color:C.grid}},y:{min:yMin,max:yMax,ticks:{color:C.txt,font:CF,callback:function(v){return v+"%";},stepSize:0.5},grid:{color:C.grid}}}}});
+}
+ 
+function renderCPI(F){
+  var el=document.getElementById("cpi-chart");if(!el)return;
+  var C=CC();if(charts.cpi){charts.cpi.destroy();charts.cpi=null;}
+  var vals=[F.cpi_q1,F.cpi_q2,F.cpi_q3,F.cpi_q4].map(Number);
+  var yMin=Math.max(0,Math.floor(Math.min.apply(null,vals)-0.5)),yMax=Math.ceil(7.3);
+  var bc=vals.map(function(v){return v<=4?C.green+"99":v<=6?C.red+"88":C.red;});
+  charts.cpi=new Chart(el,{type:"bar",data:{labels:["Q1 FY27","Q2 FY27","Q3 FY27","Q4 FY27"],datasets:[{type:"bar",label:"CPI Inflation %",data:vals,backgroundColor:bc,borderColor:C.red,borderWidth:1.5,borderRadius:5,order:3},{type:"line",label:"6% Tolerance Ceiling",data:[6,6,6,6],borderColor:"#ff6b6b",borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0,fill:false,order:1},{type:"line",label:"4% Target",data:[4,4,4,4],borderColor:C.green,borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0,fill:false,order:2}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:500},plugins:{legend:{labels:{color:C.txt,font:CF,boxWidth:12,padding:10}},tooltip:{callbacks:{label:function(x){return" "+x.dataset.label+": "+x.parsed.y.toFixed(1)+"%";}}}},scales:{x:{ticks:{color:C.txt,font:CF},grid:{color:C.grid}},y:{min:yMin,max:yMax,ticks:{color:C.txt,font:CF,callback:function(v){return v+"%";},stepSize:0.5},grid:{color:C.grid}}}}});
+}
+ 
+function sentClass(s){if(!s)return"balanced";var l=s.toLowerCase();if(l.indexOf("hawkish watch")>-1)return"hawk-watch";if(l.indexOf("hawkish")>-1)return"hawkish";if(l.indexOf("cautious")>-1)return"cautious";if(l.indexOf("defensive")>-1)return"defensive";return"balanced";}
+function impClass(s){if(!s)return"neu";var l=s.toLowerCase();if(l.indexOf("neutral-neg")>-1||l.indexOf("neutral neg")>-1)return"neu-neg";if(l.indexOf("negative")>-1)return"neg";if(l.indexOf("neutral")>-1)return"neu";if(l.indexOf("positive")>-1)return"pos";return"neu";}
+function scoreCol(v){return v>=60?"#4ab87a":v>=40?"#5b9bd5":"#e05c6c";}
+ 
+showHomepage();
+</script>
+</body>
+</html>
