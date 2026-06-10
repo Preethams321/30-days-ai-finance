@@ -197,6 +197,7 @@ body{font-family:'Syne',sans-serif !important;}
 .zg{color:#4ab87a;border-color:rgba(74,184,122,.35);background:rgba(74,184,122,.07);}
 .za{color:#c9a96e;border-color:rgba(201,169,110,.35);background:rgba(201,169,110,.07);}
 .zr{color:#e05c6c;border-color:rgba(224,92,108,.35);background:rgba(224,92,108,.07);}
+.zh{color:#9b6ef3;border-color:rgba(155,110,243,.35);background:rgba(155,110,243,.07);}
 
 /* Mobile */
 @media(max-width:640px){
@@ -242,8 +243,8 @@ SCENARIOS = {
         "yield": 2.90, "e": "🌪",
         "body": "Fed hinted at tapering QE. US 10Y spiked 1.6% → 2.9% in 6 months. Rupee crashed ₹54 → ₹68 (peak stress). FII outflows ~$10bn+. RBI was forced into an emergency rate hike. India 10Y hit 8.8%.",
         # Actual historical data for this episode
-        "actual": {"inr": 62.0, "gold": 1220, "india10y": 8.8, "nifty_pe": 18.0,
-                   "inr_note": "₹54 at start → ₹68 at peak", "period": "May–Dec 2013"},
+        "actual": {"inr": 68.8, "gold": 1220, "india10y": 8.8, "nifty_pe": 18.0,
+                   "inr_note": "Peak ₹68.83 on Aug 28 2013", "period": "May–Dec 2013"},
     },
     "2020 COVID Crash": {
         "yield": 0.62, "e": "◎",
@@ -337,10 +338,19 @@ for _s, _sk in SECTOR_KEYS.items():
 #  CALCULATION ENGINE
 # ══════════════════════════════════════════════════════════════
 def calc(y):
-    d    = y - B10Y
-    inr  = BINR + SINR * d
+    d = y - B10Y
+
+    # INR: non-linear above 5.5% — RBI historically intervenes heavily
+    # preventing linear depreciation. US10Y has never exceeded 5.3% post-2000.
+    if y <= 5.5:
+        inr = BINR + SINR * d
+    else:
+        # Dampened: 50% sensitivity above 5.5% (RBI intervention effect)
+        inr_at_5_5 = BINR + SINR * (5.5 - B10Y)
+        inr = inr_at_5_5 + (y - 5.5) * SINR * 0.5
+
     i10  = BI10 + SI10 * d
-    pe   = max(BPE - SPE * d, 10.0)
+    pe   = max(BPE - SPE * d, 12.0)   # floor at 12x — Indian market never below this
     gold = BGOLD * (1 - SGOLD / 100 * d)
     fii  = -BFII * d
     lr   = BHLR + SHLR * SI10 * d * 100 / 100
@@ -349,9 +359,12 @@ def calc(y):
     br   = BHLR / 100 / 12
     bemi = BLOAN * (br * (1+br)**n) / ((1+br)**n - 1)
     secs = {s: b * d for s, b in SECTORS.items()}
+    # Flag hypothetical zone — US10Y has not exceeded ~5.3% post-2000
+    hypothetical = y > 5.5
     return dict(y=y, d=d, inr=inr, i10=i10, pe=pe, lvl=pe*EPS,
                 gold=gold, gold_inr=gold*inr, fii=fii,
-                lr=lr, emi=emi, bemi=bemi, edlt=emi-bemi, secs=secs)
+                lr=lr, emi=emi, bemi=bemi, edlt=emi-bemi, secs=secs,
+                hypothetical=hypothetical)
 
 # ══════════════════════════════════════════════════════════════
 #  HELPERS
@@ -525,14 +538,14 @@ def render_control():
     for col, (lbl, pv) in zip(
         [c1, c2, c3, c4],
         [("2.0% — Low", 2.0), ("3.5% — Moderate", 3.5),
-         ("5.0% — Elevated", 5.0), ("7.0% — Extreme", 7.0)]
+         ("5.0% — Elevated", 5.0), ("6.0% — Extreme", 6.0)]
     ):
         with col:
             if st.button(lbl, key=f"qy_{pv}"):
                 _set_yield(pv)
 
     new_y = st.slider(
-        "Yield", min_value=2.0, max_value=8.0,
+        "Yield", min_value=2.0, max_value=6.5,
         value=float(st.session_state.y10),
         step=0.1, format="%.1f%%",
         key="main_slider", label_visibility="collapsed",
@@ -540,11 +553,11 @@ def render_control():
     st.session_state.y10 = new_y
 
     y   = new_y
-    zc  = "zg" if y <= 3.0 else ("za" if y <= 4.5 else "zr")
+    zc  = "zg" if y <= 3.0 else ("za" if y <= 4.5 else ("zr" if y <= 5.5 else "zh"))
     ztx = ("GOLDILOCKS" if y <= 3.0 else
            "NEUTRAL"    if y <= 4.5 else
-           "STRESS"     if y <= 6.0 else "EXTREME STRESS")
-    yc  = "#4ab87a" if y <= 3.0 else ("#c9a96e" if y <= 4.5 else "#e05c6c")
+           "STRESS"     if y <= 5.5 else "HYPOTHETICAL ZONE")
+    yc  = "#4ab87a" if y <= 3.0 else ("#c9a96e" if y <= 4.5 else ("#e05c6c" if y <= 5.5 else "#9b6ef3"))
     dlt = y - B10Y
     dlt_txt = ("▲ +" + f"{dlt:.1f}% above" if dlt > 0
                else "▼ " + f"{abs(dlt):.1f}% below" if dlt < 0
@@ -627,6 +640,19 @@ def tab_sim(m):
        "All numbers update instantly as you drag the slider.")
     disc()
 
+    # Hypothetical zone warning — US10Y has never exceeded ~5.3% post-2000
+    if m.get("hypothetical"):
+        st.markdown(
+            '<div style="background:rgba(155,110,243,.08);border:1px solid rgba(155,110,243,.35);'
+            'border-radius:6px;padding:12px 16px;margin-bottom:16px;">'
+            '<span style="font:700 11px/1 DM Mono,monospace;color:#9b6ef3;letter-spacing:.08em;">⚠ HYPOTHETICAL ZONE</span>'
+            '<span style="font:400 11px/1 Syne,sans-serif;color:#7a7a90;margin-left:10px;">'
+            'US 10Y has not exceeded ~5.3% in the post-2000 era. Numbers above 5.5% are extrapolations '
+            'beyond observed data — treat as directional only, not estimates.'
+            '</span></div>',
+            unsafe_allow_html=True
+        )
+
     # ── Row 1: INR + India 10Y ──
     c1, c2 = st.columns(2, gap="medium")
     with c1:
@@ -634,7 +660,7 @@ def tab_sim(m):
         mc("USD / INR", "₹" + f"{m['inr']:.2f}",
            sgn(d, 2) + " rupees vs ₹" + str(BINR) + " baseline", -d,
            "neg" if d > 0 else "pos",
-           sub="Sensitivity: ₹2.3 weaker per +100bps US10Y")
+           sub="₹2.3/100bps (dampened above 5.5% — RBI intervention)" if m.get("hypothetical") else "Sensitivity: ₹2.3 weaker per +100bps US10Y")
         with st.expander("WHY DOES THIS HAPPEN"):
             kc("India-US 10Y spread peaked at ~590bps (2016) and compressed to ~255bps (2024–25) per Business Standard. As the spread narrowed, INR fell ~35% over the decade. Sensitivity hardcoded at ₹2.3 per +100bps from long-run regression.",
                '"Capital finds the steepest slope. When US bonds pay more, dollars flow home from India — and that demand for dollars weakens the rupee."')
@@ -776,7 +802,7 @@ def tab_scenarios():
             mc("INDIA 10Y", f'{act["india10y"]:.2f}%', sgn(round(d_i, 2), 2) + "% vs today", -d_i,
                "neg" if act["india10y"] > BI10 else "pos", sub="Actual G-Sec")
 
-        st.markdown('<div class="disc">◈  Actual figures from RBI Annual Reports, NSE PE data, Bloomberg. Not model projections. Slider moved to this yield level — check Live Simulator tab for today-relative estimates.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="disc">◈  Sources: RBI Annual Reports, NSE, Bloomberg/Refinitiv. ⚠ Nifty PE before Apr 2021 = standalone earnings; after Apr 2021 = consolidated — not directly comparable to today\'s 20.1×. Not model projections.</div>', unsafe_allow_html=True)
 
         sdiv(24)
         m = calc(sc["yield"])
