@@ -841,7 +841,14 @@ def tab_quiz():
         gc = "pos" if acc >= 70 else ("neg" if acc < 50 else "neu")
         mc("ACCURACY", str(acc) + "%", str(correct) + "/" + str(tot) + " correct", 0, gc)
     with c4:
-        mc("RANK", title, "Level " + str(lv) + " of 7", 0, "neu")
+        st.markdown(
+            '<div class="mc neu">' +
+            '<div class="mc-eye">RANK</div>' +
+            '<div style="font:600 13px/1.2 DM Mono,monospace;color:#c9a96e;margin-bottom:6px;word-break:break-word;">' + title + '</div>' +
+            '<div class="mc-sub">Level ' + str(lv) + ' of 7</div>' +
+            '</div>',
+            unsafe_allow_html=True
+        )
     with c5:
         mc("TO NEXT LV", str(100 - xp_in) + " XP", str(xp_in) + "/100 earned", 0, "neu")
 
