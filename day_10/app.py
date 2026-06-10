@@ -211,21 +211,21 @@ body{font-family:'Syne',sans-serif !important;}
 # ══════════════════════════════════════════════════════════════
 #  CONSTANTS & COEFFICIENTS
 # ══════════════════════════════════════════════════════════════
-B10Y  = 4.5
-BINR  = 85.5;  SINR  = 2.3
-BI10  = 6.85;  SI10  = 0.45
-BPE   = 22.0;  SPE   = 1.8;  EPS = 1068
-BGOLD = 2650;  SGOLD = 8.0
+B10Y  = 4.57  # US 10Y yield as of June 10, 2026
+BINR  = 95.0;  SINR  = 2.3
+BI10  = 6.95;  SI10  = 0.45
+BPE   = 20.1;  SPE   = 1.8;  EPS = 1157
+BGOLD = 4200;  SGOLD = 8.0
 BFII  = 18000
-BHLR  = 8.5;   SHLR  = 0.6
+BHLR  = 8.75;  SHLR  = 0.6
 BLOAN = 5_000_000; BTEN = 20
 
 # Keys must not contain special chars — use safe keys mapped from sector names
 SECTORS = {
-    "IT Services":         +2.8,
+    "IT Services":         +1.5,   # FX tailwind offset by US tech demand headwind
     "Banks":               -1.2,
     "NBFCs":               -3.5,
-    "Real Estate":         -5.0,
+    "Real Estate":         -3.0,   # premium segment rate-resilient; affordable most impacted
     "Auto":                -2.8,
     "FMCG":                -0.5,
     "Capital Goods/Infra": -3.2,
@@ -442,24 +442,31 @@ def chart_fii(fii, key):
         value=fii / 1000,
         delta={"reference": 0, "suffix": "K Cr",
                "increasing": {"color": "#4ab87a"},
-               "decreasing": {"color": "#e05c6c"}},
+               "decreasing": {"color": "#e05c6c"},
+               "font": {"size": 14}},
         number={"suffix": "K Cr",
-                "font": {"size": 28, "family": "DM Mono", "color": "#e4e4f0"}},
+                "font": {"size": 24, "family": "DM Mono", "color": "#e4e4f0"}},
         gauge={
-            "axis": {"range": [-54, 32], "tickcolor": "#555570",
-                     "tickfont": {"size": 9}},
-            "bar":  {"color": "#c9a96e", "thickness": 0.25},
+            "axis": {"range": [-60, 36],
+                     "tickvals": [-54, -36, -18, 0, 18, 36],
+                     "ticktext": ["-54K", "-36K", "-18K", "0", "+18K", "+36K"],
+                     "tickcolor": "#444455",
+                     "tickfont": {"size": 9},
+                     "tickangle": 0},
+            "bar":  {"color": "#c9a96e", "thickness": 0.22},
             "bgcolor": "#0c0c18", "bordercolor": "#1a1a28",
+            "borderwidth": 1,
             "steps": [
-                {"range": [-54, -18], "color": "rgba(224,92,108,.12)"},
-                {"range": [-18,  10], "color": "rgba(201,169,110,.05)"},
-                {"range": [ 10,  32], "color": "rgba(74,184,122,.10)"},
+                {"range": [-60, -20], "color": "rgba(224,92,108,.10)"},
+                {"range": [-20,  12], "color": "rgba(201,169,110,.04)"},
+                {"range": [ 12,  36], "color": "rgba(74,184,122,.08)"},
             ],
         },
         title={"text": "FII Monthly Flow  (₹000 Cr)",
                "font": {"size": 10, "color": "#555570"}},
     ))
-    fig.update_layout(**_DL, height=240)
+    fig.update_layout(**_DL, height=260,
+        margin=dict(l=20, r=20, t=40, b=20))
     st.plotly_chart(fig, use_container_width=True,
                     config={"displayModeBar": False}, key=key)
 
@@ -567,7 +574,7 @@ def render_hero():
   <div style="font:400 16px/1.75 'Syne',sans-serif;color:#7a7a90;
        max-width:520px;margin-bottom:32px;">
     Drag a slider. Watch Indian markets move in real time.<br>
-    Built from 15 years of verified US–India yield history.
+    Built from 15 years of US–India yield history. Baselines updated June 2026.
   </div>
   <div class="disc" style="max-width:640px;">
     ◈  All outputs are historical pattern estimates (2010–2025).
