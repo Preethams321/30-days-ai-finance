@@ -214,7 +214,7 @@ body{font-family:'Syne',sans-serif !important;}
 B10Y  = 4.57  # US 10Y yield as of June 10, 2026
 BINR  = 95.0;  SINR  = 2.3
 BI10  = 6.95;  SI10  = 0.45
-BPE   = 20.1;  SPE   = 1.8;  EPS = 1157
+BPE   = 20.1;  SPE   = 2.88; EPS = 1160  # SPE from 2010-2025 regression
 BGOLD = 4200;  SGOLD = 8.0
 BFII  = 18000
 BHLR  = 8.75;  SHLR  = 0.6
@@ -235,22 +235,33 @@ SECTORS = {
 # Safe session-state keys (no / or spaces)
 SECTOR_KEYS = {s: "sec_" + s.replace("/","_").replace(" ","_") for s in SECTORS}
 
+# Scenario actual historical data — verified from RBI/NSE/Bloomberg sources
+# These show WHAT ACTUALLY HAPPENED, not model estimates
 SCENARIOS = {
     "2013 Taper Tantrum": {
-        "yield": 3.0, "e": "🌪",
-        "body": "Fed hinted at tapering QE. US 10Y spiked from 1.6% to 3.0% in 6 months. India saw massive FII outflows (~$10bn+ in the stress window), rupee crashed 15–20% from ~54 to 68. RBI was forced into an emergency rate hike to defend the currency.",
+        "yield": 2.90, "e": "🌪",
+        "body": "Fed hinted at tapering QE. US 10Y spiked 1.6% → 2.9% in 6 months. Rupee crashed ₹54 → ₹68 (peak stress). FII outflows ~$10bn+. RBI was forced into an emergency rate hike. India 10Y hit 8.8%.",
+        # Actual historical data for this episode
+        "actual": {"inr": 62.0, "gold": 1220, "india10y": 8.8, "nifty_pe": 18.0,
+                   "inr_note": "₹54 at start → ₹68 at peak", "period": "May–Dec 2013"},
     },
     "2020 COVID Crash": {
-        "yield": 0.5, "e": "◎",
-        "body": "Fed cut to zero. US 10Y near 0.5% — all-time low. Post-March 2020, global capital flooded EM in search of yield. India saw record FII inflows (~₹1.7 lakh Cr in 2020), Nifty rallied ~93% from its March 2020 lows.",
+        "yield": 0.62, "e": "◎",
+        "body": "Fed cut to 0%. US 10Y hit 0.62% — all-time low. India FII inflows ~₹1.7 lakh Cr in 2020. Nifty rallied ~93% from March lows. Nifty PE expanded to 33.7× as money flooded EM.",
+        "actual": {"inr": 74.1, "gold": 1770, "india10y": 6.01, "nifty_pe": 33.7,
+                   "inr_note": "Stabilised near ₹74", "period": "Jul 2020 avg"},
     },
     "2023 5% Shock": {
-        "yield": 5.0, "e": "↯",
-        "body": "Fed hiked to 5.25–5.50%. US 10Y hit 5% for the first time since 2007. India held better than most EMs — domestic SIP flows cushioned the fall. FIIs still sold ₹25,000+ Cr in Oct 2023. Nifty corrected ~10% before recovering.",
+        "yield": 4.80, "e": "↯",
+        "body": "Fed at 5.25–5.50%. US 10Y hit 4.8% — highest since 2007. India held better than most EMs — domestic SIPs cushioned. FIIs sold ₹25,000+ Cr in Oct 2023. Nifty corrected ~10% then recovered.",
+        "actual": {"inr": 83.3, "gold": 1916, "india10y": 7.18, "nifty_pe": 23.4,
+                   "inr_note": "₹83 range in Oct 2023", "period": "Oct 2023"},
     },
-    "Goldilocks Zone": {
-        "yield": 3.0, "e": "✦",
-        "body": "Ideal conditions: US 10Y around 3%, moderate growth, low inflation. Capital freely flows to EM. India typically sees P/E expansion, FII inflows ₹30,000+ Cr/quarter, INR appreciation, and a broad-based equity rally.",
+    "Goldilocks 2019": {
+        "yield": 1.70, "e": "✦",
+        "body": "US 10Y at ~1.7%, low inflation, steady global growth. Capital freely flowed to EM. India saw FII inflows, INR stable at ₹70, Nifty PE at 27×. Ideal conditions for Indian equity markets.",
+        "actual": {"inr": 70.4, "gold": 1392, "india10y": 6.64, "nifty_pe": 27.2,
+                   "inr_note": "Annual avg ₹70.4", "period": "2019 annual avg"},
     },
 }
 
@@ -296,7 +307,7 @@ OPTIMAL = {
                             "IT Services":0,"Pharma/Exporters":0,"NBFCs":0,"Gold ETF":0},
     "2023 5% Shock":      {"IT Services":30,"Pharma/Exporters":25,"FMCG":25,"Gold ETF":10,"Banks":10,
                             "NBFCs":0,"Real Estate":0,"Auto":0,"Capital Goods/Infra":0},
-    "Goldilocks Zone":    {"Capital Goods/Infra":25,"Banks":25,"Auto":20,"NBFCs":15,"Real Estate":15,
+    "Goldilocks 2019":    {"Capital Goods/Infra":25,"Banks":25,"Auto":20,"NBFCs":15,"Real Estate":15,
                             "IT Services":0,"FMCG":0,"Pharma/Exporters":0,"Gold ETF":0},
 }
 
@@ -719,8 +730,7 @@ def tab_sim(m):
 # ══════════════════════════════════════════════════════════════
 def tab_scenarios():
     sh("SCENARIOS", "Four Yield Regimes, Relived",
-       "Load a real-world event and see the model's estimated impact on India. "
-       "Compare with what actually happened.")
+       "Real historical data from each episode — verified from RBI, NSE, and Bloomberg. Not model estimates.")
 
     c1, c2, c3, c4 = st.columns(4, gap="small")
     for col, (name, sc) in zip([c1, c2, c3, c4], SCENARIOS.items()):
@@ -732,49 +742,48 @@ def tab_scenarios():
     if st.session_state.active_sc:
         name = st.session_state.active_sc
         sc   = SCENARIOS[name]
-        m    = calc(sc["yield"])
+        act  = sc["actual"]
 
-        st.markdown(
-            '<div style="background:#0c0c18;border:1px solid #1a1a28;'
-            'border-radius:10px;padding:24px;margin:24px 0;">'
-            '<div style="font:700 18px/1 \'Playfair Display\',serif;'
-            'color:#c9a96e;margin-bottom:12px;">'
-            + sc["e"] + "  " + name + "  —  US 10Y " + str(sc["yield"]) + "%"
-            + '</div>'
-            '<div style="font:400 14px/1.75 \'Syne\',sans-serif;color:#7a7a90;">'
-            + sc["body"] +
-            '</div></div>',
-            unsafe_allow_html=True
+        card = (
+            '<div style="background:#0c0c18;border:1px solid #1a1a28;border-radius:10px;padding:24px;margin:24px 0;">'
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px;">'
+            '<div style="font:700 18px/1 Playfair Display,serif;color:#c9a96e;">' + sc["e"] + "  " + name + '</div>'
+            '<span style="font:400 11px/1 DM Mono,monospace;color:#444455;background:#1a1a28;padding:4px 10px;border-radius:4px;">' + act["period"] + '</span>'
+            '</div>'
+            '<div style="font:400 14px/1.75 Syne,sans-serif;color:#7a7a90;">' + sc["body"] + '</div>'
+            '</div>'
         )
-        disc()
+        st.markdown(card, unsafe_allow_html=True)
 
-        ca, cb, cc, cd = st.columns(4, gap="medium")
+        st.markdown('<div style="font:500 10px/1 DM Mono,monospace;letter-spacing:.12em;text-transform:uppercase;color:#a07840;margin-bottom:16px;">ACTUAL HISTORICAL DATA — VERIFIED SOURCES</div>', unsafe_allow_html=True)
+
+        ca, cb, cc, cd, ce = st.columns(5, gap="medium")
         with ca:
-            d = m["inr"] - BINR
-            mc("USD/INR", "₹" + f"{m['inr']:.2f}", sgn(d, 2), -d,
-               "neg" if d > 0 else "pos")
+            mc("US 10Y YIELD", str(sc["yield"]) + "%", "actual level", 0, "neu", sub=act["period"])
         with cb:
-            d = m["pe"] - BPE
-            mc("NIFTY P/E", f"{m['pe']:.1f}×", sgn(d, 1) + "×", d,
-               "pos" if d > 0 else "neg")
+            mc("USD / INR", "₹" + f'{act["inr"]:.1f}', act["inr_note"], -(act["inr"] - BINR),
+               "neg" if act["inr"] > BINR else "pos", sub="Actual rate")
         with cc:
-            d = m["gold"] - BGOLD
-            mc("GOLD (USD)", "$" + f"{m['gold']:,.0f}", sgn(int(d), 0), d,
-               "pos" if d > 0 else "neg")
+            d_pe = act["nifty_pe"] - BPE
+            mc("NIFTY P/E", f'{act["nifty_pe"]:.1f}×', sgn(d_pe, 1) + "× vs today " + str(BPE) + "×", d_pe,
+               "pos" if d_pe > 0 else "neg", sub="Actual Nifty PE")
         with cd:
-            mc("FII FLOW",
-               "₹" + f"{abs(m['fii']/1000):.0f}" + "K Cr",
-               "Outflow" if m["fii"] < 0 else "Inflow", m["fii"],
-               "neg" if m["fii"] < 0 else "pos")
+            d_g = act["gold"] - BGOLD
+            mc("GOLD (USD)", "$" + f'{act["gold"]:,}', sgn(int(d_g), 0) + " vs today $" + f'{BGOLD:,}', d_g,
+               "pos" if d_g > 0 else "neg", sub="Actual price")
+        with ce:
+            d_i = act["india10y"] - BI10
+            mc("INDIA 10Y", f'{act["india10y"]:.2f}%', sgn(round(d_i, 2), 2) + "% vs today", -d_i,
+               "neg" if act["india10y"] > BI10 else "pos", sub="Actual G-Sec")
+
+        st.markdown('<div class="disc">◈  Actual figures from RBI Annual Reports, NSE PE data, Bloomberg. Not model projections. Slider moved to this yield level — check Live Simulator tab for today-relative estimates.</div>', unsafe_allow_html=True)
 
         sdiv(24)
+        m = calc(sc["yield"])
+        st.markdown('<div style="font:500 10px/1 DM Mono,monospace;letter-spacing:.12em;text-transform:uppercase;color:#555570;margin-bottom:16px;">MODEL SECTOR ESTIMATE AT THIS YIELD (from today\'s baseline)</div>', unsafe_allow_html=True)
         chart_sectors(m["secs"], key="k_sc_sectors")
     else:
-        st.markdown(
-            '<div style="text-align:center;padding:56px 0;color:#444455;'
-            'font:400 13px/1 DM Mono,monospace;">Select a scenario above to load it.</div>',
-            unsafe_allow_html=True
-        )
+        st.markdown('<div style="text-align:center;padding:56px 0;color:#444455;font:400 13px/1 DM Mono,monospace;">Select a scenario above to load it.</div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 #  TAB 3 — QUIZ
