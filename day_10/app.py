@@ -465,8 +465,8 @@ def chart_fii(fii, key):
         title={"text": "FII Monthly Flow  (₹000 Cr)",
                "font": {"size": 10, "color": "#555570"}},
     ))
-    fig.update_layout(**_DL, height=260,
-        margin=dict(l=20, r=20, t=40, b=20))
+    dl_fii = {**_DL, "margin": dict(l=20, r=20, t=40, b=20)}
+    fig.update_layout(**dl_fii, height=260)
     st.plotly_chart(fig, use_container_width=True,
                     config={"displayModeBar": False}, key=key)
 
