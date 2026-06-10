@@ -440,7 +440,7 @@ def chart_sectors(secs, key):
                     config={"displayModeBar": False}, key=key)
 
 def chart_curve(cur, key):
-    x   = np.linspace(2.0, 8.0, 120)
+    x   = np.linspace(2.0, 6.5, 120)
     pe  = np.clip(BPE - SPE * (x - B10Y), 10, 35)
     inr = BINR + SINR * (x - B10Y)
     fig = go.Figure()
@@ -609,7 +609,7 @@ def render_hero():
   <div style="display:flex;flex-wrap:wrap;gap:32px;
        padding-top:32px;border-top:1px solid #1a1a28;margin-top:32px;">
     <div>
-      <div style="font:700 22px/1 'DM Mono',monospace;color:#c9a96e;">2.0–8.0%</div>
+      <div style="font:700 22px/1 'DM Mono',monospace;color:#c9a96e;">2.0–6.5%</div>
       <div style="font:500 10px/1 'DM Mono',monospace;letter-spacing:.1em;
            text-transform:uppercase;color:#444455;margin-top:6px;">Yield range</div>
     </div>
@@ -662,7 +662,7 @@ def tab_sim(m):
            "neg" if d > 0 else "pos",
            sub="₹2.3/100bps (dampened above 5.5% — RBI intervention)" if m.get("hypothetical") else "Sensitivity: ₹2.3 weaker per +100bps US10Y")
         with st.expander("WHY DOES THIS HAPPEN"):
-            kc("India-US 10Y spread peaked at ~590bps (2016) and compressed to ~255bps (2024–25) per Business Standard. As the spread narrowed, INR fell ~35% over the decade. Sensitivity hardcoded at ₹2.3 per +100bps from long-run regression.",
+            kc("India-US 10Y spread peaked at ~678bps (Jul 2012), has a 10-year average of ~518bps (Business Standard), and compressed to ~255bps by 2024–25. As the spread narrowed, INR fell ~35% over the decade. Sensitivity: ₹2.3 per +100bps from episode-based regression.",
                '"Capital finds the steepest slope. When US bonds pay more, dollars flow home from India — and that demand for dollars weakens the rupee."')
     with c2:
         d = m["i10"] - BI10
@@ -671,7 +671,7 @@ def tab_sim(m):
            "neg" if d > 0 else "pos",
            sub="~45% pass-through from US 10Y (decade avg)")
         with st.expander("WHY DOES THIS HAPPEN"):
-            kc("India absorbs ~45bps per 100bps US10Y move. RBI has partial independence but can't fully insulate domestic yields. The decade-average spread of ~410bps compressed to ~255bps recently (Business Standard, Dec 2024).",
+            kc("India absorbs ~45bps per 100bps US10Y move. RBI has partial independence but can't fully insulate domestic yields. The 10-year average spread of ~518bps (Business Standard) has compressed to ~255bps by Dec 2024 — near a 20-year low.",
                '"When America sneezes, India catches half a cold. RBI has its own tools — but global yield gravity always pulls."')
 
     sdiv(16)
@@ -685,7 +685,7 @@ def tab_sim(m):
            "pos" if d > 0 else "neg",
            sub=f"Nifty ~{m['lvl']:,.0f}  ·  EPS ₹{EPS:,}")
         with st.expander("WHY DOES THIS HAPPEN"):
-            kc("~1.8× P/E compression per +100bps US10Y, with 1–2 month lag. Higher US risk-free rate raises the discount rate in DCF models — compressing fair-value multiples across Indian equities.",
+            kc("~2.9× P/E compression per +100bps US10Y (derived from 2010–2025 annual regression, R²=0.22), with 1–2 month lag. Higher US risk-free rate raises the discount rate in DCF models — compressing what investors rationally pay for Indian earnings.",
                '"When US bonds yield 5%, paying 22× for Indian earnings looks expensive. Investors don\'t accept the same price — they negotiate it down."')
     with c4:
         d = m["gold"] - BGOLD
@@ -726,9 +726,9 @@ def tab_sim(m):
            "₹" + f"{abs(govt/1000):,.0f}" + "K Cr extra",
            "annual burden above baseline", -govt,
            "neg" if govt > 0 else "pos",
-           sub="On ₹15L Cr annual gross borrowing base")
+           sub="On ₹14.82L Cr gross borrowing (FY26, PIB data)")
         with st.expander("WHY DOES THIS HAPPEN"):
-            kc("India borrows ~₹15 lakh crore annually. Every 100bps rise in India 10Y adds ~₹15,000 Cr to the annual interest burden on fresh issuances — a direct fiscal cost of US rate spillover.",
+            kc("India's gross market borrowing: ₹14.13L Cr (FY25) and ₹14.82L Cr (FY26) per PIB/RBI data. Every 100bps rise in India 10Y adds ~₹14,000–15,000 Cr to the annual interest burden on fresh issuances — a direct fiscal cost of US rate spillover.",
                '"Higher US yields don\'t just hurt your portfolio. They make the government\'s borrowing more expensive — and that eventually shows up in taxes, spending cuts, or inflation."')
 
     st.markdown('<hr class="dv">', unsafe_allow_html=True)
@@ -1248,7 +1248,7 @@ def tab_btm():
 # ══════════════════════════════════════════════════════════════
 def tab_charts(m):
     sh("DATA CHARTS", "Yield Relationships Visualised",
-       "All correlations plotted across the 2.0–8.0% range. "
+       "All correlations plotted across the 2.0–6.5% range. "
        "Historical pattern estimates (2010–2025).")
     disc()
 
@@ -1264,11 +1264,11 @@ def tab_charts(m):
     st.markdown(
         '<div style="font:500 10px/1 \'DM Mono\',monospace;letter-spacing:.12em;'
         'text-transform:uppercase;color:#444455;margin:32px 0 12px;">'
-        'FULL SENSITIVITY TABLE — 2.0% TO 8.0%</div>',
+        'FULL SENSITIVITY TABLE — 2.0% TO 6.5%</div>',
         unsafe_allow_html=True
     )
     rows = []
-    for yv in np.arange(2.0, 8.5, 0.5):
+    for yv in np.arange(2.0, 7.0, 0.5):
         r = calc(yv)
         rows.append({
             "US 10Y":      f"{yv:.1f}%",
