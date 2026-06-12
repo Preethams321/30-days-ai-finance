@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroPulse — India Economic Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --gold: #c9a96e;
+  --gold-dim: rgba(201,169,110,0.15);
+  --gold-dim2: rgba(201,169,110,0.08);
+  --green: #4ab87a;
+  --green-dim: rgba(74,184,122,0.15);
+  --red: #e05c6c;
+  --red-dim: rgba(224,92,108,0.15);
+  --amber: #e0a04a;
+  --amber-dim: rgba(224,160,74,0.15);
+  --blue: #5b9cf6;
+  --blue-dim: rgba(91,156,246,0.15);
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Syne', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --transition: 0.2s ease;
+}
+
+[data-theme="dark"] {
+  --bg: #09090e;
+  --bg2: #0e0e14;
+  --card: #111118;
+  --card2: #16161e;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0ede8;
+  --text2: #9d9b98;
+  --text3: #6a6866;
+  --shadow: rgba(0,0,0,0.5);
+  --shadow-card: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+[data-theme="light"] {
+  --bg: #faf8f3;
+  --bg2: #f3f0e8;
+  --card: #ffffff;
+  --card2: #f7f5f0;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1a1a1f;
+  --text2: #5a5855;
+  --text3: #9a9896;
+  --shadow: rgba(0,0,0,0.1);
+  --shadow-card: 0 2px 16px rgba(0,0,0,0.08);
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; border: none; background: none; }
+ul { list-style: none; }
+
+/* ═══════════════════════════════════════════════
+   TYPOGRAPHY
+═══════════════════════════════════════════════ */
+.display { font-family: var(--font-display); }
+.mono { font-family: var(--font-mono); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; }
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+/* ═══════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════ */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 600px) { .container { padding: 0 16px; } }
+
+/* ═══════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background var(--transition);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.logo-text span { color: var(--gold); }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+
+/* Nav tabs */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+.nav-tab {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text2);
+  transition: all var(--transition);
+}
+.nav-tab.active, .nav-tab:hover {
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+@media (max-width: 600px) { .nav-tabs { display: none; } }
+
+/* Theme toggle */
+.theme-toggle {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  transition: all var(--transition);
+  color: var(--text);
+}
+.theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero {
+  padding: 60px 0 40px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(ellipse, rgba(201,169,110,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: start;
+}
+@media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.hero-eyebrow .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.hero h1 em { color: var(--gold); font-style: normal; }
+.hero-sub {
+  color: var(--text2);
+  font-size: 1.05rem;
+  max-width: 540px;
+  margin-bottom: 28px;
+}
+
+/* Countdown widget */
+.countdown-widget {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  min-width: 280px;
+  position: relative;
+  overflow: hidden;
+}
+.countdown-widget::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.countdown-label { margin-bottom: 8px; }
+.countdown-event {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.countdown-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-bottom: 16px;
+}
+.countdown-digits {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.countdown-unit {
+  text-align: center;
+  flex: 1;
+}
+.countdown-num {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--gold);
+  line-height: 1;
+  display: block;
+}
+.countdown-unit-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-transform: uppercase;
+  display: block;
+  margin-top: 4px;
+}
+.countdown-sep {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  color: var(--text3);
+  line-height: 1;
+  padding-bottom: 4px;
+}
+.hero-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════
+   BADGES & CHIPS
+═══════════════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.badge-high { background: var(--red-dim); color: var(--red); }
+.badge-med { background: var(--amber-dim); color: var(--amber); }
+.badge-low { background: var(--green-dim); color: var(--green); }
+.badge-rbi { background: var(--gold-dim); color: var(--gold); }
+.badge-global { background: var(--blue-dim); color: var(--blue); }
+.badge-fno { background: rgba(150,100,255,0.15); color: #a78bfa; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  color: var(--text2);
+}
+.chip-icon { font-size: 0.85rem; }
+
+/* ═══════════════════════════════════════════════
+   DASHBOARD INFOGRAPHICS SECTION
+═══════════════════════════════════════════════ */
+.section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.section-sub {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text3);
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+@media (max-width: 860px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  transition: border-color var(--transition);
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-num {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label { font-size: 0.78rem; color: var(--text2); }
+
+/* Infographic grid */
+.infographic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 900px) { .infographic-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .infographic-grid { grid-template-columns: 1fr; } }
+
+.infographic-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  overflow: hidden;
+}
+.infographic-card.wide { grid-column: span 2; }
+@media (max-width: 900px) { .infographic-card.wide { grid-column: span 1; } }
+.infographic-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+/* Monthly calendar grid */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.month-grid-header {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text3);
+  text-align: center;
+  padding: 2px 0 6px;
+  letter-spacing: 0.05em;
+}
+.month-day {
+  aspect-ratio: 1;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text3);
+  position: relative;
+  background: var(--card2);
+  transition: all var(--transition);
+}
+.month-day.empty { background: transparent; }
+.month-day.today {
+  background: var(--gold-dim);
+  color: var(--gold);
+  font-weight: 600;
+  border: 1px solid var(--gold);
+}
+.month-day.has-event { color: var(--text); }
+.month-day.impact-high { background: var(--red-dim); color: var(--red); }
+.month-day.impact-med { background: var(--amber-dim); color: var(--amber); }
+.month-day.impact-low { background: var(--green-dim); color: var(--green); }
+.month-day.impact-fno { background: rgba(150,100,255,0.13); color: #a78bfa; }
+.month-day.impact-fno.today { border: 2px solid var(--gold); }
+.month-day.impact-high.today, .month-day.impact-med.today, .month-day.impact-low.today {
+  border: 2px solid var(--gold);
+}
+
+/* Donut chart */
+.donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.donut-chart {
+  flex-shrink: 0;
+}
+.donut-legend { flex: 1; }
+.donut-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+}
+.donut-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.donut-label { flex: 1; color: var(--text2); }
+.donut-count { font-family: var(--font-mono); font-size: 0.8rem; }
+
+/* Category bars */
+.cat-bars { display: flex; flex-direction: column; gap: 10px; }
+.cat-bar-row { display: flex; flex-direction: column; gap: 4px; }
+.cat-bar-header { display: flex; justify-content: space-between; font-size: 0.78rem; }
+.cat-bar-label { color: var(--text2); }
+.cat-bar-count { font-family: var(--font-mono); color: var(--text3); font-size: 0.73rem; }
+.cat-bar-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.cat-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+/* ═══════════════════════════════════════════════
+   NEXT 7 DAYS STRIP
+═══════════════════════════════════════════════ */
+.strip-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.strip-scroll::-webkit-scrollbar { height: 4px; }
+.strip-scroll::-webkit-scrollbar-track { background: transparent; }
+.strip-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.strip-card {
+  flex-shrink: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  min-width: 200px;
+  max-width: 240px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.strip-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.strip-card.impact-high::before { background: var(--red); }
+.strip-card.impact-med::before { background: var(--amber); }
+.strip-card.impact-low::before { background: var(--green); }
+.strip-card:hover { border-color: var(--border2); }
+
+.strip-days-out {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
+.strip-event-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.strip-date {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text2);
+}
+.strip-empty {
+  color: var(--text3);
+  font-size: 0.85rem;
+  padding: 16px 0;
+}
+
+/* ═══════════════════════════════════════════════
+   CALENDAR VIEW
+═══════════════════════════════════════════════ */
+#calendar-view { padding: 40px 0; }
+
+/* Filters */
+.filters-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  align-items: center;
+}
+.filter-group {
+  display: flex;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+.filter-btn {
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text2);
+  transition: all var(--transition);
+}
+.filter-btn.active, .filter-btn:hover {
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+.filter-sep {
+  width: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+@media (max-width: 600px) {
+  .filters-bar { flex-direction: column; align-items: stretch; }
+  .filter-group { flex-wrap: wrap; }
+}
+
+/* Month groups */
+.month-group { margin-bottom: 36px; }
+.month-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.month-group-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.month-group-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text3);
+}
+
+/* Event cards */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+@media (max-width: 600px) { .events-grid { grid-template-columns: 1fr; } }
+
+.event-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.event-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  border-radius: 2px 0 0 2px;
+}
+.event-card.impact-high::before { background: var(--red); }
+.event-card.impact-med::before { background: var(--amber); }
+.event-card.impact-low::before { background: var(--green); }
+.event-card.impact-rbi::before { background: var(--gold); }
+.event-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+.event-card.next-event {
+  border-color: var(--gold);
+  background: var(--gold-dim2);
+}
+
+.event-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.event-cat-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.event-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.3;
+  flex: 1;
+}
+.event-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.event-date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.event-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text2);
+}
+.event-countdown-chip {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--card2);
+  color: var(--text3);
+}
+.event-countdown-chip.soon {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+.event-countdown-chip.today-chip {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.event-why {
+  font-size: 0.78rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.event-why.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.event-expand {
+  font-size: 0.7rem;
+  color: var(--gold);
+  font-weight: 600;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.event-extra {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--text3);
+  display: none;
+}
+.event-extra.show { display: block; }
+
+.next-event-tag {
+  position: absolute;
+  top: 0; right: 0;
+  background: var(--gold);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 0 var(--radius) 0 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* No results */
+.no-results {
+  color: var(--text3);
+  font-size: 0.9rem;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════
+   ABOUT / FEATURES SECTION
+═══════════════════════════════════════════════ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+@media (max-width: 860px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .features-grid { grid-template-columns: 1fr; } }
+
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.feature-icon {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+.feature-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.feature-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.5; }
+
+/* ═══════════════════════════════════════════════
+   RBI RATES BANNER
+═══════════════════════════════════════════════ */
+.rbi-banner {
+  background: var(--card);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.rbi-banner-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text3);
+  margin-bottom: 2px;
+}
+.rbi-banner-val {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--gold);
+}
+.rbi-banner-item { text-align: center; }
+.rbi-banner-sep {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+}
+@media (max-width: 560px) { .rbi-banner-sep { display: none; } }
+
+/* ═══════════════════════════════════════════════
+   DISCLAIMER
+═══════════════════════════════════════════════ */
+.disclaimer {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 0.73rem;
+  color: var(--text3);
+  line-height: 1.6;
+  margin-top: 32px;
+}
+.disclaimer strong { color: var(--text2); }
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  margin-top: 40px;
+}
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.footer-text { font-size: 0.78rem; color: var(--text3); }
+.footer-links { display: flex; gap: 16px; }
+.footer-link { font-size: 0.78rem; color: var(--text3); transition: color var(--transition); }
+.footer-link:hover { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   VIEWS
+═══════════════════════════════════════════════ */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ═══════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════
+   MOBILE NAV
+═══════════════════════════════════════════════ */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+}
+.mobile-nav-inner {
+  display: flex;
+  justify-content: space-around;
+}
+.mobile-nav-btn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 6px 16px;
+  font-size: 0.62rem; font-weight: 600;
+  color: var(--text3);
+  transition: color var(--transition);
+}
+.mobile-nav-btn.active { color: var(--gold); }
+.mobile-nav-icon { font-size: 1.2rem; }
+@media (max-width: 600px) {
+  .mobile-nav { display: block; }
+  body { padding-bottom: 72px; }
+}
+
+/* ═══════════════════════════════════════════════
+   TOOLTIP — JS powered (supports multiline)
+═══════════════════════════════════════════════ */
+#mpTooltip {
+  position: fixed;
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.73rem;
+  color: var(--text);
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 260px;
+  line-height: 1.6;
+  box-shadow: 0 4px 20px var(--shadow);
+  display: none;
+  white-space: pre-line;
+}
+
+/* Utility */
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="mpTooltip"></div>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header class="header">
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">📅</div>
+        <span class="logo-text">Macro<span>Pulse</span></span>
+      </div>
+      <nav class="nav-tabs" id="desktopNav">
+        <button class="nav-tab active" onclick="switchView('home', this)">Dashboard</button>
+        <button class="nav-tab" onclick="switchView('calendar', this)">Calendar</button>
+        <button class="nav-tab" onclick="switchView('about', this)">About</button>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" id="themeBtn">🌙</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════ HOME VIEW ═══════════════════ -->
+<div id="view-home" class="view active">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-eyebrow">
+            <div class="dot"></div>
+            <span class="label">India Macro Economic Calendar</span>
+          </div>
+          <h1>Know what moves<br><em>Indian markets</em><br>before it happens.</h1>
+          <p class="hero-sub">Every RBI decision, inflation print, F&amp;O expiry, and global macro trigger — tracked, explained, and dated. Built for retail investors who want context, not just dates.</p>
+          <div class="hero-badges">
+            <span class="chip"><span class="chip-icon">🏦</span>RBI MPC</span>
+            <span class="chip"><span class="chip-icon">📊</span>CPI / WPI</span>
+            <span class="chip"><span class="chip-icon">📈</span>F&amp;O Expiry</span>
+            <span class="chip"><span class="chip-icon">🌐</span>Global</span>
+          </div>
+        </div>
+        <div>
+          <div class="countdown-widget" id="countdownWidget">
+            <p class="label countdown-label">⚡ Next high-impact event</p>
+            <div class="countdown-event" id="cdEventName">Loading…</div>
+            <div class="countdown-date" id="cdEventDate" style="margin-bottom:14px;"></div>
+            <div id="cdDaysOut" style="font-family:var(--font-mono);font-size:2rem;font-weight:500;color:var(--gold);line-height:1;margin-bottom:4px;">—</div>
+            <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;">days away</div>
+            <div id="cdImpactBadge" style="margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RBI RATES BANNER -->
+  <section class="section">
+    <div class="container">
+      <div class="rbi-banner">
+        <div class="rbi-banner-item">
+          <div class="rbi-banner-label">REPO RATE</div>
+          <div class="rbi-banner-val">5.25%</div>
+        </div>
+        <div class="rbi-banner-sep"></div>
+        <div class="rbi-banner-item">
+          <div class="rbi-banner-label">SDF</div>
+          <div class="rbi-banner-val">5.00%</div>
+        </div>
+        <div class="rbi-banner-sep"></div>
+        <div class="rbi-banner-item">
+          <div class="rbi-banner-label">MSF / BANK RATE</div>
+          <div class="rbi-banner-val">5.50%</div>
+        </div>
+        <div class="rbi-banner-sep"></div>
+        <div class="rbi-banner-item">
+          <div class="rbi-banner-label">STANCE</div>
+          <div class="rbi-banner-val" style="color:var(--amber);font-size:0.85rem;padding-top:4px;">Neutral</div>
+        </div>
+        <div class="rbi-banner-sep"></div>
+        <div style="flex:1;min-width:160px;">
+          <div class="rbi-banner-label">LAST MPC DECISION</div>
+          <div style="font-size:0.78rem;color:var(--text2);margin-top:2px;">June 3–5, 2026 · Held at 5.25%<br><span style="color:var(--text3);font-size:0.72rem;">61st Meeting · Neutral stance maintained</span></div>
+        </div>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="stats-row" id="statsRow"></div>
+
+      <!-- INFOGRAPHIC GRID -->
+      <div class="infographic-grid">
+
+        <!-- Monthly calendar -->
+        <div class="infographic-card wide" id="calGridCard">
+          <div class="infographic-title" id="calGridTitle">This Month at a Glance</div>
+          <div class="month-grid" id="monthCalGrid"></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;">
+            <span class="badge badge-high">● High impact</span>
+            <span class="badge badge-med">● Medium impact</span>
+            <span class="badge badge-low">● Low impact</span>
+            <span class="badge badge-fno">● F&amp;O expiry</span>
+            <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text3);align-self:center;margin-top:4px;width:100%;">
+              F&amp;O abbreviations on cells — <b style="color:#a78bfa">NW</b> Nifty Weekly · <b style="color:#a78bfa">NM</b> Nifty Monthly · <b style="color:#a78bfa">BN</b> Bank Nifty Monthly · <b style="color:#a78bfa">SX</b> Sensex Weekly · hover/tap any cell for full names
+            </span>
+          </div>
+        </div>
+
+        <!-- Events by Category — this month + 6-month outlook -->
+        <div class="infographic-card" style="grid-column: span 2;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+            <div class="infographic-title" style="margin-bottom:0;">Events by Category</div>
+            <div style="display:flex;gap:4px;">
+              <button class="filter-btn active" id="catTabMonth" onclick="switchCatTab('month')" style="font-size:0.72rem;padding:4px 10px;">This Month</button>
+              <button class="filter-btn" id="catTab6m" onclick="switchCatTab('6m')" style="font-size:0.72rem;padding:4px 10px;">6-Month Outlook</button>
+            </div>
+          </div>
+          <div id="monthCatBars"></div>
+          <div id="sixMonthCatBars" style="display:none;"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- NEXT 7 DAYS STRIP -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title">Next 7 Days</div>
+        <div class="section-sub" id="strip7Label"></div>
+      </div>
+      <div class="strip-scroll" id="strip7"></div>
+    </div>
+  </section>
+
+  <!-- FEATURE CARDS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title">What MacroPulse tracks</div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🏦</div>
+          <div class="feature-title">RBI MPC Meetings</div>
+          <div class="feature-desc">All six FY27 Monetary Policy Committee dates with repo rate, SDF, MSF, and stance — including the timing of minutes publication ~14 days post-meeting.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">Inflation &amp; IIP Data</div>
+          <div class="feature-desc">Monthly CPI, WPI, and IIP releases auto-computed for 6 months ahead. These drive expectations for future RBI rate action.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧾</div>
+          <div class="feature-title">GST &amp; Trade Data</div>
+          <div class="feature-desc">GST collections signal economic activity. Export/import data reveals currency pressure, current account dynamics, and sectoral health.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📈</div>
+          <div class="feature-title">F&amp;O Expiry Calendar</div>
+          <div class="feature-desc">NSE Nifty weekly expiries (Tuesday), Bank Nifty monthly (last Tuesday), BSE Sensex weekly (Thursday) — per SEBI reform effective Sep 1, 2025.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <div class="feature-title">Global Triggers</div>
+          <div class="feature-desc">US Fed FOMC, US CPI, NFP jobs report, and China PMI — all events that historically move FII flows, the rupee, and Indian market sentiment.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📖</div>
+          <div class="feature-title">Plain-English Context</div>
+          <div class="feature-desc">Every event explained in retail-investor language: what it measures, why India cares, and what scenarios are positive or negative for markets.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════ CALENDAR VIEW ═══════════════════ -->
+<div id="view-calendar" class="view">
+  <div class="container" style="padding-top:32px;">
+    <div class="section-header">
+      <div class="section-title display">All Events</div>
+      <div class="section-sub" id="calEventCount"></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="region" data-val="all" onclick="setFilter('region','all',this)">All</button>
+        <button class="filter-btn" data-filter="region" data-val="india" onclick="setFilter('region','india',this)">India</button>
+        <button class="filter-btn" data-filter="region" data-val="global" onclick="setFilter('region','global',this)">Global</button>
+      </div>
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="impact" data-val="all" onclick="setFilter('impact','all',this)">All Impact</button>
+        <button class="filter-btn" data-filter="impact" data-val="high" onclick="setFilter('impact','high',this)"><span style="color:var(--red)">●</span> High</button>
+        <button class="filter-btn" data-filter="impact" data-val="med" onclick="setFilter('impact','med',this)"><span style="color:var(--amber)">●</span> Med</button>
+        <button class="filter-btn" data-filter="impact" data-val="low" onclick="setFilter('impact','low',this)"><span style="color:var(--green)">●</span> Low</button>
+      </div>
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="cat" data-val="all" onclick="setFilter('cat','all',this)">All Types</button>
+        <button class="filter-btn" data-filter="cat" data-val="rbi" onclick="setFilter('cat','rbi',this)">RBI</button>
+        <button class="filter-btn" data-filter="cat" data-val="inflation" onclick="setFilter('cat','inflation',this)">Inflation</button>
+        <button class="filter-btn" data-filter="cat" data-val="growth" onclick="setFilter('cat','growth',this)">Growth</button>
+        <button class="filter-btn" data-filter="cat" data-val="fno" onclick="setFilter('cat','fno',this)">F&amp;O</button>
+        <button class="filter-btn" data-filter="cat" data-val="global" onclick="setFilter('cat','global',this)">Global</button>
+        <button class="filter-btn" data-filter="cat" data-val="fiscal" onclick="setFilter('cat','fiscal',this)">Fiscal</button>
+      </div>
+    </div>
+
+    <!-- Calendar output -->
+    <div id="calendarOutput"></div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <strong>Disclaimer on recurring dates:</strong> Release dates for CPI, WPI, IIP, GST, trade data, PMI and similar events are approximate — based on typical historical release windows. Exact dates vary each month. Always confirm on official sources:
+      <a href="https://mospi.gov.in" target="_blank" style="color:var(--gold)">MOSPI</a>,
+      <a href="https://rbi.org.in" target="_blank" style="color:var(--gold)">RBI.org.in</a>,
+      <a href="https://www.nseindia.com" target="_blank" style="color:var(--gold)">NSE</a>,
+      <a href="https://www.bseindia.com" target="_blank" style="color:var(--gold)">BSE</a>,
+      <a href="https://www.federalreserve.gov" target="_blank" style="color:var(--gold)">federalreserve.gov</a>.
+      <br><br>
+      <strong>F&amp;O Expiry:</strong> Expiry rules per SEBI circular effective Sep 1, 2025. Subject to change — verify on NSE/BSE.
+      <br><br>
+      <strong>Not investment advice.</strong> This calendar is for informational purposes only.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABOUT VIEW ═══════════════════ -->
+<div id="view-about" class="view">
+  <div class="container" style="padding-top:40px;max-width:720px;">
+    <h2 class="display" style="font-size:1.8rem;margin-bottom:16px;">About MacroPulse</h2>
+    <p style="color:var(--text2);margin-bottom:20px;line-height:1.7;">MacroPulse is an India-first economic calendar that surfaces every meaningful macro event that moves Indian markets, explained in plain English for retail investors. Updated dynamically — no stale hardcoded dates.</p>
+
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:10px;margin-top:24px;">Data sources &amp; methodology</h3>
+    <ul style="color:var(--text2);font-size:0.85rem;line-height:2;padding-left:0;">
+      <li>🏦 <strong>RBI MPC dates:</strong> Verified from official RBI announcement dated March 23, 2026. FY27 schedule.</li>
+      <li>📊 <strong>Recurring data releases:</strong> Computed dynamically in JavaScript from today's date, based on typical MOSPI, RBI, and SIAM release windows (12th–15th of month etc.).</li>
+      <li>📈 <strong>F&amp;O Expiry:</strong> Nifty 50 weekly (Tuesday), Bank Nifty monthly (last Tuesday of month), Sensex weekly (Thursday). Per SEBI circular effective Sep 1, 2025.</li>
+      <li>🌐 <strong>Global events:</strong> Approximate cadence. Exact FOMC dates from federalreserve.gov; NFP = first Friday of month; US CPI = mid-month; China PMI = 1st of month.</li>
+      <li>🏛️ <strong>Union Budget / Economic Survey:</strong> Annual. Feb 1 and Jan 31 respectively.</li>
+    </ul>
+
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:10px;margin-top:24px;">RBI Current Policy Stance (FY27)</h3>
+    <div class="rbi-banner" style="margin-bottom:0;">
+      <div class="rbi-banner-item"><div class="rbi-banner-label">REPO</div><div class="rbi-banner-val">5.25%</div></div>
+      <div class="rbi-banner-sep"></div>
+      <div class="rbi-banner-item"><div class="rbi-banner-label">SDF</div><div class="rbi-banner-val">5.00%</div></div>
+      <div class="rbi-banner-sep"></div>
+      <div class="rbi-banner-item"><div class="rbi-banner-label">MSF</div><div class="rbi-banner-val">5.50%</div></div>
+      <div class="rbi-banner-sep"></div>
+      <div class="rbi-banner-item"><div class="rbi-banner-label">STANCE</div><div class="rbi-banner-val" style="color:var(--amber);font-size:0.85rem;padding-top:4px;">Neutral</div></div>
+    </div>
+
+    <div class="disclaimer" style="margin-top:24px;">
+      <strong>Not investment advice.</strong> All information is for educational and informational purposes only. Recurring release dates are approximate. Always confirm on official sources before making investment decisions.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MOBILE NAV ═══════════════════ -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-btn active" id="mnav-home" onclick="switchView('home', this, true)">
+      <span class="mobile-nav-icon">📊</span>Dashboard
+    </button>
+    <button class="mobile-nav-btn" id="mnav-calendar" onclick="switchView('calendar', this, true)">
+      <span class="mobile-nav-icon">📅</span>Calendar
+    </button>
+    <button class="mobile-nav-btn" id="mnav-about" onclick="switchView('about', this, true)">
+      <span class="mobile-nav-icon">ℹ️</span>About
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">MacroPulse · India Macro Economic Calendar · Data is informational only</div>
+      <div class="footer-links">
+        <a class="footer-link" href="https://rbi.org.in" target="_blank">RBI</a>
+        <a class="footer-link" href="https://mospi.gov.in" target="_blank">MOSPI</a>
+        <a class="footer-link" href="https://www.nseindia.com" target="_blank">NSE</a>
+        <a class="footer-link" href="https://www.federalreserve.gov" target="_blank">Fed</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════ */
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = isDark ? '🌙' : '☀️';
+}
+
+/* ═══════════════════════════════════════════════
+   VIEW SWITCHING
+═══════════════════════════════════════════════ */
+let currentView = 'home';
+function switchView(name, btn, isMobile = false) {
+  currentView = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+
+  // desktop nav
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const desktopTabs = document.querySelectorAll('.nav-tab');
+  const tabMap = { home: 0, calendar: 1, about: 2 };
+  if (desktopTabs[tabMap[name]]) desktopTabs[tabMap[name]].classList.add('active');
+
+  // mobile nav
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  const mBtn = document.getElementById('mnav-' + name);
+  if (mBtn) mBtn.classList.add('active');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ═══════════════════════════════════════════════
+   DATE HELPERS
+═══════════════════════════════════════════════ */
+const TODAY = new Date();
+TODAY.setHours(0, 0, 0, 0);
+
+function fmtDate(d) {
+  const opts = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+  return d.toLocaleDateString('en-IN', opts);
+}
+function fmtDateShort(d) {
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+function fmtDateMed(d) {
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+function diffDays(d) {
+  const t = new Date(d); t.setHours(0,0,0,0);
+  const diff = Math.round((t - TODAY) / (1000*60*60*24));
+  return diff;
+}
+function countdownLabel(d) {
+  const dd = diffDays(d);
+  if (dd < 0) return 'past';
+  if (dd === 0) return 'Today';
+  if (dd === 1) return 'Tomorrow';
+  if (dd <= 7) return `in ${dd} days`;
+  return `in ${dd} days`;
+}
+function isWeekend(d) {
+  return d.getDay() === 0 || d.getDay() === 6;
+}
+function isHoliday(d) {
+  // Major NSE holidays FY27 (approximate, illustrative — not exhaustive)
+  const holidays = [
+    '2026-08-15', // Independence Day
+    '2026-10-02', // Gandhi Jayanti
+    '2026-10-24', // Diwali (approx)
+    '2026-11-04', // Diwali Laxmi Puja (approx)
+    '2027-01-26', // Republic Day
+    '2027-02-26', // Mahashivratri (approx)
+  ];
+  const key = d.toISOString().slice(0,10);
+  return holidays.includes(key);
+}
+function prevWorkingDay(d) {
+  const nd = new Date(d);
+  nd.setDate(nd.getDate() - 1);
+  while (isWeekend(nd) || isHoliday(nd)) {
+    nd.setDate(nd.getDate() - 1);
+  }
+  return nd;
+}
+function nextWorkingDay(d, skipToday = false) {
+  const nd = new Date(d);
+  if (skipToday) nd.setDate(nd.getDate() + 1);
+  while (isWeekend(nd) || isHoliday(nd)) {
+    nd.setDate(nd.getDate() + 1);
+  }
+  return nd;
+}
+function nthWeekdayOfMonth(year, month, weekday, n) {
+  // n=1 means first, n=-1 means last
+  if (n > 0) {
+    const d = new Date(year, month, 1);
+    while (d.getDay() !== weekday) d.setDate(d.getDate() + 1);
+    d.setDate(d.getDate() + (n - 1) * 7);
+    return d;
+  } else {
+    // last
+    const d = new Date(year, month + 1, 0); // last day of month
+    while (d.getDay() !== weekday) d.setDate(d.getDate() - 1);
+    return d;
+  }
+}
+function firstWorkingDayOfMonth(year, month) {
+  const d = new Date(year, month, 1);
+  return nextWorkingDay(d);
+}
+function thirdWorkingDayOfMonth(year, month) {
+  // count 3 working days from start of month
+  let count = 0;
+  const d = new Date(year, month, 1);
+  while (true) {
+    if (!isWeekend(d) && !isHoliday(d)) {
+      count++;
+      if (count === 3) return new Date(d);
+    }
+    d.setDate(d.getDate() + 1);
+  }
+}
+function lastWorkingDayOfMonth(year, month) {
+  const d = new Date(year, month + 1, 0);
+  while (isWeekend(d) || isHoliday(d)) d.setDate(d.getDate() - 1);
+  return d;
+}
+
+/* Get all Tuesdays in a month (for Nifty F&O weekly) */
+function getTuesdaysInMonth(year, month) {
+  const days = [];
+  const d = new Date(year, month, 1);
+  while (d.getDay() !== 2) d.setDate(d.getDate() + 1);
+  while (d.getMonth() === month) {
+    days.push(new Date(d));
+    d.setDate(d.getDate() + 7);
+  }
+  return days;
+}
+/* Get all Thursdays in a month (BSE Sensex weekly) */
+function getThursdaysInMonth(year, month) {
+  const days = [];
+  const d = new Date(year, month, 1);
+  while (d.getDay() !== 4) d.setDate(d.getDate() + 1);
+  while (d.getMonth() === month) {
+    days.push(new Date(d));
+    d.setDate(d.getDate() + 7);
+  }
+  return days;
+}
+
+/* ═══════════════════════════════════════════════
+   EVENT DATA ENGINE
+═══════════════════════════════════════════════ */
+/*
+  Event schema:
+  {
+    id: string,
+    name: string,
+    date: Date,
+    dateStr: string, // for display
+    impact: 'high'|'med'|'low',
+    cat: 'rbi'|'inflation'|'growth'|'fno'|'global'|'fiscal',
+    region: 'india'|'global',
+    icon: string (emoji),
+    why: string,
+    extra: string (optional),
+    isApproxDate: bool,
+    isPast: bool,
+    isFno: bool,
+  }
+*/
+
+function buildEventList() {
+  const events = [];
+  const now = TODAY;
+  // Generate 6 months ahead + 1 month behind for context
+  const fromDate = new Date(now);
+  fromDate.setMonth(fromDate.getMonth() - 1);
+  const toDate = new Date(now);
+  toDate.setMonth(toDate.getMonth() + 6);
+
+  // ─── RBI MPC MEETINGS (hardcoded FY27) ───
+  const rbiMeetings = [
+    { start: new Date(2026, 3, 6), end: new Date(2026, 3, 8), decision: new Date(2026, 3, 8),
+      note: 'Held repo at 5.25%. Neutral stance maintained.', done: true, seq: '60th' },
+    { start: new Date(2026, 5, 3), end: new Date(2026, 5, 5), decision: new Date(2026, 5, 5),
+      note: 'Held repo at 5.25%. Neutral stance. 61st meeting.', done: true, seq: '61st' },
+    { start: new Date(2026, 7, 3), end: new Date(2026, 7, 5), decision: new Date(2026, 7, 5),
+      note: null, done: false, seq: '62nd' },
+    { start: null, end: null, decision: null, approxMonth: 'October 2026',
+      note: 'Exact dates awaited from RBI. Expected early October.', done: false, seq: '63rd', isApprox: true },
+    { start: null, end: null, decision: null, approxMonth: 'December 2026',
+      note: 'Exact dates awaited from RBI. Expected early December.', done: false, seq: '64th', isApprox: true },
+    { start: null, end: null, decision: null, approxMonth: 'February 2027',
+      note: 'Final FY27 MPC meeting. Exact dates awaited from RBI.', done: false, seq: '65th', isApprox: true },
+  ];
+  rbiMeetings.forEach((m, i) => {
+    if (m.isApprox) {
+      // Approximate month — show as single event
+      let approxDate;
+      if (m.approxMonth.startsWith('October')) approxDate = new Date(2026, 9, 7);
+      else if (m.approxMonth.startsWith('December')) approxDate = new Date(2026, 11, 7);
+      else approxDate = new Date(2027, 1, 4);
+      events.push({
+        id: 'rbi-mpc-' + i,
+        name: `RBI MPC Decision (${m.seq})`,
+        date: approxDate,
+        dateStr: m.approxMonth,
+        impact: 'high', cat: 'rbi', region: 'india', icon: '🏦',
+        why: 'The Monetary Policy Committee sets the repo rate — the key interest rate anchor for the Indian economy. A cut lowers borrowing costs, boosts stocks and bonds, and can weaken the rupee. A hike tightens liquidity and is bearish for equities.',
+        extra: `Stance: Neutral. Current repo: 5.25%. ${m.note} Meeting: ${m.seq} of FY27. Minutes published ~14 days after decision.`,
+        isApproxDate: true,
+        isFno: false,
+      });
+    } else {
+      const decisionDate = m.decision;
+      events.push({
+        id: 'rbi-mpc-' + i,
+        name: `RBI MPC Decision (${m.seq})`,
+        date: decisionDate,
+        dateStr: fmtDate(m.start) + ' – ' + fmtDateShort(m.end),
+        impact: 'high', cat: 'rbi', region: 'india', icon: '🏦',
+        why: 'The MPC sets the repo rate — the key rate anchor for India. Every basis point change ripples through home loans, bond yields, bank stocks, and the rupee. Markets price this move weeks in advance.',
+        extra: `Meeting: ${fmtDate(m.start)} to ${fmtDateShort(m.end)}. Decision on ${fmtDateShort(m.end)}. ${m.done ? '✓ ' + m.note : 'Upcoming. ' + (m.note || '')} Minutes published ~14 days after decision.`,
+        isApproxDate: false,
+        isPast: m.done,
+        isFno: false,
+      });
+      // Also add minutes release (~14 days after)
+      if (!m.done || diffDays(new Date(decisionDate.getTime() + 14*24*60*60*1000)) > -30) {
+        const minutesDate = new Date(decisionDate.getTime() + 14*24*60*60*1000);
+        events.push({
+          id: 'rbi-minutes-' + i,
+          name: 'RBI MPC Minutes Published',
+          date: minutesDate,
+          dateStr: fmtDate(minutesDate),
+          impact: 'med', cat: 'rbi', region: 'india', icon: '📋',
+          why: 'The detailed minutes of the MPC meeting reveal individual members\' voting patterns and economic assessments. Hawkish or dovish dissents here can shift market expectations for the next meeting.',
+          extra: `Related to ${m.seq} MPC meeting (${fmtDateShort(m.start)}).`,
+          isApproxDate: false,
+          isFno: false,
+        });
+      }
+    }
+  });
+
+  // ─── UNION BUDGET & ECONOMIC SURVEY ───
+  [
+    {
+      id: 'budget-2027', name: 'Union Budget FY28', date: new Date(2027, 1, 1),
+      cat: 'fiscal', impact: 'high', icon: '🏛️',
+      why: 'The Union Budget is the biggest market-moving event of the year. Fiscal deficit targets, capex allocations, tax changes, and sector-specific announcements drive multi-week rallies or sell-offs.',
+      extra: 'Presented by Finance Minister in Parliament. Market opens with extreme volatility on Budget day.',
+    },
+    {
+      id: 'ecosurvey-2027', name: 'Economic Survey FY28', date: new Date(2027, 0, 31),
+      cat: 'fiscal', impact: 'med', icon: '📚',
+      why: 'The Economic Survey (a day before the Budget) sets the macro context — GDP outlook, inflation trajectory, and the government\'s reading of global risks. It previews Budget priorities and affects bond market expectations.',
+      extra: 'Released by the Chief Economic Adviser. Sets the stage for Budget announcements next day.',
+    },
+  ].forEach(e => events.push({ ...e, region: 'india', isApproxDate: false, isFno: false }));
+
+  // ─── RECURRING MONTHLY — iterate months from fromDate to toDate ───
+  let cur = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
+  while (cur <= toDate) {
+    const y = cur.getFullYear();
+    const m = cur.getMonth();
+
+    // CPI (around 12th-13th)
+    const cpiDate = new Date(y, m, 12);
+    if (cpiDate >= fromDate && cpiDate <= toDate) {
+      events.push({
+        id: `cpi-${y}-${m}`,
+        name: 'CPI Inflation Data',
+        date: cpiDate,
+        dateStr: `~12th ${cpiDate.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'high', cat: 'inflation', region: 'india', icon: '📊',
+        why: 'CPI (Consumer Price Index) is the RBI\'s primary inflation target. If CPI stays above 4% (or breaches 6%), rate cuts become difficult. A surprise on either side moves bond yields, bank stocks, and rupee.',
+        extra: 'Released by MOSPI. Covers food, fuel, and core inflation. Watch food inflation closely — it\'s the most volatile and politically sensitive component.',
+        isApproxDate: true, isFno: false,
+      });
+    }
+
+    // WPI (around 14th)
+    const wpiDate = new Date(y, m, 14);
+    if (wpiDate >= fromDate && wpiDate <= toDate) {
+      events.push({
+        id: `wpi-${y}-${m}`,
+        name: 'WPI Inflation Data',
+        date: wpiDate,
+        dateStr: `~14th ${wpiDate.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'med', cat: 'inflation', region: 'india', icon: '🏭',
+        why: 'WPI (Wholesale Price Index) tracks producer-level prices. High WPI that hasn\'t yet appeared in CPI is a leading signal of future retail inflation. It also matters for manufacturing and input-cost-sensitive sectors.',
+        extra: 'Released by DPIIT/Ministry of Commerce. Less watched than CPI but useful for understanding upstream price pressure.',
+        isApproxDate: true, isFno: false,
+      });
+    }
+
+    // IIP (around 12th)
+    const iipDate = new Date(y, m, 12);
+    if (iipDate >= fromDate && iipDate <= toDate) {
+      events.push({
+        id: `iip-${y}-${m}`,
+        name: 'IIP (Industrial Production)',
+        date: iipDate,
+        dateStr: `~12th ${iipDate.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'med', cat: 'growth', region: 'india', icon: '⚙️',
+        why: 'IIP measures industrial output growth. Weak IIP increases pressure on RBI to cut rates; strong IIP supports a hold or hike. It\'s a leading signal for corporate earnings in manufacturing and infrastructure sectors.',
+        extra: 'Released simultaneously with CPI by MOSPI. Note: IIP refers to data from 2 months prior (e.g. June IIP released in August).',
+        isApproxDate: true, isFno: false,
+      });
+    }
+
+    // GST Collections (1st of month)
+    const gstDate = new Date(y, m, 1);
+    if (gstDate >= fromDate && gstDate <= toDate) {
+      events.push({
+        id: `gst-${y}-${m}`,
+        name: 'GST Collections',
+        date: gstDate,
+        dateStr: `1 ${gstDate.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'med', cat: 'fiscal', region: 'india', icon: '🧾',
+        why: 'Monthly GST collections are a real-time pulse of economic activity. Collections above ₹1.7 lakh crore signal strong consumption and production. Strong GST also reduces fiscal deficit concerns and is positive for government bonds.',
+        extra: 'Released on or around the 1st. Very closely watched by fiscal analysts as a leading indicator of economic health.',
+        isApproxDate: false, isFno: false,
+      });
+    }
+
+    // Auto Sales (1st of month)
+    const autoDate = new Date(y, m, 1);
+    if (autoDate >= fromDate && autoDate <= toDate) {
+      events.push({
+        id: `auto-${y}-${m}`,
+        name: 'Auto Sales Data (SIAM/FADA)',
+        date: autoDate,
+        dateStr: `1 ${autoDate.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'low', cat: 'growth', region: 'india', icon: '🚗',
+        why: 'Monthly vehicle sales are the best high-frequency proxy for India\'s consumer demand. Two-wheeler sales signal rural health; passenger vehicles signal urban/middle-class sentiment. Weakness here often precedes consumer stock corrections.',
+        extra: 'Released by SIAM (wholesale) and FADA (retail). Watch YoY numbers and two-wheeler segment specifically for rural demand signal.',
+        isApproxDate: false, isFno: false,
+      });
+    }
+
+    // Trade Data (around 15th)
+    const tradeDate = new Date(y, m, 15);
+    if (tradeDate >= fromDate && tradeDate <= toDate) {
+      events.push({
+        id: `trade-${y}-${m}`,
+        name: 'Trade Data (Exports / Imports)',
+        date: tradeDate,
+        dateStr: `~15th ${tradeDate.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'med', cat: 'growth', region: 'india', icon: '🚢',
+        why: 'Monthly export/import data determines India\'s trade deficit — a key driver of the rupee and current account. Surging imports with weak exports widens the deficit, pressuring INR. Weak oil imports can offset a lot.',
+        extra: 'Released by Ministry of Commerce. Watch gold imports, oil imports, and electronics exports separately for sectoral signals.',
+        isApproxDate: true, isFno: false,
+      });
+    }
+
+    // PMI Manufacturing (1st working day)
+    const pmiMfgDate = firstWorkingDayOfMonth(y, m);
+    if (pmiMfgDate >= fromDate && pmiMfgDate <= toDate) {
+      events.push({
+        id: `pmimfg-${y}-${m}`,
+        name: 'PMI Manufacturing',
+        date: pmiMfgDate,
+        dateStr: `${fmtDate(pmiMfgDate)} (est. 1st working day)`,
+        impact: 'med', cat: 'growth', region: 'india', icon: '🏗️',
+        why: 'PMI above 50 = expansion, below 50 = contraction. A sustained PMI above 55 typically means strong corporate earnings for manufacturers. This is one of the first data points for any given month.',
+        extra: 'Released by S&P Global / HSBC. Based on surveys of purchasing managers. Watch new orders and employment sub-indices for forward signals.',
+        isApproxDate: false, isFno: false,
+      });
+    }
+
+    // PMI Services (3rd working day)
+    const pmiSvcDate = thirdWorkingDayOfMonth(y, m);
+    if (pmiSvcDate >= fromDate && pmiSvcDate <= toDate) {
+      events.push({
+        id: `pmisvc-${y}-${m}`,
+        name: 'PMI Services',
+        date: pmiSvcDate,
+        dateStr: `${fmtDate(pmiSvcDate)} (est. 3rd working day)`,
+        impact: 'low', cat: 'growth', region: 'india', icon: '🛎️',
+        why: 'India\'s services sector is the largest part of GDP. Services PMI above 50 is positive for IT, financial services, and hospitality stocks. India has been consistently strong here — a drop below 55 would be notable.',
+        extra: 'Released alongside Manufacturing PMI from S&P Global / HSBC. Composite PMI (mfg + services) gives the overall picture.',
+        isApproxDate: false, isFno: false,
+      });
+    }
+
+    cur.setMonth(cur.getMonth() + 1);
+  }
+
+  // ─── GDP (quarterly: last working day of Feb, May, Aug, Nov) ───
+  [[2026,1],[2026,4],[2026,7],[2026,10],[2027,1]].forEach(([y,m]) => {
+    const d = lastWorkingDayOfMonth(y, m);
+    if (d >= fromDate && d <= toDate) {
+      events.push({
+        id: `gdp-${y}-${m}`,
+        name: 'GDP Growth Estimate',
+        date: d,
+        dateStr: fmtDate(d),
+        impact: 'high', cat: 'growth', region: 'india', icon: '📈',
+        why: 'Quarterly GDP is the headline growth number. India\'s credibility as a fast-growing economy rests on this. A miss below 6.5% triggers concerns about fiscal and monetary headroom. A beat above 8% is market-positive.',
+        extra: 'Released by MOSPI on the last working day of February, May, August, and November. Includes advance estimates, revised estimates, and final estimates in different cycles.',
+        isApproxDate: false, isFno: false,
+      });
+    }
+  });
+
+  // ─── F&O EXPIRY ───
+  // Nifty 50 weekly expiry = every Tuesday; monthly = last Tuesday
+  // Bank Nifty = monthly only = last Tuesday
+  // BSE Sensex weekly = every Thursday
+  let fnoMonth = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
+  while (fnoMonth <= toDate) {
+    const y = fnoMonth.getFullYear();
+    const m = fnoMonth.getMonth();
+
+    // Nifty weekly Tuesdays
+    const tuesdays = getTuesdaysInMonth(y, m);
+    const lastTuesday = tuesdays[tuesdays.length - 1];
+    tuesdays.forEach((tue, idx) => {
+      if (tue < fromDate || tue > toDate) { return; }
+      const isMonthly = (idx === tuesdays.length - 1);
+      let expDate = new Date(tue);
+      if (isHoliday(expDate)) expDate = prevWorkingDay(expDate);
+
+      events.push({
+        id: `nifty-${isMonthly?'monthly':'weekly'}-${y}-${m}-${idx}`,
+        name: isMonthly ? 'Nifty 50 Monthly F&O Expiry' : 'Nifty 50 Weekly F&O Expiry',
+        date: expDate,
+        dateStr: fmtDate(expDate),
+        impact: isMonthly ? 'high' : 'med',
+        cat: 'fno', region: 'india', icon: '📉',
+        why: isMonthly
+          ? 'Monthly expiry causes significant OI unwinding. Expect high volatility in Nifty and index heavyweights. Max pain, gamma exposure, and large institutional rollovers all interact on this day.'
+          : 'Weekly expiry creates a volatility spike in the last hour of trading. Premium sellers close positions; short-dated options see rapid time decay. Particularly sharp near round numbers.',
+        extra: 'NSE Nifty 50 expiry. Per SEBI circular effective Sep 1, 2025. If this Tuesday is a market holiday, expiry shifts to previous working day. Verify on NSE website.',
+        isApproxDate: false, isFno: true,
+      });
+    });
+
+    // Bank Nifty monthly (last Tuesday only)
+    if (lastTuesday >= fromDate && lastTuesday <= toDate) {
+      let bnDate = new Date(lastTuesday);
+      if (isHoliday(bnDate)) bnDate = prevWorkingDay(bnDate);
+      events.push({
+        id: `banknifty-monthly-${y}-${m}`,
+        name: 'Bank Nifty Monthly F&O Expiry',
+        date: bnDate,
+        dateStr: fmtDate(bnDate),
+        impact: 'high', cat: 'fno', region: 'india', icon: '🏦',
+        why: 'Bank Nifty monthly expiry is the most liquid derivative event in Indian markets. Massive OI in PSU and private bank options creates sharp moves. Often coincides with Nifty monthly — double expiry effect amplifies volatility.',
+        extra: 'NSE Bank Nifty monthly expiry (last Tuesday). Per SEBI circular Sep 1, 2025. Holiday → previous working day. Verify on NSE.',
+        isApproxDate: false, isFno: true,
+      });
+    }
+
+    // BSE Sensex weekly Thursdays
+    const thursdays = getThursdaysInMonth(y, m);
+    thursdays.forEach((thu, idx) => {
+      if (thu < fromDate || thu > toDate) return;
+      let expDate = new Date(thu);
+      if (isHoliday(expDate)) expDate = prevWorkingDay(expDate);
+      events.push({
+        id: `sensex-weekly-${y}-${m}-${idx}`,
+        name: 'Sensex Weekly F&O Expiry',
+        date: expDate,
+        dateStr: fmtDate(expDate),
+        impact: 'low', cat: 'fno', region: 'india', icon: '📊',
+        why: 'BSE Sensex weekly Thursday expiry. Smaller OI than NSE but still moves Sensex heavyweights. Positioned differently from Nifty — can diverge on bank-heavy days.',
+        extra: 'BSE Sensex weekly expiry. Per SEBI circular Sep 1, 2025. Holiday → previous working day. Verify on BSE.',
+        isApproxDate: false, isFno: true,
+      });
+    });
+
+    fnoMonth.setMonth(fnoMonth.getMonth() + 1);
+  }
+
+  // ─── GLOBAL EVENTS ───
+  // US FOMC (approximate — ~8 per year, every 6 weeks)
+  // Known 2026 approximate dates based on Fed meeting cadence
+  const fomcDates = [
+    new Date(2026, 6, 29), // July 28-29
+    new Date(2026, 8, 16), // Sep 15-16
+    new Date(2026, 10, 4), // Nov 3-4
+    new Date(2026, 11, 9), // Dec 8-9 (approx)
+    new Date(2027, 0, 27), // Jan
+  ];
+  fomcDates.forEach((d, i) => {
+    if (d < fromDate || d > toDate) return;
+    events.push({
+      id: `fomc-${i}`,
+      name: 'US Fed FOMC Decision',
+      date: d,
+      dateStr: `~${fmtDate(d)} (approx — verify federalreserve.gov)`,
+      impact: 'high', cat: 'global', region: 'global', icon: '🇺🇸',
+      why: 'When the Fed raises rates, global money flows toward safer US returns — pulling FII money out of Indian stocks and weakening the rupee. A hold or cut is broadly positive for Indian equities and EMs. Fed tone (hawkish/dovish language) matters as much as the decision.',
+      extra: 'Approximate FOMC date. Always confirm exact date on federalreserve.gov. Fed press conference follows the decision.',
+      isApproxDate: true, isFno: false,
+    });
+  });
+
+  // US CPI (~mid-month)
+  let usCpiMonth = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
+  while (usCpiMonth <= toDate) {
+    const y = usCpiMonth.getFullYear();
+    const m = usCpiMonth.getMonth();
+    const d = new Date(y, m, 14); // typically around 14th
+    if (d >= fromDate && d <= toDate) {
+      events.push({
+        id: `uscpi-${y}-${m}`,
+        name: 'US CPI Inflation',
+        date: d,
+        dateStr: `~14th ${d.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'high', cat: 'global', region: 'global', icon: '📉',
+        why: 'US CPI directly influences Fed rate decisions. Hot CPI = higher-for-longer rates = strong dollar, weak rupee, FII outflows from India. Cool CPI = Fed dovish pivot = dollar weakens, EMs rally, FII inflows into India.',
+        extra: 'Released by US Bureau of Labor Statistics. Look at core CPI (ex-food & energy) for the Fed\'s signal. Approximate date — verify on bls.gov.',
+        isApproxDate: true, isFno: false,
+      });
+    }
+    usCpiMonth.setMonth(usCpiMonth.getMonth() + 1);
+  }
+
+  // US NFP (first Friday of month)
+  let nfpMonth = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
+  while (nfpMonth <= toDate) {
+    const y = nfpMonth.getFullYear();
+    const m = nfpMonth.getMonth();
+    const d = nthWeekdayOfMonth(y, m, 5, 1); // first Friday
+    if (d >= fromDate && d <= toDate) {
+      events.push({
+        id: `nfp-${y}-${m}`,
+        name: 'US Jobs Report (NFP)',
+        date: d,
+        dateStr: fmtDate(d),
+        impact: 'high', cat: 'global', region: 'global', icon: '💼',
+        why: 'The US non-farm payrolls report is arguably the single most market-moving event globally. Strong jobs = Fed less likely to cut = dollar strengthens = rupee under pressure = FIIs may reduce EM exposure. Weak jobs = rate cut hopes rise = positive for India.',
+        extra: 'Released by US Bureau of Labor Statistics, typically first Friday of month. Unemployment rate and wage growth matter as much as headline payrolls.',
+        isApproxDate: false, isFno: false,
+      });
+    }
+    nfpMonth.setMonth(nfpMonth.getMonth() + 1);
+  }
+
+  // China PMI (1st of month)
+  let chinaMonth = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
+  while (chinaMonth <= toDate) {
+    const y = chinaMonth.getFullYear();
+    const m = chinaMonth.getMonth();
+    const d = new Date(y, m, 1);
+    if (d >= fromDate && d <= toDate) {
+      events.push({
+        id: `chinapmi-${y}-${m}`,
+        name: 'China PMI (Official)',
+        date: d,
+        dateStr: `1 ${d.toLocaleString('en-IN',{month:'short',year:'numeric'})}`,
+        impact: 'med', cat: 'global', region: 'global', icon: '🇨🇳',
+        why: 'China is India\'s largest trading partner and a bellwether for Asian demand. Weak China PMI hurts Indian commodity exporters and drags Asian equity sentiment. Strong China PMI lifts metals, chemicals, and Asian markets broadly.',
+        extra: 'Released by NBS China. PMI above 50 = expansion. Watch both manufacturing and non-manufacturing PMI. A strong reading often lifts Asian equity indices including Nifty in early trade.',
+        isApproxDate: false, isFno: false,
+      });
+    }
+    chinaMonth.setMonth(chinaMonth.getMonth() + 1);
+  }
+
+  // ─── SORT ───
+  events.sort((a, b) => a.date - b.date);
+  return events;
+}
+
+/* ═══════════════════════════════════════════════
+   GLOBAL EVENT LIST
+═══════════════════════════════════════════════ */
+const ALL_EVENTS = buildEventList();
+
+/* ═══════════════════════════════════════════════
+   FILTERS STATE
+═══════════════════════════════════════════════ */
+const filters = { region: 'all', impact: 'all', cat: 'all' };
+function setFilter(key, val, btn) {
+  filters[key] = val;
+  // deactivate siblings
+  btn.closest('.filter-group').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCalendar();
+}
+
+function filteredEvents() {
+  return ALL_EVENTS.filter(e => {
+    if (filters.region !== 'all' && e.region !== filters.region) return false;
+    if (filters.impact !== 'all' && e.impact !== filters.impact) return false;
+    if (filters.cat !== 'all' && e.cat !== filters.cat) return false;
+    return true;
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   FIND NEXT HIGH-IMPACT EVENT (for countdown)
+═══════════════════════════════════════════════ */
+function nextHighImpactEvent() {
+  return ALL_EVENTS.find(e => e.impact === 'high' && diffDays(e.date) >= 0);
+}
+
+/* ═══════════════════════════════════════════════
+   NEXT EVENT WIDGET
+═══════════════════════════════════════════════ */
+function updateCountdown() {
+  const evt = nextHighImpactEvent();
+  const nameEl = document.getElementById('cdEventName');
+  const dateEl = document.getElementById('cdEventDate');
+  const daysEl = document.getElementById('cdDaysOut');
+  const badgeEl = document.getElementById('cdImpactBadge');
+  if (!nameEl) return;
+  if (!evt) {
+    nameEl.textContent = 'No upcoming high-impact events';
+    dateEl.textContent = '';
+    daysEl.textContent = '—';
+    return;
+  }
+  const dd = diffDays(evt.date);
+  nameEl.textContent = evt.name;
+  dateEl.textContent = evt.dateStr || fmtDate(evt.date);
+  daysEl.textContent = dd === 0 ? 'Today' : dd === 1 ? '1' : String(dd);
+  document.querySelector('#countdownWidget div[style*="days away"]') && (
+    document.querySelector('#countdownWidget div[style*="days away"]').textContent = dd === 0 ? '' : 'days away'
+  );
+  if (badgeEl) badgeEl.innerHTML = badgeHTML(evt.impact, evt.cat, evt.region);
+}
+
+/* ═══════════════════════════════════════════════
+   STATS ROW
+═══════════════════════════════════════════════ */
+function renderStats() {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const monthEvents = ALL_EVENTS.filter(e => e.date >= monthStart && e.date <= monthEnd && !e.isFno);
+
+  const highCount = ALL_EVENTS.filter(e => e.impact==='high' && diffDays(e.date) >= 0 && diffDays(e.date) <= 30).length;
+  const next7 = ALL_EVENTS.filter(e => diffDays(e.date) >= 0 && diffDays(e.date) <= 7 && !e.isFno).length;
+  const rbiNext = ALL_EVENTS.find(e => e.cat==='rbi' && diffDays(e.date) >= 0);
+
+  const container = document.getElementById('statsRow');
+  const stats = [
+    { num: monthEvents.length, label: 'Events this month', color: 'var(--gold)' },
+    { num: highCount, label: 'High-impact next 30d', color: 'var(--red)' },
+    { num: next7, label: 'Events next 7 days', color: 'var(--amber)' },
+    { num: rbiNext ? diffDays(rbiNext.date) : '—', label: 'Days to next RBI', color: 'var(--green)' },
+  ];
+  container.innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-num" style="color:${s.color}">${s.num}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   MONTHLY CALENDAR GRID
+═══════════════════════════════════════════════ */
+function renderMonthGrid() {
+  const now = TODAY;
+  const y = now.getFullYear(); const m = now.getMonth();
+  const monthName = now.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+  document.getElementById('calGridTitle').textContent = `${monthName} at a Glance`;
+
+  const grid = document.getElementById('monthCalGrid');
+  grid.innerHTML = '';
+
+  const days = ['M','T','W','T','F','S','S'];
+  days.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'month-grid-header';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(y, m, 1);
+  let startPad = firstDay.getDay() - 1; // Mon=0
+  if (startPad < 0) startPad = 6;
+
+  for (let i = 0; i < startPad; i++) {
+    const el = document.createElement('div');
+    el.className = 'month-day empty';
+    grid.appendChild(el);
+  }
+
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const monthEvents = ALL_EVENTS.filter(e => e.date.getFullYear()===y && e.date.getMonth()===m);
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    const dayDate = new Date(y, m, d);
+    const dayEvents = monthEvents.filter(e => e.date.getDate() === d);
+    const isToday = diffDays(dayDate) === 0;
+
+    // Separate macro vs F&O events
+    const macroEvents = dayEvents.filter(e => !e.isFno);
+    const fnoEvents = dayEvents.filter(e => e.isFno);
+
+    // Determine colour priority: macro high > macro med > fno > macro low
+    const highEvt = macroEvents.find(e => e.impact === 'high');
+    const medEvt  = macroEvents.find(e => e.impact === 'med');
+    const lowEvt  = macroEvents.find(e => e.impact === 'low');
+
+    let cls = 'month-day';
+    if (isToday) cls += ' today';
+    if      (highEvt) cls += ' impact-high has-event';
+    else if (medEvt)  cls += ' impact-med has-event';
+    else if (fnoEvents.length) cls += ' impact-fno has-event';
+    else if (lowEvt)  cls += ' impact-low has-event';
+
+    el.className = cls;
+
+    // Build inner HTML: date number + tiny F&O label if present
+    if (fnoEvents.length > 0) {
+      // Build compact label: N=Nifty, B=BankNifty, S=Sensex; M=monthly, W=weekly
+      const fnoLabels = fnoEvents.map(fe => {
+        if (fe.name.includes('Bank Nifty')) return 'BN';
+        if (fe.name.includes('Nifty 50') && fe.name.includes('Monthly')) return 'NM';
+        if (fe.name.includes('Nifty 50')) return 'NW';
+        if (fe.name.includes('Sensex')) return 'SX';
+        return 'EX';
+      });
+      const uniqueLabels = [...new Set(fnoLabels)];
+      el.innerHTML = `<span style="font-size:0.6em;line-height:1">${d}</span><span style="font-size:0.52em;line-height:1;opacity:0.85;letter-spacing:-0.01em">${uniqueLabels.join(' ')}</span>`;
+      el.style.flexDirection = 'column';
+      el.style.gap = '1px';
+    } else {
+      el.textContent = d;
+    }
+
+    // Tooltip: list all event names with F&O specifics spelled out
+    if (dayEvents.length > 0) {
+      const tipLines = [];
+      macroEvents.forEach(e => tipLines.push(e.name));
+      fnoEvents.forEach(fe => {
+        let fullName = fe.name;
+        if (fe.name.includes('Bank Nifty')) fullName = '🏦 Bank Nifty Monthly Expiry (NSE)';
+        else if (fe.name.includes('Nifty 50') && fe.name.includes('Monthly')) fullName = '📈 Nifty 50 Monthly Expiry (NSE)';
+        else if (fe.name.includes('Nifty 50')) fullName = '📈 Nifty 50 Weekly Expiry (NSE)';
+        else if (fe.name.includes('Sensex')) fullName = '📊 Sensex Weekly Expiry (BSE)';
+        tipLines.push(fullName);
+      });
+      el.setAttribute('data-tip', tipLines.join('\n'));
+      el.title = tipLines.join(' | ');
+    }
+
+    grid.appendChild(el);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   EVENTS BY CATEGORY — SHARED RENDER
+═══════════════════════════════════════════════ */
+function renderCatBarsInto(containerId, eventsSlice, footerLabel) {
+  const cats = [
+    { key: 'rbi',       label: 'RBI / Policy',       color: '#c9a96e', icon: '🏦' },
+    { key: 'inflation', label: 'Inflation',           color: '#e05c6c', icon: '📊' },
+    { key: 'growth',    label: 'Growth / Activity',   color: '#4ab87a', icon: '⚙️' },
+    { key: 'fiscal',    label: 'Fiscal',              color: '#e0a04a', icon: '🏛️' },
+    { key: 'global',    label: 'Global Triggers',     color: '#5b9cf6', icon: '🌐' },
+    { key: 'fno',       label: 'F&O Expiries',        color: '#a78bfa', icon: '📉' },
+  ];
+  const counts = cats.map(c => ({ ...c, cnt: eventsSlice.filter(e => e.cat === c.key).length }))
+                     .filter(c => c.cnt > 0);
+  const maxCnt = Math.max(...counts.map(c => c.cnt), 1);
+  const total  = counts.reduce((s, c) => s + c.cnt, 0);
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  if (counts.length === 0) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:0.8rem;">No events in this range.</div>';
+    return;
+  }
+  container.innerHTML = counts.map(c => {
+    const pct = Math.round((c.cnt / maxCnt) * 100);
+    return `
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:0.78rem;color:var(--text2);display:flex;gap:5px;align-items:center;">
+            <span>${c.icon}</span>${c.label}
+          </span>
+          <span style="font-family:var(--font-mono);font-size:0.72rem;background:${c.color}22;color:${c.color};padding:1px 7px;border-radius:4px;">${c.cnt}</span>
+        </div>
+        <div class="cat-bar-track">
+          <div class="cat-bar-fill" style="width:${pct}%;background:${c.color};"></div>
+        </div>
+      </div>`;
+  }).join('') +
+  `<div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text3);margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">${total} total events · ${footerLabel}</div>`;
+}
+
+function renderMonthCatBars() {
+  const now = new Date();
+  const y = now.getFullYear(); const m = now.getMonth();
+  const monthStart = new Date(y, m, 1);
+  const monthEnd   = new Date(y, m + 1, 0); monthEnd.setHours(23,59,59,999);
+  const me = ALL_EVENTS.filter(e => e.date >= monthStart && e.date <= monthEnd);
+  const label = now.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+  renderCatBarsInto('monthCatBars', me, label);
+
+  const from6 = new Date(now); from6.setDate(1);
+  const to6   = new Date(now); to6.setMonth(to6.getMonth() + 6);
+  const me6   = ALL_EVENTS.filter(e => e.date >= from6 && e.date <= to6);
+  const label6 = `${from6.toLocaleString('en-IN',{month:'short'})} – ${to6.toLocaleString('en-IN',{month:'short',year:'numeric'})}`;
+  renderCatBarsInto('sixMonthCatBars', me6, `Next 6 months · ${label6}`);
+}
+
+let catTabActive = 'month';
+function switchCatTab(tab) {
+  catTabActive = tab;
+  document.getElementById('monthCatBars').style.display    = tab === 'month' ? 'block' : 'none';
+  document.getElementById('sixMonthCatBars').style.display = tab === '6m'    ? 'block' : 'none';
+  document.getElementById('catTabMonth').classList.toggle('active', tab === 'month');
+  document.getElementById('catTab6m').classList.toggle('active',    tab === '6m');
+}
+
+function renderCatBars() { /* data already rendered by renderMonthCatBars above */ }
+
+/* renderCatBars is now handled inside renderMonthCatBars above */
+
+/* ═══════════════════════════════════════════════
+   NEXT 7 DAYS STRIP
+═══════════════════════════════════════════════ */
+function renderStrip7() {
+  const strip = document.getElementById('strip7');
+  const label = document.getElementById('strip7Label');
+  const from = new Date(TODAY);
+  const to = new Date(TODAY); to.setDate(to.getDate() + 7);
+  const events7 = ALL_EVENTS.filter(e => diffDays(e.date) >= 0 && diffDays(e.date) <= 7 && !e.isFno);
+
+  label.textContent = `${events7.length} events`;
+  if (events7.length === 0) {
+    strip.innerHTML = `<div class="strip-empty">No major macro events in the next 7 days. Markets may take cues from global sentiment.</div>`;
+    return;
+  }
+  strip.innerHTML = events7.map(e => {
+    const dd = diffDays(e.date);
+    const dLabel = dd === 0 ? 'Today' : dd === 1 ? 'Tomorrow' : `In ${dd} days`;
+    return `
+      <div class="strip-card impact-${e.impact}" onclick="switchView('calendar');setTimeout(()=>document.getElementById('evt-${e.id}')?.scrollIntoView({behavior:'smooth',block:'center'}),300)">
+        <div class="strip-days-out">${dLabel} · ${e.icon}</div>
+        <div class="strip-event-name">${e.name}</div>
+        <div class="strip-date">${fmtDateShort(e.date)}</div>
+        <div style="margin-top:6px;">${badgeHTML(e.impact, e.cat, e.region)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   BADGE HTML
+═══════════════════════════════════════════════ */
+function badgeHTML(impact, cat, region) {
+  const impactBadge = impact === 'high'
+    ? `<span class="badge badge-high">HIGH</span>`
+    : impact === 'med'
+    ? `<span class="badge badge-med">MED</span>`
+    : `<span class="badge badge-low">LOW</span>`;
+  const catBadge = cat === 'rbi'
+    ? `<span class="badge badge-rbi">RBI</span>`
+    : cat === 'fno'
+    ? `<span class="badge badge-fno">F&O</span>`
+    : region === 'global'
+    ? `<span class="badge badge-global">GLOBAL</span>`
+    : '';
+  return impactBadge + (catBadge ? ' ' + catBadge : '');
+}
+
+/* ═══════════════════════════════════════════════
+   CALENDAR RENDER
+═══════════════════════════════════════════════ */
+function renderCalendar() {
+  const events = filteredEvents();
+  const container = document.getElementById('calendarOutput');
+  const countEl = document.getElementById('calEventCount');
+  countEl.textContent = `${events.length} events`;
+
+  if (events.length === 0) {
+    container.innerHTML = `<div class="no-results">No events match the current filters.</div>`;
+    return;
+  }
+
+  // Group by month
+  const groups = {};
+  events.forEach(e => {
+    const key = e.date.getFullYear() + '-' + String(e.date.getMonth()).padStart(2,'0');
+    if (!groups[key]) groups[key] = { label: e.date.toLocaleString('en-IN', { month: 'long', year: 'numeric' }), events: [] };
+    groups[key].events.push(e);
+  });
+
+  // Find next high-impact event ID
+  const nextHigh = ALL_EVENTS.find(e => e.impact==='high' && diffDays(e.date) >= 0);
+
+  let html = '';
+  Object.values(groups).forEach(g => {
+    html += `
+      <div class="month-group">
+        <div class="month-group-header">
+          <span class="month-group-name">${g.label}</span>
+          <span class="month-group-count">${g.events.length} event${g.events.length!==1?'s':''}</span>
+        </div>
+        <div class="events-grid">
+    `;
+    g.events.forEach(e => {
+      const dd = diffDays(e.date);
+      const cdLabel = dd < 0 ? 'Past' : dd === 0 ? 'Today' : dd === 1 ? 'Tomorrow' : `In ${dd} days`;
+      const cdClass = dd < 0 ? '' : dd <= 3 ? 'soon' : dd === 0 ? 'today-chip' : '';
+      const isNext = nextHigh && e.id === nextHigh.id;
+
+      html += `
+        <div class="event-card impact-${e.impact}${isNext?' next-event':''}" id="evt-${e.id}">
+          ${isNext ? '<div class="next-event-tag">NEXT HIGH</div>' : ''}
+          <div class="event-card-top">
+            <span class="event-cat-icon">${e.icon}</span>
+            <span class="event-name">${e.name}</span>
+            <div class="event-badges">${badgeHTML(e.impact, e.cat, e.region)}</div>
+          </div>
+          <div class="event-date-row">
+            <span class="event-date">${e.dateStr || fmtDate(e.date)}</span>
+            <span class="event-countdown-chip ${cdClass}">${cdLabel}</span>
+            ${e.isApproxDate ? '<span class="event-countdown-chip" title="Approximate date">~approx</span>' : ''}
+          </div>
+          <div class="event-why collapsed" id="why-${e.id}">${e.why}</div>
+          <div class="event-expand" onclick="toggleWhy('${e.id}')" id="toggle-${e.id}">Show more ▾</div>
+          ${e.extra ? `<div class="event-extra" id="extra-${e.id}">${e.extra}</div>` : ''}
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleWhy(id) {
+  const el = document.getElementById('why-' + id);
+  const toggle = document.getElementById('toggle-' + id);
+  const extra = document.getElementById('extra-' + id);
+  if (el.classList.contains('collapsed')) {
+    el.classList.remove('collapsed');
+    if (extra) extra.classList.add('show');
+    toggle.textContent = 'Show less ▴';
+  } else {
+    el.classList.add('collapsed');
+    if (extra) extra.classList.remove('show');
+    toggle.textContent = 'Show more ▾';
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   JS TOOLTIP
+═══════════════════════════════════════════════ */
+(function() {
+  const tip = document.getElementById('mpTooltip');
+  if (!tip) return;
+  document.addEventListener('mouseover', function(e) {
+    const el = e.target.closest('[data-tip]');
+    if (!el) { tip.style.display = 'none'; return; }
+    tip.textContent = el.getAttribute('data-tip');
+    tip.style.display = 'block';
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (tip.style.display === 'none') return;
+    let x = e.clientX + 14, y = e.clientY - 10;
+    if (x + 270 > window.innerWidth) x = e.clientX - 270;
+    if (y + tip.offsetHeight + 10 > window.innerHeight) y = e.clientY - tip.offsetHeight - 10;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (!e.target.closest('[data-tip]')) tip.style.display = 'none';
+  });
+})();
+
+
+function init() {
+  renderStats();
+  renderMonthGrid();
+  renderMonthCatBars();
+  renderCatBars();
+  renderStrip7();
+  renderCalendar();
+  updateCountdown();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+// Also run immediately in case DOM is already ready
+if (document.readyState !== 'loading') init();
+</script>
+</body>
+</html>
