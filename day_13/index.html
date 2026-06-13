@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIREscape — Calculate the exact date you stop working forever</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Syne:wght@400;500;600;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #09090e;
+    --card: #111118;
+    --card2: #16161f;
+    --gold: #c9a96e;
+    --gold-dim: #8a6f40;
+    --gold-bright: #e2c080;
+    --green: #4ab87a;
+    --red: #e05c6c;
+    --amber: #e0a04a;
+    --text: #e8e6e1;
+    --text-dim: #9997a0;
+    --text-muted: #5a5870;
+    --border: #1e1e2a;
+    --border-bright: #2a2a3a;
+  }
+  html { color-scheme: dark; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'DM Mono', monospace; }
+  .serif { font-family: 'Playfair Display', serif; }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===================== HOME PAGE ===================== */
+  .home-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(9,9,14,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    letter-spacing: -0.02em;
+  }
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    border: 1px solid var(--border-bright);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 90px 24px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 50%, var(--gold-dim) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
+  }
+  .hero-tagline {
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-bottom: 48px;
+    line-height: 1.6;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 48px;
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .hero-stat {
+    flex: 1 1 200px;
+    padding: 20px 24px;
+    border-right: 1px solid var(--border-bright);
+    text-align: center;
+  }
+  .hero-stat:last-child { border-right: none; }
+  .hero-stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.6rem;
+    color: var(--gold);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .hero-stat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+    color: #09090e;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 16px 36px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(201,169,110,0.35);
+  }
+  .cta-btn:active { transform: translateY(0); }
+
+  /* FEATURE CARDS */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+  @media (max-width: 780px) {
+    .features { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .features { grid-template-columns: 1fr; }
+  }
+  .feat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+  .feat-card:hover { border-color: var(--gold-dim); }
+  .feat-icon { font-size: 1.6rem; margin-bottom: 14px; display: block; }
+  .feat-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .feat-desc { font-size: 0.83rem; color: var(--text-dim); line-height: 1.6; }
+
+  /* INFOGRAPHICS */
+  .infographics {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0.7;
+  }
+  .infographic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .infographic-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    overflow: hidden;
+  }
+  .infographic-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .infographic-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 60px 24px;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ===================== INPUT SECTION ===================== */
+  .input-page { max-width: 700px; margin: 0 auto; padding: 40px 24px 80px; }
+  .input-header { text-align: center; margin-bottom: 40px; }
+  .input-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .input-subtitle { font-size: 0.9rem; color: var(--text-dim); }
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 40px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 6px;
+    margin-bottom: 24px;
+  }
+  .input-field {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s, transform 0.3s, opacity 0.3s;
+    opacity: 0.4;
+    transform: translateY(10px);
+  }
+  .input-field.active {
+    opacity: 1;
+    transform: translateY(0);
+    border-color: var(--border-bright);
+  }
+  .input-field.completed {
+    opacity: 1;
+    transform: translateY(0);
+    border-color: var(--gold-dim);
+  }
+  .input-field-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .input-field-label .checkmark { color: var(--green); font-size: 0.9rem; }
+  .input-number {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-bright);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    padding: 8px 0;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-number:focus { border-color: var(--gold); }
+  .input-number::placeholder { color: var(--text-muted); font-size: 1.2rem; }
+  .input-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .ghost-message {
+    font-size: 0.82rem;
+    color: var(--gold);
+    margin-top: 10px;
+    font-style: italic;
+    min-height: 20px;
+    transition: opacity 0.3s;
+  }
+  .range-wrap { position: relative; padding: 8px 0; }
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    height: 4px;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, var(--gold) var(--pct, 50%), var(--border-bright) var(--pct, 50%));
+    height: 4px;
+    border-radius: 2px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: -7px;
+    box-shadow: 0 0 0 4px rgba(201,169,110,0.15);
+    transition: box-shadow 0.2s;
+  }
+  input[type="range"]::-moz-range-track {
+    background: var(--border-bright);
+    height: 4px;
+    border-radius: 2px;
+  }
+  input[type="range"]::-moz-range-progress {
+    background: var(--gold);
+    height: 4px;
+    border-radius: 2px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: none;
+    box-shadow: 0 0 0 4px rgba(201,169,110,0.15);
+  }
+  input[type="range"]:focus { outline: none; }
+  input[type="range"]:focus::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(201,169,110,0.25); }
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .range-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .savings-rate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    margin-top: 8px;
+  }
+  .savings-rate-badge.low { background: rgba(224,92,108,0.15); color: var(--red); border: 1px solid rgba(224,92,108,0.3); }
+  .savings-rate-badge.mid { background: rgba(224,160,74,0.15); color: var(--amber); border: 1px solid rgba(224,160,74,0.3); }
+  .savings-rate-badge.high { background: rgba(74,184,122,0.15); color: var(--green); border: 1px solid rgba(74,184,122,0.3); }
+  .tooltip-wrap { position: relative; display: inline-flex; align-items: center; gap: 6px; cursor: help; }
+  .tooltip-icon {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--text-muted);
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: serif;
+  }
+  .tooltip-box {
+    display: none;
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card2);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    width: 260px;
+    z-index: 50;
+  }
+  .tooltip-wrap:hover .tooltip-box { display: block; }
+  .calc-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+    color: #09090e;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .calc-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,169,110,0.35); }
+  .calc-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ===================== RESULTS PAGE ===================== */
+  .results-page { max-width: 1080px; margin: 0 auto; padding: 40px 24px 100px; }
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .back-btn {
+    background: transparent;
+    border: 1px solid var(--border-bright);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--text);
+  }
+
+  /* VERDICT CARD */
+  .verdict-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .verdict-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    opacity: 0.7;
+  }
+  .verdict-fire-date {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .verdict-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-bottom: 28px;
+  }
+  .verdict-meta-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.3rem;
+    color: var(--text);
+    display: block;
+  }
+  .verdict-meta-label { font-size: 0.75rem; color: var(--text-muted); }
+  .corpus-progress-wrap {
+    margin-bottom: 16px;
+  }
+  .corpus-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .corpus-progress-bar {
+    background: var(--border);
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .corpus-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 4px;
+    transition: width 1.2s ease;
+    width: 0%;
+  }
+  .fire-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    margin-top: 12px;
+    border: 1px solid;
+  }
+  .fire-mode-badge.lean { background: rgba(224,92,108,0.1); color: var(--red); border-color: rgba(224,92,108,0.3); }
+  .fire-mode-badge.standard { background: rgba(201,169,110,0.1); color: var(--gold); border-color: rgba(201,169,110,0.3); }
+  .fire-mode-badge.fat { background: rgba(74,184,122,0.1); color: var(--green); border-color: rgba(74,184,122,0.3); }
+  .fire-mode-badge.barista { background: rgba(224,160,74,0.1); color: var(--amber); border-color: rgba(224,160,74,0.3); }
+  .verdict-ghost {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-top: 16px;
+    font-style: italic;
+    padding: 16px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border-left: 2px solid var(--gold-dim);
+  }
+
+  /* GRID */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .metric-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+  .metric-card:hover { border-color: var(--border-bright); }
+  .metric-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .metric-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .metric-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+  /* ESCAPE SPEED SCORE */
+  .score-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  @media (max-width: 560px) {
+    .score-card { grid-template-columns: 1fr; text-align: center; }
+    .score-gauge-wrap { margin: 0 auto; }
+  }
+  .score-gauge-wrap { position: relative; width: 140px; height: 140px; }
+  .score-gauge-canvas { width: 140px; height: 140px; }
+  .score-number-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .score-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .score-max { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-muted); }
+  .score-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .score-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .score-ghost { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; font-style: italic; }
+  .score-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  @media (max-width: 560px) { .score-breakdown { grid-template-columns: 1fr; } }
+  .score-break-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .score-break-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-muted); margin-bottom: 4px; }
+  .score-break-value { font-family: 'DM Mono', monospace; font-size: 0.95rem; color: var(--gold); }
+
+  /* MILESTONE TIMELINE */
+  .timeline-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .timeline-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .timeline-section-sub { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 24px; }
+  .timeline-scroll { overflow-x: auto; padding-bottom: 10px; }
+  .timeline-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: max-content;
+    position: relative;
+    padding: 20px 0;
+  }
+  .timeline-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .timeline-item.visible { opacity: 1; transform: translateY(0); }
+  .timeline-connector {
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-dim), var(--border-bright));
+    align-self: center;
+    flex-shrink: 0;
+  }
+  .timeline-node {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--gold-dim);
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+  .timeline-node.now { border-color: var(--green); background: rgba(74,184,122,0.1); }
+  .timeline-node.fire { border-color: var(--gold); background: rgba(201,169,110,0.15); }
+  .timeline-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gold);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .timeline-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text);
+    margin-bottom: 2px;
+    text-align: center;
+  }
+  .timeline-sub { font-size: 0.68rem; color: var(--text-muted); text-align: center; white-space: nowrap; }
+
+  /* CHART */
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .chart-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .chart-legend-item { display: flex; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--text-dim); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  #corpusChart { width: 100%; display: block; }
+
+  /* SCENARIO SLIDERS */
+  .scenario-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .scenario-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .scenario-sub { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
+  .scenario-ghost { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin-bottom: 24px; line-height: 1.5; }
+  .lever-row { margin-bottom: 28px; }
+  .lever-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .lever-label-text { font-size: 0.82rem; color: var(--text-dim); }
+  .lever-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--gold);
+    padding: 2px 10px;
+    background: rgba(201,169,110,0.1);
+    border-radius: 4px;
+  }
+  .lever-impact {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    margin-top: 6px;
+    min-height: 20px;
+    transition: all 0.3s;
+  }
+  .lever-impact.positive { color: var(--green); }
+  .lever-impact.negative { color: var(--red); }
+  .lever-impact.neutral { color: var(--text-muted); }
+
+  /* FIRE MODE SELECTOR */
+  .firemode-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .firemode-tabs {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 480px) { .firemode-tabs { grid-template-columns: 1fr; } }
+  .firemode-tab {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .firemode-tab:hover { border-color: var(--border-bright); }
+  .firemode-tab.active { border-color: var(--gold); background: rgba(201,169,110,0.07); }
+  .firemode-tab-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .firemode-tab-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; }
+  .firemode-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
+  .firemode-result-item {
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .firemode-result-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .firemode-result-value { font-family: 'DM Mono', monospace; font-size: 1.1rem; color: var(--gold); }
+
+  /* BADGES */
+  .badges-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .badges-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(201,169,110,0.07);
+    border: 1px solid var(--gold-dim);
+    border-radius: 10px;
+    padding: 12px 16px;
+    transition: all 0.3s;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  .badge.earned {
+    opacity: 1;
+    transform: scale(1);
+    animation: badgePop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  @keyframes badgePop {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .badge.locked { border-color: var(--border); background: transparent; opacity: 0.3; }
+  .badge-icon { font-size: 1.3rem; }
+  .badge-name { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); }
+  .badge-xp { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-muted); }
+  .total-xp {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: rgba(201,169,110,0.08);
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  /* REGRET CALC */
+  .regret-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .regret-numbers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .regret-item { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 18px; }
+  .regret-item-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .regret-item-value { font-family: 'DM Mono', monospace; font-size: 1.2rem; }
+  .regret-item-value.loss { color: var(--red); }
+  .regret-item-value.gain { color: var(--green); }
+
+  /* COMPARE */
+  .compare-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  @media (max-width: 480px) { .compare-grid { grid-template-columns: 1fr; } }
+  .compare-col {
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .compare-col-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+  .compare-col-title.current { color: var(--text-dim); }
+  .compare-col-title.best { color: var(--green); }
+  .compare-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .compare-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .compare-row-label { font-size: 0.75rem; color: var(--text-muted); }
+  .compare-row-val { font-family: 'DM Mono', monospace; font-size: 0.82rem; color: var(--text); }
+
+  /* SECTION HEADERS */
+  .section-head {
+    margin-bottom: 20px;
+    margin-top: 40px;
+  }
+  .section-head:first-child { margin-top: 0; }
+  .section-head-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .section-head-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--text);
+  }
+
+  /* CONGRATS STATE */
+  .congrats-card {
+    background: linear-gradient(135deg, rgba(74,184,122,0.1), rgba(201,169,110,0.1));
+    border: 1px solid var(--green);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .congrats-emoji { font-size: 3rem; margin-bottom: 16px; display: block; }
+  .congrats-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--green);
+    margin-bottom: 12px;
+  }
+  .congrats-sub { color: var(--text-dim); line-height: 1.6; max-width: 480px; margin: 0 auto; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .footer-text { font-size: 0.72rem; color: var(--text-muted); line-height: 1.7; max-width: 600px; margin: 0 auto; }
+
+  /* COUNT UP ANIMATION */
+  @keyframes countUp { from { opacity: 0.3; } to { opacity: 1; } }
+  .counting { animation: countUp 0.08s ease; }
+
+  /* PULSE */
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .pulse { animation: pulse 2s infinite; }
+
+  /* FIRE DATE UPDATE FLASH */
+  .flash-green { color: var(--green) !important; }
+  .flash-red { color: var(--red) !important; }
+
+  @media (max-width: 768px) {
+    .home-nav { padding: 16px 20px; }
+    .hero { padding: 60px 20px 40px; }
+    .hero-stat { flex: 1 1 100%; border-right: none; border-bottom: 1px solid var(--border-bright); }
+    .hero-stat:last-child { border-bottom: none; }
+    .verdict-card { padding: 28px 20px; }
+    .score-card { gap: 20px; }
+    .scenario-card, .firemode-card, .badges-card, .regret-card, .compare-card, .timeline-card, .chart-card { padding: 24px 18px; }
+    .results-page { padding: 28px 16px 80px; }
+    .input-page { padding: 28px 16px 60px; }
+  }
+  @media (max-width: 480px) {
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .infographic-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== HOME PAGE ==================== -->
+<div id="homePage" class="page active">
+
+  <nav class="home-nav">
+    <div class="nav-logo">FIREscape</div>
+    <div class="nav-badge">FIRE Calculator</div>
+  </nav>
+
+  <section class="hero">
+    <p class="hero-eyebrow">Financial Independence · Retire Early</p>
+    <h1 class="hero-title">FIREscape</h1>
+    <p class="hero-tagline">Calculate the exact date you stop working forever</p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-num">37%</span>
+        <span class="hero-stat-label">of Indians never save for retirement</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">45</span>
+        <span class="hero-stat-label">Average FIRE age for optimised savers</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">SR%</span>
+        <span class="hero-stat-label">The number that changes everything: your savings rate</span>
+      </div>
+    </div>
+
+    <button class="cta-btn" onclick="showPage('inputPage'); initInputPage()">
+      → Calculate My FIRE Date
+    </button>
+  </section>
+
+  <!-- FEATURE CARDS -->
+  <div class="features">
+    <div class="feat-card">
+      <span class="feat-icon">🔥</span>
+      <div class="feat-title">FIRE Calculator</div>
+      <p class="feat-desc">Enter your income, expenses, and savings. Get a precise retirement date using the 4% rule and compound interest math.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">⚡</span>
+      <div class="feat-title">Scenario Simulator</div>
+      <p class="feat-desc">Pull the escape levers — save more, earn more, spend less — and watch your FIRE date move in real time.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🏆</span>
+      <div class="feat-title">Milestone Tracker</div>
+      <p class="feat-desc">See exactly when you'll hit ₹10L, ₹50L, ₹1 Crore, and your freedom number on an animated timeline.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📊</span>
+      <div class="feat-title">Escape Speed Score</div>
+      <p class="feat-desc">Your FIRE fitness score from 0–100. Based on savings rate, FIRE age, and corpus progress. Improve it in minutes.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- INFOGRAPHICS -->
+  <div class="infographics">
+    <p class="section-label">The FIRE Math · Visualised</p>
+    <div class="infographic-grid">
+
+      <!-- Savings Rate Curve -->
+      <div class="infographic-card">
+        <h3 class="infographic-title">The Savings Rate Curve</h3>
+        <p class="infographic-sub">Your savings rate, not your income, decides when you retire.</p>
+        <svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;overflow:visible">
+          <defs>
+            <linearGradient id="curveGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#e05c6c"/>
+              <stop offset="40%" stop-color="#e0a04a"/>
+              <stop offset="70%" stop-color="#c9a96e"/>
+              <stop offset="100%" stop-color="#4ab87a"/>
+            </linearGradient>
+          </defs>
+          <path d="M20,160 C60,155 100,130 150,90 C200,50 240,25 280,15" stroke="url(#curveGrad)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Points -->
+          <circle cx="50" cy="155" r="4" fill="#e05c6c"/>
+          <text x="54" y="151" fill="#e05c6c" font-family="DM Mono,monospace" font-size="9">10% → 65</text>
+          <circle cx="120" cy="115" r="4" fill="#e0a04a"/>
+          <text x="124" y="111" fill="#e0a04a" font-family="DM Mono,monospace" font-size="9">30% → 48</text>
+          <circle cx="190" cy="62" r="4" fill="#c9a96e"/>
+          <text x="194" y="58" fill="#c9a96e" font-family="DM Mono,monospace" font-size="9">50% → 40</text>
+          <circle cx="260" cy="22" r="4" fill="#4ab87a"/>
+          <text x="264" y="18" fill="#4ab87a" font-family="DM Mono,monospace" font-size="9">70% → 33</text>
+          <!-- Axis labels -->
+          <text x="10" y="175" fill="#5a5870" font-family="DM Mono,monospace" font-size="8">Low SR</text>
+          <text x="240" y="175" fill="#5a5870" font-family="DM Mono,monospace" font-size="8">High SR</text>
+          <text x="2" y="15" fill="#5a5870" font-family="DM Mono,monospace" font-size="8">Young</text>
+          <text x="2" y="165" fill="#5a5870" font-family="DM Mono,monospace" font-size="8">Old</text>
+        </svg>
+        <p style="font-size:0.68rem;color:var(--text-muted);margin-top:8px">Retirement age at various savings rates. Based on 25x rule, 4% SWR.</p>
+      </div>
+
+      <!-- Power of Starting Early -->
+      <div class="infographic-card">
+        <h3 class="infographic-title">The Power of Starting Early</h3>
+        <p class="infographic-sub">Same savings rate, 10 years apart. The gap is staggering.</p>
+        <svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+          <!-- Person A (starts 25) -->
+          <path d="M20,160 C60,140 120,100 200,40 C230,25 260,18 280,15" stroke="#c9a96e" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Person B (starts 35) -->
+          <path d="M120,160 C150,148 200,120 240,85 C260,70 275,55 280,48" stroke="#5a5870" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="5,3"/>
+          <!-- Gap annotation at x=280 -->
+          <line x1="280" y1="15" x2="280" y2="48" stroke="#4ab87a" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <text x="284" y="22" fill="#4ab87a" font-family="DM Mono,monospace" font-size="8">₹2.1Cr</text>
+          <text x="284" y="32" fill="#4ab87a" font-family="DM Mono,monospace" font-size="8">gap</text>
+          <!-- Start labels -->
+          <circle cx="20" cy="160" r="3" fill="#c9a96e"/>
+          <text x="4" y="155" fill="#c9a96e" font-family="DM Mono,monospace" font-size="8">Age 25</text>
+          <circle cx="120" cy="160" r="3" fill="#5a5870"/>
+          <text x="104" y="155" fill="#9997a0" font-family="DM Mono,monospace" font-size="8">Age 35</text>
+          <!-- Legend -->
+          <rect x="20" y="8" width="20" height="2" fill="#c9a96e"/>
+          <text x="44" y="12" fill="#c9a96e" font-family="DM Mono,monospace" font-size="8">Person A (starts 25)</text>
+          <rect x="20" y="20" width="20" height="2" fill="#5a5870"/>
+          <text x="44" y="24" fill="#9997a0" font-family="DM Mono,monospace" font-size="8">Person B (starts 35)</text>
+        </svg>
+        <p style="font-size:0.68rem;color:var(--text-muted);margin-top:8px">₹10,000/mo at 10% return. Corpus gap at age 55: ~₹2.1 Crore.</p>
+      </div>
+
+      <!-- Inflation Erosion -->
+      <div class="infographic-card">
+        <h3 class="infographic-title">What ₹1 Crore Looks Like</h3>
+        <p class="infographic-sub">Inflation eats your money even when it's sitting still.</p>
+        <svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+          <defs>
+            <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#c9a96e"/>
+              <stop offset="100%" stop-color="#8a6f40"/>
+            </linearGradient>
+          </defs>
+          <!-- Bars -->
+          <rect x="30" y="20" width="60" height="130" fill="url(#barGrad)" rx="4"/>
+          <rect x="130" y="60" width="60" height="90" fill="#5a4a30" rx="4"/>
+          <rect x="210" y="95" width="60" height="55" fill="#3a3020" rx="4"/>
+          <!-- Values -->
+          <text x="60" y="14" fill="#c9a96e" font-family="DM Mono,monospace" font-size="9" text-anchor="middle">₹1.00 Cr</text>
+          <text x="160" y="54" fill="#e0a04a" font-family="DM Mono,monospace" font-size="9" text-anchor="middle">₹55.8L</text>
+          <text x="240" y="89" fill="#e05c6c" font-family="DM Mono,monospace" font-size="9" text-anchor="middle">₹31.2L</text>
+          <!-- Year labels -->
+          <text x="60" y="162" fill="#9997a0" font-family="DM Mono,monospace" font-size="9" text-anchor="middle">2025</text>
+          <text x="160" y="162" fill="#9997a0" font-family="DM Mono,monospace" font-size="9" text-anchor="middle">2035</text>
+          <text x="240" y="162" fill="#9997a0" font-family="DM Mono,monospace" font-size="9" text-anchor="middle">2045</text>
+          <!-- Baseline -->
+          <line x1="20" y1="150" x2="280" y2="150" stroke="#1e1e2a" stroke-width="1"/>
+          <text x="150" y="175" fill="#5a5870" font-family="DM Mono,monospace" font-size="8" text-anchor="middle">Real value after 6% inflation</text>
+        </svg>
+        <p style="font-size:0.68rem;color:var(--text-muted);margin-top:8px">₹1 Crore today = ₹55.8L real value in 2035 at 6% inflation.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">FIREscape</div>
+    <p class="footer-text">All calculations are illustrative. Consult a financial advisor before making retirement decisions.<br>FIRE projections assume consistent returns which markets don't guarantee. The 4% rule is a guideline, not a guarantee.</p>
+  </footer>
+</div>
+
+<!-- ==================== INPUT PAGE ==================== -->
+<div id="inputPage" class="page">
+  <nav class="home-nav">
+    <div class="nav-logo" style="cursor:pointer" onclick="showPage('homePage')">FIREscape</div>
+    <div class="nav-badge">Character Creation</div>
+  </nav>
+
+  <div class="input-page">
+    <div class="input-header">
+      <h2 class="input-title">Build Your Escape Plan</h2>
+      <p class="input-subtitle">Fill in your details. Each field unlocks your FIRE date in real time.</p>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="inputProgress"></div>
+    </div>
+    <p class="progress-label" id="inputProgressLabel">0% complete</p>
+
+    <!-- Field 1: Age -->
+    <div class="input-field active" id="fieldAge">
+      <div class="input-field-label">
+        <span>Your Current Age</span>
+        <span class="checkmark" id="checkAge" style="display:none">✓</span>
+      </div>
+      <div class="range-value"><span id="ageVal">28</span> years</div>
+      <div class="range-wrap">
+        <input type="range" id="ageSlider" min="20" max="60" value="28" oninput="updateAge(this.value)">
+        <div class="range-labels"><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div>
+      </div>
+    </div>
+
+    <!-- Field 2: Income -->
+    <div class="input-field" id="fieldIncome">
+      <div class="input-field-label">
+        <span>Monthly Income</span>
+        <span class="checkmark" id="checkIncome" style="display:none">✓</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:'DM Mono',monospace;font-size:1.4rem;color:var(--gold-dim)">₹</span>
+        <input type="number" class="input-number" id="incomeInput" placeholder="80,000" min="1000" value="80000" oninput="updateIncome(this.value)" onfocus="activateField('fieldIncome')">
+      </div>
+      <div class="ghost-message" id="ghostIncome"></div>
+    </div>
+
+    <!-- Field 3: Expenses -->
+    <div class="input-field" id="fieldExpenses">
+      <div class="input-field-label">
+        <span>Monthly Expenses</span>
+        <span class="checkmark" id="checkExpenses" style="display:none">✓</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:'DM Mono',monospace;font-size:1.4rem;color:var(--gold-dim)">₹</span>
+        <input type="number" class="input-number" id="expensesInput" placeholder="50,000" min="0" value="50000" oninput="updateExpenses(this.value)" onfocus="activateField('fieldExpenses')">
+      </div>
+      <div id="savingsRateBadgeWrap" style="margin-top:8px"></div>
+      <div class="ghost-message" id="ghostExpenses"></div>
+    </div>
+
+    <!-- Field 4: Current Savings -->
+    <div class="input-field" id="fieldSavings">
+      <div class="input-field-label">
+        <span>Current Savings / Investments</span>
+        <span class="checkmark" id="checkSavings" style="display:none">✓</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:'DM Mono',monospace;font-size:1.4rem;color:var(--gold-dim)">₹</span>
+        <input type="number" class="input-number" id="savingsInput" placeholder="5,00,000" min="0" value="500000" oninput="updateSavings(this.value)" onfocus="activateField('fieldSavings')">
+      </div>
+      <div class="ghost-message" id="ghostSavings"></div>
+    </div>
+
+    <!-- Field 5: Return -->
+    <div class="input-field" id="fieldReturn">
+      <div class="input-field-label">
+        <span>Expected Annual Return</span>
+        <span class="checkmark" id="checkReturn" style="display:none">✓</span>
+      </div>
+      <div class="range-value"><span id="returnVal">10</span>% p.a.</div>
+      <div class="range-wrap">
+        <input type="range" id="returnSlider" min="6" max="15" step="0.5" value="10" oninput="updateReturn(this.value)">
+        <div class="range-labels">
+          <span style="color:var(--green)">6–8%<br><span style="font-size:0.6rem">Conservative</span></span>
+          <span style="color:var(--gold)">10–12%<br><span style="font-size:0.6rem">Balanced</span></span>
+          <span style="color:var(--red)">12–15%<br><span style="font-size:0.6rem">Aggressive</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Field 6: Inflation -->
+    <div class="input-field" id="fieldInflation">
+      <div class="input-field-label">
+        <span>Expected Annual Inflation</span>
+        <span class="checkmark" id="checkInflation" style="display:none">✓</span>
+      </div>
+      <div class="range-value"><span id="inflationVal">6</span>%</div>
+      <div class="range-wrap">
+        <input type="range" id="inflationSlider" min="4" max="8" step="0.5" value="6" oninput="updateInflation(this.value)">
+        <div class="range-labels"><span>4%</span><span>5%</span><span>6%</span><span>7%</span><span>8%</span></div>
+      </div>
+    </div>
+
+    <!-- Field 7: SWR -->
+    <div class="input-field" id="fieldSWR">
+      <div class="input-field-label">
+        <span>
+          <span class="tooltip-wrap">
+            Safe Withdrawal Rate
+            <span class="tooltip-icon">i</span>
+            <div class="tooltip-box">The 4% rule says you can safely withdraw 4% of your corpus every year without running out of money over a 30-year retirement. It's based on 150 years of US market data and is the gold standard in FIRE planning.</div>
+          </span>
+        </span>
+        <span class="checkmark" id="checkSWR" style="display:none">✓</span>
+      </div>
+      <div class="range-value"><span id="swrVal">4</span>%</div>
+      <div class="range-wrap">
+        <input type="range" id="swrSlider" min="3" max="5" step="0.5" value="4" oninput="updateSWR(this.value)">
+        <div class="range-labels"><span>3% (safe)</span><span>4% (standard)</span><span>5% (aggressive)</span></div>
+      </div>
+    </div>
+
+    <button class="calc-btn" id="calcBtn" onclick="calculateFIRE()">
+      🔥 Calculate My Escape Date
+    </button>
+
+    <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:16px">All calculations run in your browser. Nothing is stored or sent anywhere.</p>
+  </div>
+</div>
+
+<!-- ==================== RESULTS PAGE ==================== -->
+<div id="resultsPage" class="page">
+  <nav class="home-nav">
+    <div class="nav-logo" style="cursor:pointer" onclick="showPage('homePage')">FIREscape</div>
+    <div class="nav-badge" style="color:var(--green)">Escape Plan Ready</div>
+  </nav>
+
+  <div class="results-page">
+    <div class="results-header">
+      <button class="back-btn" onclick="showPage('inputPage')">← Edit Inputs</button>
+      <div class="results-title serif">Your <em>Escape Room</em></div>
+    </div>
+
+    <!-- CONGRATS / ALREADY FIRED -->
+    <div id="congratsBlock" style="display:none">
+      <div class="congrats-card">
+        <span class="congrats-emoji">🎉</span>
+        <h2 class="congrats-title">You're Already Financially Independent!</h2>
+        <p class="congrats-sub">Your current corpus exceeds your freedom number. You could stop working today. Keep growing your wealth or enjoy the freedom — you've earned it.</p>
+      </div>
+    </div>
+
+    <!-- SECTION 1: VERDICT -->
+    <div id="normalResultsBlock">
+      <div class="section-head">
+        <p class="section-head-label">Section 01</p>
+        <h2 class="section-head-title">The Verdict</h2>
+      </div>
+
+      <div class="verdict-card">
+        <p class="verdict-label">Your FIRE Date</p>
+        <div class="verdict-fire-date" id="fireDate">—</div>
+        <div class="verdict-meta">
+          <div class="verdict-meta-item">
+            <span class="verdict-meta-value mono" id="yearsToFire">—</span>
+            <span class="verdict-meta-label">Years to Freedom</span>
+          </div>
+          <div class="verdict-meta-item">
+            <span class="verdict-meta-value mono" id="fireAge">—</span>
+            <span class="verdict-meta-label">Your Age at FIRE</span>
+          </div>
+          <div class="verdict-meta-item">
+            <span class="verdict-meta-value mono" id="freedomNumber">—</span>
+            <span class="verdict-meta-label">Freedom Number</span>
+          </div>
+        </div>
+        <div class="corpus-progress-wrap">
+          <div class="corpus-progress-label">
+            <span>Corpus Progress</span>
+            <span id="corpusProgressPct">0%</span>
+          </div>
+          <div class="corpus-progress-bar"><div class="corpus-progress-fill" id="corpusProgressFill"></div></div>
+        </div>
+        <div id="fireBadge"></div>
+        <div class="verdict-ghost">This is your magic number — the pile of money that works so you don't have to. Once your investments hit <strong id="verdictFNInline" style="color:var(--gold)">₹X</strong>, the returns alone cover your lifestyle forever. That's FIRE.</div>
+      </div>
+
+      <!-- SECTION 2: DASHBOARD -->
+      <div class="section-head">
+        <p class="section-head-label">Section 02</p>
+        <h2 class="section-head-title">The Escape Dashboard</h2>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Monthly Savings</div>
+          <div class="metric-value" id="mMonthlySavings">—</div>
+          <div class="metric-sub" id="mSavingsRate">—</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Annual Savings</div>
+          <div class="metric-value" id="mAnnualSavings">—</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Corpus at FIRE</div>
+          <div class="metric-value" id="mCorpusAtFire">—</div>
+          <div class="metric-sub" id="mCorpusInflAdj">—</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Real Annual Income at FIRE</div>
+          <div class="metric-value" id="mRealAnnualIncome">—</div>
+          <div class="metric-sub">4% of corpus/year</div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: ESCAPE SPEED SCORE -->
+      <div class="section-head">
+        <p class="section-head-label">Section 03</p>
+        <h2 class="section-head-title">Escape Speed Score</h2>
+      </div>
+      <div class="score-card">
+        <div class="score-gauge-wrap">
+          <canvas id="scoreGauge" class="score-gauge-canvas" width="140" height="140"></canvas>
+          <div class="score-number-overlay">
+            <div class="score-number" id="scoreNumber">0</div>
+            <div class="score-max">/100</div>
+          </div>
+        </div>
+        <div>
+          <div class="score-title" id="scoreTitle">Calculating...</div>
+          <div class="score-status mono" id="scoreStatus">—</div>
+          <div class="score-ghost">Think of this as your FIRE fitness score. 100 means you're already free. Below 50 means you have meaningful changes to make. The good news: a few tweaks to your savings rate move this score fast.</div>
+          <div class="score-breakdown">
+            <div class="score-break-item">
+              <div class="score-break-label">Savings Rate</div>
+              <div class="score-break-value" id="scoreSR">0/40</div>
+            </div>
+            <div class="score-break-item">
+              <div class="score-break-label">FIRE Age</div>
+              <div class="score-break-value" id="scoreFA">0/30</div>
+            </div>
+            <div class="score-break-item">
+              <div class="score-break-label">Progress</div>
+              <div class="score-break-value" id="scorePR">0/30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: MILESTONE TIMELINE -->
+      <div class="section-head">
+        <p class="section-head-label">Section 04</p>
+        <h2 class="section-head-title">Milestone Timeline</h2>
+      </div>
+      <div class="timeline-card">
+        <h3 class="timeline-section-title">Your Path to Freedom</h3>
+        <p class="timeline-section-sub">Key milestones on your journey from today to your FIRE date.</p>
+        <div class="timeline-scroll">
+          <div class="timeline-track" id="timelineTrack"></div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: CORPUS GROWTH CHART -->
+      <div class="section-head">
+        <p class="section-head-label">Section 05</p>
+        <h2 class="section-head-title">Corpus Growth Chart</h2>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text)">Wealth Over Time</h3>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">Nominal vs inflation-adjusted corpus growth</p>
+          </div>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Nominal Corpus</div>
+            <div class="chart-legend-item"><div class="legend-dot" style="background:var(--gold-dim);opacity:0.5"></div>Real Value</div>
+            <div class="chart-legend-item"><div class="legend-dot" style="background:var(--green)"></div>Freedom Number</div>
+          </div>
+        </div>
+        <canvas id="corpusChart" height="220"></canvas>
+      </div>
+
+      <!-- SCENARIO SLIDERS -->
+      <div class="section-head">
+        <p class="section-head-label">Section 06</p>
+        <h2 class="section-head-title">Escape Levers</h2>
+      </div>
+      <div class="scenario-card">
+        <h3 class="scenario-title">Pull the Levers</h3>
+        <p class="scenario-sub">See how small changes move your FIRE date in real time.</p>
+        <p class="scenario-ghost">These are your escape levers. Most people find that cutting expenses moves the FIRE date faster than earning more — because it reduces both the corpus you need AND increases how much you save.</p>
+
+        <div class="lever-row">
+          <div class="lever-label">
+            <span class="lever-label-text">Extra monthly savings</span>
+            <span class="lever-value" id="lever1Val">+₹0</span>
+          </div>
+          <input type="range" id="lever1" min="0" max="50000" step="1000" value="0" oninput="updateLevers()">
+          <div class="range-labels"><span>₹0</span><span>₹25K</span><span>₹50K</span></div>
+          <div class="lever-impact neutral" id="lever1Impact">Move the slider to see impact</div>
+        </div>
+
+        <div class="lever-row">
+          <div class="lever-label">
+            <span class="lever-label-text">Income raise</span>
+            <span class="lever-value" id="lever2Val">+0%</span>
+          </div>
+          <input type="range" id="lever2" min="0" max="50" step="5" value="0" oninput="updateLevers()">
+          <div class="range-labels"><span>0%</span><span>25%</span><span>50%</span></div>
+          <div class="lever-impact neutral" id="lever2Impact"></div>
+        </div>
+
+        <div class="lever-row">
+          <div class="lever-label">
+            <span class="lever-label-text">Expense cut</span>
+            <span class="lever-value" id="lever3Val">-0%</span>
+          </div>
+          <input type="range" id="lever3" min="0" max="40" step="5" value="0" oninput="updateLevers()">
+          <div class="range-labels"><span>0%</span><span>20%</span><span>40%</span></div>
+          <div class="lever-impact neutral" id="lever3Impact"></div>
+        </div>
+
+        <div class="lever-row">
+          <div class="lever-label">
+            <span class="lever-label-text">Extra return boost</span>
+            <span class="lever-value" id="lever4Val">+0%</span>
+          </div>
+          <input type="range" id="lever4" min="-2" max="3" step="0.5" value="0" oninput="updateLevers()">
+          <div class="range-labels"><span>-2%</span><span>0%</span><span>+3%</span></div>
+          <div class="lever-impact neutral" id="lever4Impact"></div>
+        </div>
+
+        <!-- Live FIRE date from levers -->
+        <div style="margin-top:16px;padding:16px;background:rgba(201,169,110,0.05);border-radius:10px;border:1px solid var(--border-bright)">
+          <p style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase">Adjusted FIRE Date</p>
+          <p style="font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold)" id="leverFireDate">—</p>
+          <p style="font-family:'DM Mono',monospace;font-size:0.8rem;margin-top:4px" id="leverDiff"></p>
+        </div>
+      </div>
+
+      <!-- FIRE MODE SELECTOR -->
+      <div class="section-head">
+        <p class="section-head-label">Section 07</p>
+        <h2 class="section-head-title">FIRE Mode Selector</h2>
+      </div>
+      <div class="firemode-card">
+        <h3 class="scenario-title" style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--text);margin-bottom:6px">Which retirement are you building?</h3>
+        <p class="scenario-sub">Switch modes to see how each path changes your numbers.</p>
+        <div class="firemode-tabs">
+          <button class="firemode-tab active" onclick="setFIREMode('lean',this)">
+            <div class="firemode-tab-name">Lean FIRE</div>
+            <div class="firemode-tab-desc">Bare minimum. Expenses cut 30%. Small, efficient life.</div>
+          </button>
+          <button class="firemode-tab" onclick="setFIREMode('regular',this)">
+            <div class="firemode-tab-name">Regular FIRE</div>
+            <div class="firemode-tab-desc">Current expenses maintained. The standard path.</div>
+          </button>
+          <button class="firemode-tab" onclick="setFIREMode('fat',this)">
+            <div class="firemode-tab-name">Fat FIRE</div>
+            <div class="firemode-tab-desc">Expenses up 50%. Luxury retirement. The dream.</div>
+          </button>
+          <button class="firemode-tab" onclick="setFIREMode('barista',this)">
+            <div class="firemode-tab-name">Barista FIRE</div>
+            <div class="firemode-tab-desc">Semi-retired. 60% from corpus, 40% part-time.</div>
+          </button>
+        </div>
+        <div class="firemode-results" id="firemodeResults"></div>
+      </div>
+
+      <!-- BADGES -->
+      <div class="section-head">
+        <p class="section-head-label">Section 08</p>
+        <h2 class="section-head-title">Milestone XP &amp; Badges</h2>
+      </div>
+      <div class="badges-card">
+        <h3 class="scenario-title" style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--text);margin-bottom:4px">Badges Earned</h3>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px">XP earned for your financial discipline and progress.</p>
+        <div class="badges-grid" id="badgesGrid"></div>
+        <div class="total-xp" id="totalXP">Total XP: 0</div>
+      </div>
+
+      <!-- REGRET CALCULATOR -->
+      <div class="section-head">
+        <p class="section-head-label">Section 09</p>
+        <h2 class="section-head-title">The Cost of Waiting</h2>
+      </div>
+      <div class="regret-card">
+        <h3 class="scenario-title" style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--text);margin-bottom:6px">What If I Started Earlier?</h3>
+        <p style="font-size:0.78rem;color:var(--text-muted)">The price of every year you delay — in real numbers.</p>
+        <div class="regret-numbers" id="regretNumbers"></div>
+      </div>
+
+      <!-- COMPARE PATHS -->
+      <div class="section-head">
+        <p class="section-head-label">Section 10</p>
+        <h2 class="section-head-title">Compare Paths</h2>
+      </div>
+      <div class="compare-card">
+        <h3 class="scenario-title" style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--text);margin-bottom:6px">Current Plan vs Best Case</h3>
+        <p style="font-size:0.78rem;color:var(--text-muted)">What happens if you implement all escape levers vs doing nothing.</p>
+        <div class="compare-grid" id="compareGrid"></div>
+      </div>
+
+    </div><!-- end normalResultsBlock -->
+  </div><!-- end results-page -->
+
+  <footer>
+    <div class="footer-logo">FIREscape</div>
+    <p class="footer-text">All calculations are illustrative. Consult a financial advisor before making retirement decisions.<br>FIRE projections assume consistent returns which markets don't guarantee. The 4% rule is a guideline, not a guarantee.</p>
+  </footer>
+</div>
+
+<script src="fireescape.js"></script>
+</body>
+</html>
