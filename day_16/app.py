@@ -306,14 +306,22 @@ def render_home():
             st.session_state.page = "terminal"
             st.rerun()
     with c2:
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
         excel_data = None
-        for fname in ["DCFdesk_Template.xlsx", "DCFdesk_MCX.xlsx", "DCFdesk.xlsx"]:
-            try:
-                with open(fname, "rb") as f:
-                    excel_data = f.read()
+        search_names = ["DCFdesk_Template.xlsx", "DCFdesk_MCX.xlsx", "DCFdesk.xlsx"]
+        search_dirs  = [script_dir, os.path.join(script_dir, "day_16"), "."]
+        for d in search_dirs:
+            for fname in search_names:
+                fpath = os.path.join(d, fname)
+                try:
+                    with open(fpath, "rb") as f:
+                        excel_data = f.read()
+                    break
+                except FileNotFoundError:
+                    continue
+            if excel_data:
                 break
-            except FileNotFoundError:
-                continue
         if excel_data:
             st.download_button("⬇ Download Excel Template", data=excel_data,
                                file_name="DCFdesk_MCX.xlsx",
