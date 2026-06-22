@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StratEdge — Options Strategy Builder · India Markets</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090e;
+  --card:#111118;
+  --card2:#161620;
+  --border:rgba(255,255,255,0.06);
+  --gold:#c9a96e;
+  --gold-light:#e8ca90;
+  --gold-dim:rgba(201,169,110,0.12);
+  --navy:#3a5a7a;
+  --electric:#4a9eff;
+  --electric-dim:rgba(74,158,255,0.08);
+  --green:#4ab87a;
+  --green-dim:rgba(74,184,122,0.1);
+  --red:#e05c6c;
+  --red-dim:rgba(224,92,108,0.1);
+  --amber:#e0a04a;
+  --text1:#e8e4dc;
+  --text2:#b0ac9f;
+  --text3:#666;
+  --radius:10px;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{font-family:'Syne',sans-serif;color:var(--text1);background:var(--bg);min-height:100vh;overflow-x:hidden}
+/* ── TYPOGRAPHY ── */
+.playfair{font-family:'Playfair Display',serif}
+.mono{font-family:'DM Mono',monospace}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+/* ── UTILITY ── */
+.hidden{display:none!important}
+.gold{color:var(--gold)}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.electric{color:var(--electric)}
+.text2{color:var(--text2)}
+.text3{color:var(--text3)}
+.mono-num{font-family:'DM Mono',monospace;font-weight:400}
+
+/* ═══════════════════════════════════════════
+   HOMEPAGE
+════════════════════════════════════════════ */
+#homepage{min-height:100vh;display:flex;flex-direction:column}
+
+/* NAV */
+.home-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 40px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+  background:rgba(9,9,14,0.92);backdrop-filter:blur(12px);
+}
+.nav-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);letter-spacing:-0.5px}
+.nav-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);border:1px solid var(--border);padding:4px 10px;border-radius:20px;letter-spacing:0.5px}
+.nav-cta{background:var(--gold);color:#09090e;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:9px 20px;border-radius:6px;border:none;cursor:pointer;letter-spacing:0.3px;transition:all 0.2s}
+.nav-cta:hover{background:var(--gold-light);transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 40px 60px;text-align:center;position:relative;overflow:hidden;
+}
+.hero-glow{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);
+  width:800px;height:500px;
+  background:radial-gradient(ellipse at center, rgba(201,169,110,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;
+  color:var(--text3);text-transform:uppercase;margin-bottom:28px;
+  border:1px solid var(--border);padding:7px 16px;border-radius:20px;
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,184,122,0.4)}50%{opacity:0.8;box-shadow:0 0 0 5px rgba(74,184,122,0)}}
+.hero-title{
+  font-family:'Playfair Display',serif;font-size:clamp(52px,8vw,96px);
+  font-weight:700;line-height:0.95;letter-spacing:-2px;color:var(--gold);margin-bottom:16px;
+}
+.hero-sub{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(18px,3vw,26px);color:var(--text2);margin-bottom:40px;letter-spacing:0.5px;
+}
+.stats-strip{
+  display:flex;gap:32px;align-items:center;justify-content:center;
+  margin-bottom:44px;flex-wrap:wrap;
+}
+.stat-item{text-align:center}
+.stat-val{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--gold);line-height:1}
+.stat-label{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.stat-divider{width:1px;height:40px;background:var(--border)}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:44px}
+.hero-pill{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);
+  border:1px solid var(--border);padding:6px 14px;border-radius:20px;letter-spacing:0.5px;
+  background:var(--card);
+}
+.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:80px}
+.btn-primary{
+  background:var(--gold);color:#09090e;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:15px;padding:14px 32px;border-radius:8px;border:none;cursor:pointer;
+  transition:all 0.2s;letter-spacing:0.3px;
+}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,169,110,0.25)}
+.btn-secondary{
+  background:transparent;color:var(--text1);font-family:'Syne',sans-serif;font-weight:600;
+  font-size:15px;padding:14px 32px;border-radius:8px;border:1px solid var(--border);
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+
+/* FEATURE GRID */
+.feature-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:1px;background:var(--border);margin:0;
+  border-top:1px solid var(--border);
+}
+.feature-card{
+  background:var(--bg);padding:36px 32px;transition:background 0.2s;
+}
+.feature-card:hover{background:var(--card)}
+.feat-icon{font-size:28px;margin-bottom:16px}
+.feat-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--text1);margin-bottom:8px}
+.feat-desc{font-size:13px;color:var(--text3);line-height:1.6}
+
+/* FOOTER DISCLAIMER */
+.home-disclaimer{
+  padding:24px 40px;border-top:1px solid var(--border);
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);text-align:center;line-height:1.6;
+}
+
+/* ═══════════════════════════════════════════
+   BUILDER PAGE
+════════════════════════════════════════════ */
+#builder{min-height:100vh;display:none;flex-direction:column}
+#builder.active{display:flex}
+
+.builder-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 40px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+  background:rgba(9,9,14,0.95);backdrop-filter:blur(12px);
+}
+.builder-nav-left{display:flex;align-items:center;gap:20px}
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);
+  background:none;border:none;cursor:pointer;padding:6px 0;transition:color 0.2s;
+}
+.back-btn:hover{color:var(--gold)}
+.builder-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold)}
+.builder-strategy-badge{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--electric);
+  border:1px solid rgba(74,158,255,0.2);padding:4px 12px;border-radius:20px;
+  background:var(--electric-dim);
+}
+.builder-body{max-width:1300px;margin:0 auto;width:100%;padding:40px 40px 80px}
+
+/* SECTION WRAPPER */
+.section{margin-bottom:48px}
+.section-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:20px;
+  padding-bottom:12px;border-bottom:1px solid var(--border);
+}
+.section-num{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);
+  background:var(--card);border:1px solid var(--border);
+  padding:3px 8px;border-radius:4px;letter-spacing:1px;
+}
+.section-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase}
+.section-title.electric{color:var(--electric)}
+
+/* MARKET CONTEXT BANNER */
+.market-ctx{
+  background:var(--card);border:1px solid var(--border);
+  border-left:3px solid var(--amber);
+  padding:14px 20px;border-radius:var(--radius);
+  display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;
+  flex-wrap:wrap;gap:6px 16px;
+}
+.ctx-item{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);
+  display:flex;align-items:center;gap:6px;
+}
+.ctx-dot{width:5px;height:5px;border-radius:50%;background:var(--amber)}
+
+/* STRATEGY FINDER */
+.finder-card{
+  background:var(--card);border:1px solid var(--border);
+  border-top:2px solid var(--electric);border-radius:var(--radius);padding:28px;
+}
+.finder-label{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--electric);margin-bottom:16px;
+}
+.finder-step-title{
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text2);
+  margin-bottom:14px;
+}
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.finder-pill{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:500;
+  padding:9px 18px;border-radius:6px;border:1px solid var(--border);
+  background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.15s;
+}
+.finder-pill:hover{border-color:var(--electric);color:var(--electric)}
+.finder-pill.selected{
+  background:var(--electric-dim);border-color:var(--electric);
+  color:var(--electric);font-weight:600;
+}
+.finder-step2,.finder-result{
+  margin-top:20px;padding-top:20px;border-top:1px solid var(--border);
+}
+.finder-result-card{
+  background:var(--electric-dim);border:1px solid rgba(74,158,255,0.25);
+  border-radius:var(--radius);padding:20px 24px;
+}
+.finder-rec-label{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;
+  color:var(--electric);text-transform:uppercase;margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;
+}
+.finder-rec-name{
+  font-family:'Playfair Display',serif;font-size:24px;font-weight:700;
+  color:var(--text1);margin-bottom:4px;
+}
+.complexity-badge{
+  display:inline-block;font-family:'DM Mono',monospace;font-size:10px;
+  padding:3px 9px;border-radius:4px;letter-spacing:1px;margin-left:10px;
+}
+.badge-beginner{background:rgba(74,184,122,0.15);color:var(--green);border:1px solid rgba(74,184,122,0.3)}
+.badge-intermediate{background:rgba(201,169,110,0.15);color:var(--gold);border:1px solid rgba(201,169,110,0.3)}
+.badge-advanced{background:rgba(74,158,255,0.1);color:var(--electric);border:1px solid rgba(74,158,255,0.2)}
+.finder-rationale{
+  font-size:13px;color:var(--text2);line-height:1.7;margin:12px 0 20px;
+  padding:12px 16px;background:rgba(255,255,255,0.02);border-radius:6px;
+  border-left:2px solid var(--electric);
+}
+.finder-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-build{
+  background:var(--electric);color:#fff;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:13px;padding:10px 22px;border-radius:6px;border:none;cursor:pointer;transition:all 0.2s;
+}
+.btn-build:hover{background:#5ba8ff;transform:translateY(-1px)}
+.btn-reset-finder{
+  background:transparent;color:var(--text2);font-family:'Syne',sans-serif;font-weight:500;
+  font-size:13px;padding:10px 22px;border-radius:6px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;
+}
+.btn-reset-finder:hover{border-color:var(--text2);color:var(--text1)}
+
+/* SETUP PANEL */
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:768px){.setup-grid{grid-template-columns:1fr}}
+.setup-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.setup-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+/* UNDERLYING PILLS */
+.underlying-pills{display:flex;gap:8px;flex-wrap:wrap}
+.u-pill{
+  font-family:'DM Mono',monospace;font-size:12px;font-weight:500;
+  padding:8px 16px;border-radius:6px;border:1px solid var(--border);
+  background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.15s;
+}
+.u-pill.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);font-weight:700}
+.u-pill:hover:not(.active){border-color:var(--text3);color:var(--text1)}
+
+/* INPUT ROW */
+.input-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.num-input{
+  font-family:'DM Mono',monospace;font-size:15px;font-weight:400;
+  background:var(--card2);border:1px solid var(--border);color:var(--text1);
+  padding:8px 14px;border-radius:6px;width:120px;text-align:right;
+  transition:border-color 0.15s;
+}
+.num-input:focus{outline:none;border-color:var(--gold)}
+.input-unit{font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)}
+
+/* SLIDER */
+.slider-row{display:flex;align-items:center;gap:14px;margin-top:8px}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;flex:1;height:3px;border-radius:2px;
+  background:linear-gradient(to right,var(--gold) 0%,var(--gold) var(--pct,50%),#2a2a35 var(--pct,50%),#2a2a35 100%);
+  cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--bg);box-shadow:0 0 6px rgba(201,169,110,0.4);
+  transition:transform 0.1s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+input[type=range]::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;border:2px solid var(--bg);
+  background:var(--gold);box-shadow:0 0 6px rgba(201,169,110,0.4);cursor:pointer;
+}
+.slider-val{
+  font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--gold);
+  min-width:52px;text-align:right;
+}
+
+/* STRATEGY GRID */
+.strategy-group-label{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:8px;margin-top:16px;
+}
+.strategy-group-label:first-child{margin-top:0}
+.strategy-pills-grid{display:flex;flex-wrap:wrap;gap:6px}
+.strat-pill{
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:500;
+  padding:7px 14px;border-radius:5px;border:1px solid var(--border);
+  background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.15s;
+}
+.strat-pill:hover:not(.active){border-color:var(--text3);color:var(--text1)}
+.strat-pill.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);font-weight:700}
+
+/* LEGS TABLE */
+.legs-table{width:100%;border-collapse:collapse}
+.legs-table th{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);
+}
+.legs-table td{
+  font-family:'DM Mono',monospace;font-size:13px;padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;
+}
+.legs-table tr:last-child td{border-bottom:none}
+.legs-table tr:hover td{background:rgba(255,255,255,0.02)}
+.badge-ce{background:rgba(74,158,255,0.15);color:var(--electric);border:1px solid rgba(74,158,255,0.3);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px}
+.badge-pe{background:rgba(224,92,108,0.15);color:var(--red);border:1px solid rgba(224,92,108,0.3);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px}
+.badge-buy{background:rgba(74,184,122,0.15);color:var(--green);border:1px solid rgba(74,184,122,0.3);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px}
+.badge-sell{background:rgba(224,92,108,0.12);color:var(--red);border:1px solid rgba(224,92,108,0.25);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px}
+.strike-input{
+  font-family:'DM Mono',monospace;font-size:13px;background:var(--card2);
+  border:1px solid var(--border);color:var(--text1);padding:4px 10px;border-radius:5px;
+  width:90px;text-align:right;
+}
+.strike-input:focus{outline:none;border-color:var(--gold)}
+.net-row td{
+  font-family:'DM Mono',monospace;font-size:14px;font-weight:500;
+  border-top:2px solid var(--border)!important;padding-top:14px!important;
+}
+.credit-tag{color:var(--green);font-size:11px;margin-left:8px}
+.debit-tag{color:var(--red);font-size:11px;margin-left:8px}
+
+/* PAYOFF CHART */
+.chart-container{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;position:relative;
+}
+.chart-legend{
+  display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;padding:0 8px;
+}
+.legend-item{
+  display:flex;align-items:center;gap:7px;
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);
+}
+.legend-line{width:24px;height:2px;border-radius:2px}
+.legend-line.solid{background:var(--gold)}
+.legend-line.dashed{background:repeating-linear-gradient(to right,var(--electric) 0px,var(--electric) 4px,transparent 4px,transparent 7px)}
+.legend-line.dotted-red{background:repeating-linear-gradient(to right,var(--red) 0px,var(--red) 3px,transparent 3px,transparent 6px)}
+.legend-line.dotted-green{background:repeating-linear-gradient(to right,var(--green) 0px,var(--green) 3px,transparent 3px,transparent 6px)}
+#payoffCanvas{display:block;width:100%;cursor:crosshair;border-radius:4px}
+
+/* TOOLTIP */
+#chartTooltip{
+  position:fixed;z-index:1000;display:none;
+  background:rgba(17,17,24,0.98);border:1px solid var(--border);
+  border-radius:8px;padding:12px 16px;min-width:200px;
+  font-family:'DM Mono',monospace;font-size:12px;pointer-events:none;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+}
+.tt-price{font-size:13px;font-weight:500;color:var(--text1);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.tt-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:4px}
+.tt-label{font-size:10px;color:var(--text3)}
+.tt-val{font-size:12px;font-weight:500}
+.tt-val.pos{color:var(--green)}
+.tt-val.neg{color:var(--red)}
+.tt-val.neu{color:var(--text2)}
+
+/* METRICS CARDS */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.metrics-grid{grid-template-columns:1fr}}
+.metric-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;
+}
+.metric-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.metric-val{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;line-height:1;margin-bottom:8px}
+.metric-val.pos{color:var(--green)}
+.metric-val.neg{color:var(--red)}
+.metric-val.neutral{color:var(--gold)}
+.metric-sub{font-size:12px;color:var(--text3);line-height:1.5}
+.breakeven-list{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--amber);line-height:1.5;margin-bottom:6px}
+
+/* GREEKS DASHBOARD */
+.greeks-section .section-title{color:var(--electric)}
+.greeks-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:900px){.greeks-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.greeks-grid{grid-template-columns:repeat(2,1fr)}}
+.greek-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;border-top:2px solid rgba(74,158,255,0.3);
+}
+.greek-name{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--electric);margin-bottom:8px}
+.greek-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--text1);margin-bottom:6px;line-height:1}
+.greek-sub{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* TIME DECAY CHART */
+.decay-chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+#decayCanvas{display:block;width:100%;border-radius:4px}
+.decay-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:0 8px}
+
+/* MARGIN SECTION */
+.margin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:700px){.margin-grid{grid-template-columns:1fr}}
+.margin-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.margin-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.margin-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--text1);margin-bottom:4px}
+.margin-sub{font-size:11px;color:var(--text3)}
+.margin-disclaimer{
+  margin-top:14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);
+  background:var(--card);border:1px solid var(--border);border-left:2px solid var(--amber);
+  padding:12px 16px;border-radius:6px;line-height:1.6;
+}
+
+/* EDUCATION CARD */
+.edu-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;
+}
+.edu-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.edu-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text1)}
+.bias-tag{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;
+  padding:4px 10px;border-radius:4px;background:var(--gold-dim);border:1px solid rgba(201,169,110,0.2);color:var(--gold);
+}
+.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:600px){.edu-grid{grid-template-columns:1fr}}
+.edu-item{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:16px}
+.edu-item-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.edu-item-text{font-size:13px;color:var(--text2);line-height:1.6}
+.ghost-card{
+  background:linear-gradient(135deg,rgba(201,169,110,0.05),rgba(74,158,255,0.04));
+  border:1px solid rgba(201,169,110,0.15);border-radius:8px;padding:20px 24px;
+}
+.ghost-label{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.ghost-text{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;color:var(--text2);line-height:1.8}
+
+/* BUILDER DISCLAIMER */
+.builder-disclaimer{
+  margin-top:60px;padding:24px 0;border-top:1px solid var(--border);
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);text-align:center;line-height:1.8;
+}
+
+/* COMPARISON SECTION */
+.compare-note{
+  font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:16px;
+  border:1px solid var(--border);padding:10px 14px;border-radius:6px;background:var(--card);
+}
+
+/* CUSTOM LEG BUILDER */
+.add-leg-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-top:1px solid var(--border);
+  background:rgba(255,255,255,0.01);flex-wrap:wrap;gap:10px;
+}
+.btn-add-leg{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:600;
+  color:var(--electric);border:1px dashed rgba(74,158,255,0.35);
+  background:rgba(74,158,255,0.06);padding:7px 16px;border-radius:6px;
+  cursor:pointer;transition:all 0.15s;
+}
+.btn-add-leg:hover{background:rgba(74,158,255,0.12);border-color:var(--electric)}
+.custom-mode-note{
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:0.5px;
+}
+.btn-remove-leg{
+  background:none;border:none;color:rgba(224,92,108,0.5);cursor:pointer;
+  font-size:16px;padding:2px 6px;border-radius:4px;transition:all 0.15s;line-height:1;
+  font-family:'DM Mono',monospace;
+}
+.btn-remove-leg:hover{color:var(--red);background:var(--red-dim)}
+.toggle-btn{
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  padding:4px 10px;border-radius:4px;border:1px solid var(--border);
+  background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.12s;
+}
+.toggle-btn.active-ce{background:rgba(74,158,255,0.15);border-color:rgba(74,158,255,0.4);color:var(--electric)}
+.toggle-btn.active-pe{background:rgba(224,92,108,0.12);border-color:rgba(224,92,108,0.35);color:var(--red)}
+.toggle-btn.active-buy{background:rgba(74,184,122,0.12);border-color:rgba(74,184,122,0.35);color:var(--green)}
+.toggle-btn.active-sell{background:rgba(224,92,108,0.12);border-color:rgba(224,92,108,0.3);color:var(--red)}
+.qty-input{
+  font-family:'DM Mono',monospace;font-size:12px;
+  background:var(--card2);border:1px solid var(--border);color:var(--text1);
+  padding:4px 8px;border-radius:5px;width:52px;text-align:center;
+}
+.qty-input:focus{outline:none;border-color:var(--gold)}
+.custom-banner{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(74,158,255,0.06);border:1px solid rgba(74,158,255,0.2);
+  border-radius:6px;padding:8px 14px;margin-bottom:10px;
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--electric);
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .home-nav{padding:16px 20px}
+  .hero{padding:60px 20px 40px}
+  .stats-strip{gap:16px}
+  .stat-divider{display:none}
+  .builder-body{padding:24px 16px 60px}
+  .builder-nav{padding:14px 20px}
+  .setup-grid{grid-template-columns:1fr}
+  .greeks-grid{grid-template-columns:repeat(2,1fr)}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .metrics-grid{grid-template-columns:1fr}
+  .margin-grid{grid-template-columns:1fr}
+  .edu-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HOMEPAGE ═══════════════════ -->
+<div id="homepage">
+  <nav class="home-nav">
+    <div class="nav-logo">StratEdge</div>
+    <div class="nav-badge">DAY 22 · 30 DAYS OF AI FINANCE</div>
+    <button class="nav-cta" onclick="showBuilder()">Launch Builder →</button>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-eyebrow">
+      <span class="live-dot"></span>
+      OPTIONS STRATEGY BUILDER · INDIA MARKETS · NSE F&amp;O
+    </div>
+    <h1 class="hero-title playfair">StratEdge</h1>
+    <p class="hero-sub playfair">Build. Analyse. Trade.</p>
+
+    <div class="stats-strip">
+      <div class="stat-item"><div class="stat-val mono-num">12</div><div class="stat-label">Strategies</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-val mono-num">4</div><div class="stat-label">Underlyings</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-val mono-num">IV±</div><div class="stat-label">Scenario Analysis</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-val mono-num">P(P)</div><div class="stat-label">Prob of Profit</div></div>
+    </div>
+
+    <div class="hero-pills">
+      <span class="hero-pill">Payoff Diagram</span>
+      <span class="hero-pill">Greeks Dashboard</span>
+      <span class="hero-pill">IV Scenarios</span>
+      <span class="hero-pill">Time Decay Curves</span>
+      <span class="hero-pill">Breakeven Analysis</span>
+      <span class="hero-pill">Margin Estimate</span>
+      <span class="hero-pill">Strategy Finder</span>
+    </div>
+
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="showBuilder()">→ Build a Strategy</button>
+      <button class="btn-secondary" onclick="showBuilderFinder()">→ Find My Strategy</button>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feat-icon">📈</div>
+        <div class="feat-title playfair">Payoff Diagram</div>
+        <div class="feat-desc">Four lines on one canvas — expiry P&amp;L, today's curve, IV+20% and IV−20%. See exactly what happens when volatility shifts.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">⚙️</div>
+        <div class="feat-title playfair">Greeks Dashboard</div>
+        <div class="feat-desc">Net Delta, Gamma, Theta, Vega — all lot-adjusted in rupees. Know your risk in plain terms, not abstract Greek letters.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🎯</div>
+        <div class="feat-title playfair">IV Sensitivity</div>
+        <div class="feat-desc">Overlay IV scenarios on the payoff chart. See how a volatility crush or spike reshapes your trade before you enter.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">⏱️</div>
+        <div class="feat-title playfair">Time Decay Curves</div>
+        <div class="feat-desc">Watch P&amp;L curves at 30, 21, 14, 7, 3 DTE and expiry. See theta eating into your position — or working for you.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🎲</div>
+        <div class="feat-title playfair">Probability Engine</div>
+        <div class="feat-desc">Probability of profit computed from IV and distance from breakeven. Not a guess — Black-Scholes derived.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title playfair">Strategy Finder</div>
+        <div class="feat-desc">Tell it your market view and risk appetite. Get the right strategy with a plain-English rationale — every time.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="home-disclaimer">
+    StratEdge is for educational purposes only. Options trading involves significant risk of loss. This tool does not constitute investment advice.<br/>
+    Verify all parameters with your broker before trading. Not SEBI registered.
+  </div>
+</div>
+
+<!-- ═══════════════════ TOOLTIP ═══════════════════ -->
+<div id="chartTooltip">
+  <div class="tt-price" id="ttPrice">Nifty: —</div>
+  <div class="tt-row"><span class="tt-label">At Expiry</span><span class="tt-val" id="ttExpiry">—</span></div>
+  <div class="tt-row"><span class="tt-label">Today (Current IV)</span><span class="tt-val" id="ttToday">—</span></div>
+  <div class="tt-row"><span class="tt-label">IV +20%</span><span class="tt-val" id="ttIVUp">—</span></div>
+  <div class="tt-row"><span class="tt-label">IV −20%</span><span class="tt-val" id="ttIVDn">—</span></div>
+</div>
+
+<!-- ═══════════════════ BUILDER ═══════════════════ -->
+<div id="builder">
+  <nav class="builder-nav">
+    <div class="builder-nav-left">
+      <button class="back-btn" onclick="showHome()">← Back</button>
+      <div class="builder-title playfair">StratEdge</div>
+      <div class="builder-strategy-badge" id="navBadge">Select a Strategy</div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">NSE F&amp;O · Educational Only</div>
+  </nav>
+
+  <div class="builder-body">
+
+    <!-- ── SECTION 0: STRATEGY FINDER ── -->
+    <div class="section" id="sec0">
+      <div class="section-header">
+        <span class="section-num">00</span>
+        <span class="section-title electric">STRATEGY FINDER</span>
+      </div>
+
+      <div class="market-ctx">
+        <div class="ctx-item"><span class="ctx-dot"></span>India VIX ~15 (moderate)</div>
+        <div class="ctx-item"><span class="ctx-dot"></span>NSE weekly expiry: Every Tuesday (Nifty/BankNifty/FinNifty) · BSE weekly expiry: Friday (Sensex)</div>
+        <div class="ctx-item"><span class="ctx-dot"></span>Moderate IV — spreads offer better risk-reward than naked buys right now</div>
+        <div class="ctx-item" style="color:var(--text3)">Illustrative only · Verify live data before trading</div>
+      </div>
+
+      <div class="finder-card">
+        <div class="finder-label">⚡ FIND YOUR STRATEGY</div>
+        <div id="finderStep1">
+          <div class="finder-step-title">What is your market view?</div>
+          <div class="pill-group" id="viewPills">
+            <button class="finder-pill" onclick="selectView('Bullish')">Bullish</button>
+            <button class="finder-pill" onclick="selectView('Bearish')">Bearish</button>
+            <button class="finder-pill" onclick="selectView('Neutral - Range Bound')">Neutral — Range Bound</button>
+            <button class="finder-pill" onclick="selectView('Neutral - Expecting Big Move')">Neutral — Expecting Big Move</button>
+          </div>
+        </div>
+
+        <div id="finderStep2" class="finder-step2 hidden">
+          <div class="finder-step-title">What is your risk appetite?</div>
+          <div class="pill-group" id="riskPills"></div>
+        </div>
+
+        <div id="finderResult" class="finder-result hidden">
+          <div class="finder-result-card">
+            <div class="finder-rec-label">⚡ RECOMMENDED</div>
+            <div id="finderRecName" class="finder-rec-name"></div>
+            <div id="finderRationale" class="finder-rationale"></div>
+            <div class="finder-actions">
+              <button class="btn-build" id="btnBuildThis" onclick="buildRecommended()">→ Build This Strategy</button>
+              <button class="btn-reset-finder" onclick="resetFinder()">← Change My View</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 1: SETUP ── -->
+    <div class="section" id="sec1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">SETUP</span>
+      </div>
+      <div class="setup-grid">
+        <!-- LEFT COLUMN -->
+        <div>
+          <!-- Underlying -->
+          <div class="setup-card" style="margin-bottom:14px">
+            <div class="setup-label">Underlying</div>
+            <div class="underlying-pills" id="underlyingPills">
+              <button class="u-pill active" data-u="NIFTY" onclick="selectUnderlying(this,'NIFTY')">NIFTY</button>
+              <button class="u-pill" data-u="BANKNIFTY" onclick="selectUnderlying(this,'BANKNIFTY')">BANKNIFTY</button>
+              <button class="u-pill" data-u="SENSEX" onclick="selectUnderlying(this,'SENSEX')">SENSEX</button>
+              <button class="u-pill" data-u="FINNIFTY" onclick="selectUnderlying(this,'FINNIFTY')">FINNIFTY</button>
+            </div>
+          </div>
+          <!-- Spot & Lot -->
+          <div class="setup-card" style="margin-bottom:14px">
+            <div class="setup-label">Spot Price</div>
+            <div class="input-row">
+              <input type="number" class="num-input" id="spotInput" value="23500" onchange="onParamChange()"/>
+              <span class="input-unit">pts</span>
+            </div>
+            <div style="margin-top:16px">
+              <div class="setup-label">Lot Size</div>
+              <div class="input-row">
+                <input type="number" class="num-input" id="lotInput" value="75" onchange="onParamChange()"/>
+                <span class="input-unit">units</span>
+              </div>
+            </div>
+            <div style="margin-top:16px">
+              <div class="setup-label">OTM Gap (Strike Interval)</div>
+              <div class="slider-row">
+                <input type="range" id="otmSlider" min="50" max="500" step="50" value="200" oninput="onSlider(this,'otmVal','')"/>
+                <div class="slider-val" id="otmVal">200</div>
+              </div>
+            </div>
+          </div>
+          <!-- IV & DTE -->
+          <div class="setup-card">
+            <div class="setup-label">Implied Volatility (IV %)</div>
+            <div class="slider-row">
+              <input type="range" id="ivSlider" min="8" max="40" step="0.5" value="15" oninput="onSlider(this,'ivVal','%')"/>
+              <div class="slider-val" id="ivVal">15.0%</div>
+            </div>
+            <div style="margin-top:16px">
+              <div class="setup-label">Days to Expiry (DTE)</div>
+              <div class="slider-row">
+                <input type="range" id="dteSlider" min="1" max="45" step="1" value="21" oninput="onSlider(this,'dteVal',' days')"/>
+                <div class="slider-val" id="dteVal">21 days</div>
+              </div>
+            </div>
+            <div style="margin-top:16px">
+              <div class="setup-label">Risk-Free Rate (%)</div>
+              <div class="input-row">
+                <input type="number" class="num-input" id="rfInput" value="6.5" step="0.1" onchange="onParamChange()"/>
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: STRATEGY SELECTOR -->
+        <div class="setup-card">
+          <div class="setup-label">Select Strategy</div>
+          <div class="strategy-group-label">DIRECTIONAL</div>
+          <div class="strategy-pills-grid">
+            <button class="strat-pill" onclick="selectStrategy('Long Call')">Long Call</button>
+            <button class="strat-pill" onclick="selectStrategy('Long Put')">Long Put</button>
+            <button class="strat-pill" onclick="selectStrategy('Bull Call Spread')">Bull Call Spread</button>
+            <button class="strat-pill" onclick="selectStrategy('Bear Put Spread')">Bear Put Spread</button>
+            <button class="strat-pill" onclick="selectStrategy('Bull Put Spread')">Bull Put Spread</button>
+            <button class="strat-pill" onclick="selectStrategy('Bear Call Spread')">Bear Call Spread</button>
+          </div>
+          <div class="strategy-group-label">NEUTRAL</div>
+          <div class="strategy-pills-grid">
+            <button class="strat-pill" onclick="selectStrategy('Long Straddle')">Long Straddle</button>
+            <button class="strat-pill" onclick="selectStrategy('Long Strangle')">Long Strangle</button>
+            <button class="strat-pill" onclick="selectStrategy('Short Straddle')">Short Straddle</button>
+            <button class="strat-pill" onclick="selectStrategy('Short Strangle')">Short Strangle</button>
+          </div>
+          <div class="strategy-group-label">ADVANCED</div>
+          <div class="strategy-pills-grid">
+            <button class="strat-pill" onclick="selectStrategy('Iron Condor')">Iron Condor</button>
+            <button class="strat-pill" onclick="selectStrategy('Iron Butterfly')">Iron Butterfly</button>
+          </div>
+          <div class="strategy-group-label" style="margin-top:20px">CUSTOM</div>
+          <div class="strategy-pills-grid">
+            <button class="strat-pill" id="customPill" onclick="selectCustomMode()" title="Build your own multi-leg strategy">＋ Custom Legs</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: LEGS TABLE ── -->
+    <div class="section" id="sec2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">STRATEGY LEGS</span>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div id="customBanner" class="custom-banner hidden" style="margin:12px 16px 0">
+          ⚡ Custom mode — build any combination. Edit type, strike, action, and qty per leg.
+        </div>
+        <div style="overflow-x:auto">
+          <table class="legs-table" id="legsTable">
+            <thead>
+              <tr>
+                <th>Leg</th><th>Type</th><th>Strike</th><th>Action</th><th>Qty</th>
+                <th>Premium (₹)</th><th>Delta</th><th>Theta (₹/day)</th><th id="removeColHead"></th>
+              </tr>
+            </thead>
+            <tbody id="legsBody">
+              <tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px;font-family:'DM Mono',monospace;font-size:13px">Select a strategy above to see legs</td></tr>
+            </tbody>
+            <tfoot id="legsFoot"></tfoot>
+          </table>
+        </div>
+        <div class="add-leg-bar">
+          <button class="btn-add-leg" id="addLegBtn" onclick="addCustomLeg()" title="Max 6 legs">＋ Add Leg</button>
+          <div class="custom-mode-note" id="legCountNote"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: PAYOFF DIAGRAM ── -->
+    <div class="section" id="sec3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">PAYOFF DIAGRAM</span>
+      </div>
+      <div class="chart-container">
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-line solid"></div>At Expiry</div>
+          <div class="legend-item"><div class="legend-line dashed"></div>Today (Current IV)</div>
+          <div class="legend-item"><div class="legend-line dotted-red"></div>IV +20%</div>
+          <div class="legend-item"><div class="legend-line dotted-green"></div>IV −20%</div>
+        </div>
+        <canvas id="payoffCanvas" height="420"></canvas>
+        <div style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);text-align:center">
+          Hover/touch for exact P&amp;L at each price · Lot-adjusted ₹ P&amp;L
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: METRICS ── -->
+    <div class="section" id="sec4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">STRATEGY METRICS</span>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Max Profit</div>
+          <div class="metric-val pos mono-num" id="mMaxProfit">—</div>
+          <div class="metric-sub" id="mMaxProfitSub">Select a strategy</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Max Loss</div>
+          <div class="metric-val neg mono-num" id="mMaxLoss">—</div>
+          <div class="metric-sub" id="mMaxLossSub"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Breakeven(s)</div>
+          <div class="breakeven-list" id="mBreakeven">—</div>
+          <div class="metric-sub" id="mBreakevenSub"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Probability of Profit</div>
+          <div class="metric-val neutral mono-num" id="mProb">—</div>
+          <div class="metric-sub" id="mProbSub">Based on IV &amp; distance from breakeven</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: GREEKS ── -->
+    <div class="section greeks-section" id="sec5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title electric">GREEKS DASHBOARD</span>
+      </div>
+      <div class="greeks-grid">
+        <div class="greek-card">
+          <div class="greek-name">Net Delta</div>
+          <div class="greek-val mono-num" id="gDelta">—</div>
+          <div class="greek-sub" id="gDeltaSub">Select a strategy</div>
+        </div>
+        <div class="greek-card">
+          <div class="greek-name">Net Gamma</div>
+          <div class="greek-val mono-num" id="gGamma">—</div>
+          <div class="greek-sub" id="gGammaSub"></div>
+        </div>
+        <div class="greek-card">
+          <div class="greek-name">Theta (₹/day)</div>
+          <div class="greek-val mono-num" id="gTheta">—</div>
+          <div class="greek-sub" id="gThetaSub"></div>
+        </div>
+        <div class="greek-card">
+          <div class="greek-name">Vega (₹/1% IV)</div>
+          <div class="greek-val mono-num" id="gVega">—</div>
+          <div class="greek-sub" id="gVegaSub"></div>
+        </div>
+        <div class="greek-card">
+          <div class="greek-name">Net Premium</div>
+          <div class="greek-val mono-num" id="gPremium">—</div>
+          <div class="greek-sub" id="gPremiumSub"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: TIME DECAY ── -->
+    <div class="section" id="sec6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">TIME DECAY</span>
+      </div>
+      <div class="decay-chart-wrap">
+        <div class="decay-legend" id="decayLegend"></div>
+        <canvas id="decayCanvas" height="320"></canvas>
+        <div style="margin-top:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);padding:0 8px">
+          Watch how your strategy's value changes as time passes. Sellers benefit from time decay — buyers fight it every day.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: MARGIN & COST ── -->
+    <div class="section" id="sec7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">MARGIN &amp; COST ESTIMATE</span>
+      </div>
+      <div class="margin-grid">
+        <div class="margin-card">
+          <div class="margin-label">Est. SPAN Margin</div>
+          <div class="margin-val mono-num" id="mMargin">—</div>
+          <div class="margin-sub">~10% of notional per sell leg</div>
+        </div>
+        <div class="margin-card">
+          <div class="margin-label">Net Premium (Total)</div>
+          <div class="margin-val mono-num" id="mNetPrem">—</div>
+          <div class="margin-sub" id="mNetPremSub"></div>
+        </div>
+        <div class="margin-card">
+          <div class="margin-label">Brokerage Estimate</div>
+          <div class="margin-val mono-num" id="mBrokerage">—</div>
+          <div class="margin-sub">₹20/order × legs × 2 sides</div>
+        </div>
+        <div class="margin-card">
+          <div class="margin-label">Total Capital Required</div>
+          <div class="margin-val mono-num" id="mTotalCap">—</div>
+          <div class="margin-sub">Margin + net debit (if debit strategy)</div>
+        </div>
+        <div class="margin-card">
+          <div class="margin-label">Return on Margin</div>
+          <div class="margin-val mono-num" id="mROM">—</div>
+          <div class="margin-sub">Max Profit / Total Capital</div>
+        </div>
+      </div>
+      <div class="margin-disclaimer">
+        ⚠ Margin estimates are approximate (~10% of notional for sell legs). SPAN and Exposure margins vary by broker and market conditions. Verify exact margin requirements with your broker before trading.
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: EDUCATION ── -->
+    <div class="section" id="sec8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <span class="section-title">STRATEGY GUIDE</span>
+      </div>
+      <div class="edu-card" id="eduCard">
+        <div style="text-align:center;color:var(--text3);font-family:'DM Mono',monospace;font-size:13px;padding:24px 0">
+          Select a strategy to see its education card
+        </div>
+      </div>
+    </div>
+
+    <div class="builder-disclaimer">
+      StratEdge · Day 22 · 30 Days of AI Finance · For educational purposes only.<br/>
+      Options trading involves significant risk of loss. This tool does not constitute investment advice.<br/>
+      Verify all figures with your broker before trading. Not SEBI registered.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+<script>
+// ─── CONSTANTS ────────────────────────────────────────
+const UNDERLYINGS = {
+  "NIFTY":     { spot: 23500, lot_size: 75,  typical_iv: 15 },
+  "BANKNIFTY": { spot: 54000, lot_size: 35,  typical_iv: 18 },
+  "SENSEX":    { spot: 77500, lot_size: 10,  typical_iv: 15 },
+  "FINNIFTY":  { spot: 25000, lot_size: 65,  typical_iv: 16 },
+};
+
+const STRATEGIES_META = {
+  "Long Call":          { legs: 1, complexity: "Beginner",     bias: "Bullish" },
+  "Long Put":           { legs: 1, complexity: "Beginner",     bias: "Bearish" },
+  "Bull Call Spread":   { legs: 2, complexity: "Beginner",     bias: "Moderately Bullish" },
+  "Bear Put Spread":    { legs: 2, complexity: "Beginner",     bias: "Moderately Bearish" },
+  "Long Straddle":      { legs: 2, complexity: "Intermediate", bias: "Neutral Volatile" },
+  "Long Strangle":      { legs: 2, complexity: "Intermediate", bias: "Neutral Volatile" },
+  "Short Straddle":     { legs: 2, complexity: "Intermediate", bias: "Neutral Range-bound" },
+  "Short Strangle":     { legs: 2, complexity: "Intermediate", bias: "Neutral Range-bound" },
+  "Iron Condor":        { legs: 4, complexity: "Advanced",     bias: "Neutral Range-bound" },
+  "Iron Butterfly":     { legs: 4, complexity: "Advanced",     bias: "Neutral Pinned" },
+  "Bull Put Spread":    { legs: 2, complexity: "Intermediate", bias: "Moderately Bullish" },
+  "Bear Call Spread":   { legs: 2, complexity: "Intermediate", bias: "Moderately Bearish" },
+};
+
+const STRATEGY_FINDER = {
+  "Bullish": {
+    "Limited Risk":  { strategy: "Bull Call Spread", rationale: "Defined max loss (premium paid), profits if Nifty rises moderately. Best risk-reward for a mild bullish view." },
+    "Aggressive":    { strategy: "Long Call",         rationale: "Maximum upside if Nifty rallies hard. You pay premium but gains are unlimited. For strong conviction." },
+    "Income":        { strategy: "Bull Put Spread",   rationale: "Collect premium upfront. Profit if Nifty stays above your lower strike. Defined risk, immediate credit." },
+  },
+  "Bearish": {
+    "Limited Risk":  { strategy: "Bear Put Spread",  rationale: "Defined max loss, profits if Nifty falls moderately. Cheaper than buying a naked put." },
+    "Aggressive":    { strategy: "Long Put",          rationale: "Maximum downside capture. Unlimited profit if Nifty crashes. High premium, high conviction needed." },
+    "Income":        { strategy: "Bear Call Spread",  rationale: "Sell a call spread — collect credit if Nifty stays below your upper strike. Defined risk." },
+  },
+  "Neutral - Range Bound": {
+    "Limited Risk":     { strategy: "Iron Condor",     rationale: "The classic range-bound strategy. Collect premium from both sides, profit if Nifty stays between your strikes. Defined risk on both sides." },
+    "Income":           { strategy: "Short Strangle",  rationale: "Sell OTM call and put. Maximum income if Nifty stays in range. Undefined risk — requires margin and active monitoring." },
+    "Pinned to Strike": { strategy: "Iron Butterfly",  rationale: "Maximum profit if Nifty expires exactly at your ATM strike. Higher premium than Iron Condor but narrower profit zone." },
+  },
+  "Neutral - Expecting Big Move": {
+    "Limited Risk":  { strategy: "Long Straddle",  rationale: "Buy ATM call and put. Profit from a large move in either direction. Ideal before RBI policy, Budget, or major events." },
+    "Cheaper Entry": { strategy: "Long Strangle",  rationale: "Buy OTM call and put. Cheaper than straddle but needs a bigger move to profit. Good for high-conviction volatility bets." },
+  },
+};
+
+const RISK_OPTIONS = {
+  "Bullish":                     ["Limited Risk","Aggressive","Income"],
+  "Bearish":                     ["Limited Risk","Aggressive","Income"],
+  "Neutral - Range Bound":       ["Limited Risk","Income","Pinned to Strike"],
+  "Neutral - Expecting Big Move":["Limited Risk","Cheaper Entry"],
+};
+
+const STRATEGY_EDUCATION = {
+  "Long Call": {
+    when: "When you're bullish and expect the market to rise significantly before expiry.",
+    risk: "You lose 100% of the premium paid if the market doesn't move above your strike.",
+    reward: "Theoretically unlimited upside if the market rallies hard.",
+    ideal_market: "Trending up, expecting a strong breakout or event-driven move.",
+    ghost: "Buying a call is like paying a fee for the right to buy Nifty at today's level later. If Nifty rises, you profit. If it doesn't, you lose what you paid — nothing more."
+  },
+  "Long Put": {
+    when: "When you're bearish and expect the market to fall significantly before expiry.",
+    risk: "You lose 100% of premium if market doesn't fall below your strike.",
+    reward: "Profits increase as market falls. Maximum profit = strike minus zero (market can't go negative).",
+    ideal_market: "Trending down, expecting a correction or bearish event.",
+    ghost: "A put is insurance against a market fall. You pay a premium to lock in the right to sell Nifty at today's level. If it falls, you profit. If it rises, you lose only what you paid."
+  },
+  "Bull Call Spread": {
+    when: "Mildly bullish — you think market will rise but not dramatically.",
+    risk: "Maximum loss = net premium paid. Defined and limited.",
+    reward: "Maximum profit = difference between strikes minus premium paid.",
+    ideal_market: "Gradually trending up, low to moderate volatility.",
+    ghost: "You buy a call (cost) and sell a higher call (reduces cost). The sold call caps your upside but also caps your cost. Classic trade-off: cheaper entry, limited profit. Preferred over naked calls when conviction is moderate."
+  },
+  "Bear Put Spread": {
+    when: "Mildly bearish — you think market will fall but not crash.",
+    risk: "Maximum loss = net premium paid.",
+    reward: "Maximum profit = difference between strikes minus premium paid.",
+    ideal_market: "Gradually trending down, moderate volatility.",
+    ghost: "Same structure as Bull Call Spread but for bears. Buy a put, sell a lower put to reduce cost. You give up some downside capture but pay significantly less than a naked put."
+  },
+  "Long Straddle": {
+    when: "Expecting a big move but don't know the direction — before a major event.",
+    risk: "Expensive — you lose if the market stays flat. Time decay works hard against you.",
+    reward: "Unlimited on both sides if market moves sharply enough to cover both premiums.",
+    ideal_market: "Before RBI policy, Union Budget, election results, or major earnings.",
+    ghost: "A straddle is a bet on volatility, not direction. You buy both a call and a put at the same strike. If Nifty moves 500 points either way, you win. If it stays flat, you lose the premium on both."
+  },
+  "Long Strangle": {
+    when: "Expecting a very big move — cheaper alternative to straddle.",
+    risk: "Needs a larger move than straddle to profit but costs less.",
+    reward: "Unlimited on both sides once market clears the OTM strikes.",
+    ideal_market: "Before very high-impact events — budget, elections. When IV is low.",
+    ghost: "Like a straddle but with wider wings. You buy an OTM call and an OTM put. Cheaper than a straddle, but the market needs to move more for you to profit. Good when you want an event play on a budget."
+  },
+  "Short Straddle": {
+    when: "When you expect the market to stay flat and volatility to fall.",
+    risk: "Unlimited risk on both sides if market moves sharply. Requires active management.",
+    reward: "Maximum profit = full premium collected. Achieved if market expires at exact strike.",
+    ideal_market: "Post-event, low volatility, range-bound market. India VIX above 18 and expected to fall.",
+    ghost: "You sell both a call and put at the same strike. Collect premium immediately. Your enemy is a big move — in either direction. Popular with experienced Nifty weekly sellers during quiet periods."
+  },
+  "Short Strangle": {
+    when: "When you expect the market to stay within a range — more forgiving than short straddle.",
+    risk: "Unlimited risk if market breaks out strongly. Requires margin and monitoring.",
+    reward: "Collect credit. Profit if market stays between the two strikes at expiry.",
+    ideal_market: "Low volatility, clearly range-bound. Good for weekly Nifty plays in calm markets.",
+    ghost: "You sell an OTM call and an OTM put. Wider strikes mean more room for error than a straddle. Less premium collected but more forgiving. The go-to strategy for Nifty weekly option sellers."
+  },
+  "Iron Condor": {
+    when: "When you expect the market to stay in a defined range — no big moves either way.",
+    risk: "Defined on both sides. Max loss = wing width minus credit received.",
+    reward: "Max profit = net credit received. Achieved if market stays within inner strikes.",
+    ideal_market: "Post-event, sideways market, India VIX below 15.",
+    ghost: "The Iron Condor is the most popular multi-leg strategy in India. You're selling the tails — betting the market won't move too far up or down. Four legs, defined risk, defined reward. Used heavily by Nifty weekly traders."
+  },
+  "Iron Butterfly": {
+    when: "When you expect the market to pin near a specific level at expiry.",
+    risk: "Defined. Loss if market moves significantly from center strike.",
+    reward: "Higher premium than Iron Condor but much narrower profit zone.",
+    ideal_market: "Very range-bound market with strong support/resistance at ATM.",
+    ghost: "Like an Iron Condor but the two inner strikes are the same (ATM). You collect more premium but your profit zone is much narrower. Only use when you have high conviction the market will pin to a level."
+  },
+  "Bull Put Spread": {
+    when: "Bullish to neutral — want to collect premium with defined risk.",
+    risk: "Defined. Max loss = spread width minus credit received.",
+    reward: "Max profit = credit received. Keep it if market stays above upper strike.",
+    ideal_market: "Bullish or flat market. Sell put spreads below strong support levels.",
+    ghost: "You sell a put and buy a lower put to cap your risk. Collect premium upfront — your profit if Nifty stays above your sold strike. Popular credit strategy for directional traders who want defined risk."
+  },
+  "Bear Call Spread": {
+    when: "Bearish to neutral — collect premium with defined risk on the upside.",
+    risk: "Defined. Max loss = spread width minus credit received.",
+    reward: "Max profit = credit received. Keep it if market stays below lower strike.",
+    ideal_market: "Bearish or flat market. Sell call spreads above strong resistance levels.",
+    ghost: "Sell a call, buy a higher call. Collect credit. Profit if Nifty stays below your sold strike. The bearish equivalent of a Bull Put Spread. Defined risk, defined reward — great for traders with a downside bias."
+  },
+};
+
+// ─── STATE ────────────────────────────────────────────
+let currentUnderlying = "NIFTY";
+let currentStrategy = null;
+let currentPricedLegs = [];
+let finderView = null;
+let finderRisk = null;
+let finderRecommendation = null;
+let isCustomMode = false;
+let customLegs = [];  // Array of {type:'call'|'put', strike:number, action:'buy'|'sell', qty:number}
+
+// ─── MATH ────────────────────────────────────────────
+function normCDF(x) {
+  // Abramowitz & Stegun 26.2.17 — correct, max error 7.5e-8
+  const b1=0.319381530,b2=-0.356563782,b3=1.781477937,b4=-1.821255978,b5=1.330274429,p=0.2316419;
+  if(x<0) return 1-normCDF(-x);
+  const t=1/(1+p*x);
+  return 1-(Math.exp(-x*x/2)/Math.sqrt(2*Math.PI))*(b1*t+b2*t*t+b3*t*t*t+b4*t*t*t*t+b5*t*t*t*t*t);
+}
+function normPDF(x) { return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI); }
+
+function blackScholes(S, K, T, r, sigma, type) {
+  if (T <= 0.0001) {
+    if (type==='call') return Math.max(0, S-K);
+    return Math.max(0, K-S);
+  }
+  const d1 = (Math.log(S/K)+(r+0.5*sigma*sigma)*T)/(sigma*Math.sqrt(T));
+  const d2 = d1-sigma*Math.sqrt(T);
+  if (type==='call') return S*normCDF(d1)-K*Math.exp(-r*T)*normCDF(d2);
+  return K*Math.exp(-r*T)*normCDF(-d2)-S*normCDF(-d1);
+}
+
+function greeks(S, K, T, r, sigma, type) {
+  if (T <= 0.0001) return {delta:type==='call'?1:0,gamma:0,theta:0,vega:0,rho:0};
+  const d1 = (Math.log(S/K)+(r+0.5*sigma*sigma)*T)/(sigma*Math.sqrt(T));
+  const d2 = d1-sigma*Math.sqrt(T);
+  const pdf_d1 = normPDF(d1);
+  const delta = type==='call' ? normCDF(d1) : normCDF(d1)-1;
+  const gamma = pdf_d1/(S*sigma*Math.sqrt(T));
+  const theta_call = (-S*pdf_d1*sigma/(2*Math.sqrt(T))-r*K*Math.exp(-r*T)*normCDF(d2))/365;
+  const theta_put  = (-S*pdf_d1*sigma/(2*Math.sqrt(T))+r*K*Math.exp(-r*T)*normCDF(-d2))/365;
+  const theta = type==='call' ? theta_call : theta_put;
+  const vega = S*pdf_d1*Math.sqrt(T)/100;
+  const rho_call = K*T*Math.exp(-r*T)*normCDF(d2)/100;
+  const rho_put  = -K*T*Math.exp(-r*T)*normCDF(-d2)/100;
+  return {delta,gamma,theta,vega,rho:type==='call'?rho_call:rho_put};
+}
+
+function probabilityOfProfit(spot, beArr, iv, dte, isDebit) {
+  const T = dte/365;
+  const sigma = iv/100;
+  if (T <= 0 || beArr.length === 0) return null;
+  if (beArr.length === 1) {
+    const be = beArr[0];
+    const d = (Math.log(spot/be)+0.5*sigma*sigma*T)/(sigma*Math.sqrt(T));
+    return isDebit ? normCDF(d) : normCDF(-d);
+  }
+  // Two breakevens (spread/condor): probability market stays between them
+  if (beArr.length >= 2) {
+    const be1 = Math.min(...beArr);
+    const be2 = Math.max(...beArr);
+    const d1 = (Math.log(spot/be1)+0.5*sigma*sigma*T)/(sigma*Math.sqrt(T));
+    const d2 = (Math.log(spot/be2)+0.5*sigma*sigma*T)/(sigma*Math.sqrt(T));
+    // P(be1 < S < be2) = N(d1) - N(d2)... but we need to know if profit is inside or outside
+    // For credit strategies (short condor, short strangle etc): profit inside
+    // For debit strategies (long straddle, long strangle): profit outside
+    if (isDebit) {
+      return normCDF(-d1) + normCDF(d2);
+    } else {
+      return normCDF(d1) - normCDF(d2);
+    }
+  }
+  return null;
+}
+
+// ─── STRATEGY BUILDER ────────────────────────────────
+function getParams() {
+  const spot = parseFloat(document.getElementById('spotInput').value)||23500;
+  const lot = parseFloat(document.getElementById('lotInput').value)||75;
+  const iv = parseFloat(document.getElementById('ivSlider').value)||15;
+  const dte = parseFloat(document.getElementById('dteSlider').value)||21;
+  const rf = parseFloat(document.getElementById('rfInput').value)||6.5;
+  const otm = parseFloat(document.getElementById('otmSlider').value)||200;
+  return {spot, lot, iv, dte, rf, otm};
+}
+
+function buildStrategy(name, spot, otmGap) {
+  const ATM = Math.round(spot/100)*100;
+  const OTM = otmGap;
+  const defs = {
+    "Long Call":       [{type:'call',strike:ATM,action:'buy',qty:1}],
+    "Long Put":        [{type:'put', strike:ATM,action:'buy',qty:1}],
+    "Bull Call Spread":[{type:'call',strike:ATM,    action:'buy', qty:1},{type:'call',strike:ATM+OTM,action:'sell',qty:1}],
+    "Bear Put Spread": [{type:'put', strike:ATM,    action:'buy', qty:1},{type:'put', strike:ATM-OTM,action:'sell',qty:1}],
+    "Long Straddle":   [{type:'call',strike:ATM,action:'buy',qty:1},{type:'put',strike:ATM,action:'buy',qty:1}],
+    "Long Strangle":   [{type:'call',strike:ATM+OTM,action:'buy',qty:1},{type:'put',strike:ATM-OTM,action:'buy',qty:1}],
+    "Short Straddle":  [{type:'call',strike:ATM,action:'sell',qty:1},{type:'put',strike:ATM,action:'sell',qty:1}],
+    "Short Strangle":  [{type:'call',strike:ATM+OTM,action:'sell',qty:1},{type:'put',strike:ATM-OTM,action:'sell',qty:1}],
+    "Iron Condor":     [
+      {type:'put', strike:ATM-2*OTM,action:'buy', qty:1},
+      {type:'put', strike:ATM-OTM,  action:'sell',qty:1},
+      {type:'call',strike:ATM+OTM,  action:'sell',qty:1},
+      {type:'call',strike:ATM+2*OTM,action:'buy', qty:1},
+    ],
+    "Iron Butterfly":  [
+      {type:'put', strike:ATM-OTM,action:'buy', qty:1},
+      {type:'put', strike:ATM,    action:'sell',qty:1},
+      {type:'call',strike:ATM,    action:'sell',qty:1},
+      {type:'call',strike:ATM+OTM,action:'buy', qty:1},
+    ],
+    "Bull Put Spread": [{type:'put',strike:ATM-OTM,action:'buy',qty:1},{type:'put',strike:ATM,action:'sell',qty:1}],
+    "Bear Call Spread":[{type:'call',strike:ATM,action:'sell',qty:1},{type:'call',strike:ATM+OTM,action:'buy',qty:1}],
+  };
+  return defs[name] || [];
+}
+
+function priceLeg(leg, spot, iv, dte, rf) {
+  const T = dte/365; const sigma = iv/100; const r = rf/100;
+  const price = blackScholes(spot, leg.strike, T, r, sigma, leg.type);
+  const g = greeks(spot, leg.strike, T, r, sigma, leg.type);
+  return {...leg, premium: price, ...g};
+}
+
+function strategyNetPremium(pricedLegs) {
+  return pricedLegs.reduce((sum, leg) => {
+    const q = leg.qty||1;
+    return sum + (leg.action==='sell' ? leg.premium*q : -leg.premium*q);
+  }, 0);
+}
+
+function payoffAtExpiry(pricedLegs, spotRange, lotSize) {
+  return spotRange.map(S => {
+    const pnl = pricedLegs.reduce((sum, leg) => {
+      const q = leg.qty||1;
+      const intrinsic = leg.type==='call' ? Math.max(0,S-leg.strike) : Math.max(0,leg.strike-S);
+      return sum + (leg.action==='buy' ? intrinsic-leg.premium : leg.premium-intrinsic)*q;
+    }, 0);
+    return pnl*lotSize;
+  });
+}
+
+function payoffAtTime(pricedLegs, spotRange, dte, iv, rf, lotSize) {
+  const T = dte/365; const sigma = iv/100; const r = rf/100;
+  return spotRange.map(S => {
+    const pnl = pricedLegs.reduce((sum, leg) => {
+      const q = leg.qty||1;
+      const cp = blackScholes(S, leg.strike, T, r, sigma, leg.type);
+      return sum + (leg.action==='buy' ? cp-leg.premium : leg.premium-cp)*q;
+    }, 0);
+    return pnl*lotSize;
+  });
+}
+
+function strategyGreeks(pricedLegs, lotSize) {
+  return pricedLegs.reduce((acc, leg) => {
+    const sign = leg.action==='buy' ? 1 : -1;
+    const q = leg.qty||1;
+    return {
+      delta: acc.delta + sign*leg.delta*lotSize*q,
+      gamma: acc.gamma + sign*leg.gamma*lotSize*q,
+      theta: acc.theta + sign*leg.theta*lotSize*q,
+      vega:  acc.vega  + sign*leg.vega *lotSize*q,
+    };
+  }, {delta:0,gamma:0,theta:0,vega:0});
+}
+
+function strategyMetrics(spotRange, payoffExpiry) {
+  const maxProfit = Math.max(...payoffExpiry);
+  const maxLoss   = Math.min(...payoffExpiry);
+  const breakevens = [];
+  for (let i=1;i<payoffExpiry.length;i++) {
+    if ((payoffExpiry[i-1]<0 && payoffExpiry[i]>=0)||(payoffExpiry[i-1]>=0 && payoffExpiry[i]<0)) {
+      const t = -payoffExpiry[i-1]/(payoffExpiry[i]-payoffExpiry[i-1]);
+      const be = spotRange[i-1] + t*(spotRange[i]-spotRange[i-1]);
+      breakevens.push(Math.round(be));
+    }
+  }
+  return {maxProfit, maxLoss, breakevens};
+}
+
+function estimateMargin(pricedLegs, spot, lotSize) {
+  let margin = 0;
+  pricedLegs.forEach(leg => { if (leg.action==='sell') margin += spot*lotSize*0.10; });
+  const credit = pricedLegs.reduce((s,l)=>s+(l.action==='sell'?l.premium*lotSize:0),0);
+  return Math.max(0, margin-credit);
+}
+
+// ─── FORMAT HELPERS ──────────────────────────────────
+function fmtRs(v, decimals=0) {
+  if (!isFinite(v)) return '∞';
+  const abs = Math.abs(v);
+  if (abs >= 1e7) return (v/1e7).toFixed(2)+'Cr';
+  if (abs >= 1e5) return (v/1e5).toFixed(2)+'L';
+  return '₹'+(v>=0?'':'-')+(Math.abs(v)).toLocaleString('en-IN',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+}
+function fmtPts(v) { return v.toLocaleString('en-IN',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+function fmtPct(v) { return (v*100).toFixed(1)+'%'; }
+
+// ─── UI NAVIGATION ───────────────────────────────────
+function showHome() {
+  document.getElementById('homepage').style.display='flex';
+  document.getElementById('builder').classList.remove('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showBuilder() {
+  document.getElementById('homepage').style.display='none';
+  document.getElementById('builder').classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+  if (!currentStrategy) selectStrategy('Iron Condor');
+  else onParamChange();
+}
+function showBuilderFinder() {
+  showBuilder();
+  setTimeout(()=>{
+    document.getElementById('sec0').scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+
+// ─── UNDERLYING SELECTOR ─────────────────────────────
+function selectUnderlying(el, name) {
+  currentUnderlying = name;
+  document.querySelectorAll('.u-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const u = UNDERLYINGS[name];
+  document.getElementById('spotInput').value = u.spot;
+  document.getElementById('lotInput').value = u.lot_size;
+  document.getElementById('ivSlider').value = u.typical_iv;
+  updateSliderUI(document.getElementById('ivSlider'),'ivVal','%');
+  // Reset OTM gap to sensible default per underlying
+  const otmDefaults = {NIFTY:200, BANKNIFTY:500, SENSEX:500, FINNIFTY:200};
+  const otmEl = document.getElementById('otmSlider');
+  otmEl.value = otmDefaults[name]||200;
+  updateSliderUI(otmEl,'otmVal','');
+  // CRITICAL: clear stale strike inputs so they don't override fresh leg builds
+  document.querySelectorAll('.preset-strike-input').forEach(inp=>inp.value='');
+  // Reset custom legs so they reprice with new underlying
+  if (isCustomMode) customLegs = [];
+  if (currentStrategy) onParamChange();
+}
+
+// ─── SLIDER UPDATE ───────────────────────────────────
+function onSlider(el, valId, suffix) {
+  updateSliderUI(el, valId, suffix);
+  onParamChange();
+}
+function updateSliderUI(el, valId, suffix) {
+  const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+  const pct = ((val-min)/(max-min)*100).toFixed(1);
+  el.style.setProperty('--pct', pct+'%');
+  const disp = suffix==='%' ? val.toFixed(1)+suffix : val+suffix;
+  document.getElementById(valId).textContent = disp;
+}
+
+// ─── STRATEGY SELECTOR ───────────────────────────────
+function selectStrategy(name) {
+  isCustomMode = false;
+  currentStrategy = name;
+  document.querySelectorAll('.strat-pill').forEach(p=>{
+    p.classList.toggle('active', p.textContent===name||p.id==='customPill'&&false);
+  });
+  document.getElementById('customPill').classList.remove('active');
+  document.getElementById('customBanner').classList.add('hidden');
+  document.getElementById('removeColHead').textContent='';
+  document.getElementById('navBadge').textContent = name;
+  onParamChange();
+}
+
+function selectCustomMode() {
+  isCustomMode = true;
+  currentStrategy = 'Custom';
+  document.querySelectorAll('.strat-pill').forEach(p=>p.classList.remove('active'));
+  document.getElementById('customPill').classList.add('active');
+  document.getElementById('customBanner').classList.remove('hidden');
+  document.getElementById('removeColHead').textContent='';
+  document.getElementById('navBadge').textContent = '⚡ Custom';
+  // Seed with current legs if we have some, or default 2-leg starter
+  if (customLegs.length===0) {
+    const {spot,otm} = getParams();
+    const ATM = Math.round(spot/100)*100;
+    customLegs = [
+      {type:'call', strike:ATM,     action:'buy',  qty:1},
+      {type:'put',  strike:ATM,     action:'buy',  qty:1},
+    ];
+  }
+  onParamChange();
+}
+
+function addCustomLeg() {
+  if (!isCustomMode) {
+    // Entering custom mode from a preset — copy current legs first
+    const {spot,otm} = getParams();
+    const ATM = Math.round(spot/100)*100;
+    if (currentPricedLegs.length>0) {
+      customLegs = currentPricedLegs.map(l=>({type:l.type,strike:l.strike,action:l.action,qty:l.qty||1}));
+    } else {
+      customLegs = [{type:'call',strike:ATM,action:'buy',qty:1}];
+    }
+    selectCustomMode();
+    return;
+  }
+  if (customLegs.length>=6) return;
+  const {spot} = getParams();
+  const ATM = Math.round(spot/100)*100;
+  customLegs.push({type:'call', strike:ATM, action:'buy', qty:1});
+  onParamChange();
+}
+
+function removeCustomLeg(idx) {
+  if (customLegs.length<=1) return;
+  customLegs.splice(idx,1);
+  onParamChange();
+}
+
+function toggleLegType(idx) {
+  customLegs[idx].type = customLegs[idx].type==='call'?'put':'call';
+  onParamChange();
+}
+
+function toggleLegAction(idx) {
+  customLegs[idx].action = customLegs[idx].action==='buy'?'sell':'buy';
+  onParamChange();
+}
+
+function updateLegStrike(idx, val) {
+  const v = parseFloat(val);
+  if(v>0) customLegs[idx].strike = v;
+  onParamChange();
+}
+
+function updateLegQty(idx, val) {
+  const v = parseInt(val);
+  if(v>0) customLegs[idx].qty = v;
+  onParamChange();
+}
+
+// ─── MAIN RECALC ─────────────────────────────────────
+function onParamChange() {
+  if (!currentStrategy) return;
+  const {spot, lot, iv, dte, rf, otm} = getParams();
+  
+  let rawLegs;
+  if (isCustomMode) {
+    rawLegs = customLegs.map(l=>({...l}));
+  } else {
+    rawLegs = buildStrategy(currentStrategy, spot, otm);
+    // Only use user-edited strike inputs if they are plausible for current spot
+    // (prevents stale Nifty strikes contaminating BankNifty/Sensex builds)
+    const tableInputs = document.querySelectorAll('.preset-strike-input');
+    if (tableInputs.length === rawLegs.length) {
+      rawLegs.forEach((leg,i)=>{
+        const v = parseFloat(tableInputs[i].value);
+        if (v > spot*0.5 && v < spot*1.5) leg.strike = v;
+      });
+    }
+  }
+  
+  currentPricedLegs = rawLegs.map(l=>priceLeg(l, spot, iv, dte, rf));
+  renderLegsTable(currentPricedLegs, spot, lot, iv, dte, rf, otm);
+  renderPayoffChart(currentPricedLegs, spot, lot, iv, dte, rf);
+  renderMetrics(currentPricedLegs, spot, lot, iv, dte, rf);
+  renderGreeks(currentPricedLegs, lot, spot, iv, dte);
+  renderDecayChart(currentPricedLegs, spot, lot, iv, rf, dte);
+  renderMargin(currentPricedLegs, spot, lot, iv, dte, rf);
+  renderEducation();
+  
+  // Update add leg button state
+  const addBtn = document.getElementById('addLegBtn');
+  const countNote = document.getElementById('legCountNote');
+  if (isCustomMode) {
+    addBtn.style.opacity = customLegs.length>=6?'0.4':'1';
+    addBtn.style.pointerEvents = customLegs.length>=6?'none':'auto';
+    countNote.textContent = `${currentPricedLegs.length}/6 legs`;
+  } else {
+    addBtn.style.opacity='1';
+    addBtn.style.pointerEvents='auto';
+    countNote.textContent = `${currentPricedLegs.length} leg${currentPricedLegs.length!==1?'s':''} · Click + to customise`;
+  }
+}
+
+// ─── LEGS TABLE ──────────────────────────────────────
+function renderLegsTable(pricedLegs, spot, lot, iv, dte, rf, otm) {
+  const body = document.getElementById('legsBody');
+  const foot = document.getElementById('legsFoot');
+  
+  if (isCustomMode) {
+    // Custom mode: interactive rows with toggles
+    body.innerHTML = pricedLegs.map((leg,i)=>{
+      const qty = customLegs[i]?.qty||1;
+      return `<tr>
+        <td style="color:var(--text3);font-family:'DM Mono',monospace">Leg ${i+1}</td>
+        <td>
+          <button class="toggle-btn ${leg.type==='call'?'active-ce':'active-pe'}"
+            onclick="toggleLegType(${i})" title="Toggle CE/PE">
+            ${leg.type==='call'?'CE':'PE'}
+          </button>
+        </td>
+        <td>
+          <input class="strike-input" value="${leg.strike}"
+            onchange="updateLegStrike(${i},this.value)" title="Edit strike"/>
+        </td>
+        <td>
+          <button class="toggle-btn ${leg.action==='buy'?'active-buy':'active-sell'}"
+            onclick="toggleLegAction(${i})" title="Toggle BUY/SELL">
+            ${leg.action.toUpperCase()}
+          </button>
+        </td>
+        <td>
+          <input class="qty-input" type="number" min="1" max="10" value="${qty}"
+            onchange="updateLegQty(${i},this.value)" title="Qty (lots)"/>
+        </td>
+        <td style="color:var(--text1);font-family:'DM Mono',monospace">₹${(leg.premium*qty).toFixed(2)}</td>
+        <td style="color:${leg.delta>=0?'var(--green)':'var(--red)'}; font-family:'DM Mono',monospace">
+          ${(leg.action==='buy'?leg.delta:-leg.delta).toFixed(3)}
+        </td>
+        <td style="color:var(--amber);font-family:'DM Mono',monospace">
+          ${((leg.action==='buy'?leg.theta:-leg.theta)*qty).toFixed(2)}
+        </td>
+        <td>
+          <button class="btn-remove-leg" onclick="removeCustomLeg(${i})" title="Remove leg"
+            ${pricedLegs.length<=1?'disabled style="opacity:0.2;cursor:not-allowed"':''}>×</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } else {
+    // Preset mode: cleaner rows with editable strike only
+    body.innerHTML = pricedLegs.map((leg,i)=>`
+      <tr>
+        <td style="color:var(--text3);font-family:'DM Mono',monospace">Leg ${i+1}</td>
+        <td><span class="${leg.type==='call'?'badge-ce':'badge-pe'}">${leg.type==='call'?'CE':'PE'}</span></td>
+        <td><input class="strike-input preset-strike-input" value="${leg.strike}" onchange="onParamChange()" title="Edit strike"/></td>
+        <td><span class="${leg.action==='buy'?'badge-buy':'badge-sell'}">${leg.action.toUpperCase()}</span></td>
+        <td style="font-family:'DM Mono',monospace;color:var(--text3)">1</td>
+        <td style="color:var(--text1);font-family:'DM Mono',monospace">₹${leg.premium.toFixed(2)}</td>
+        <td style="color:${leg.delta>=0?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace">${(leg.action==='buy'?leg.delta:-leg.delta).toFixed(3)}</td>
+        <td style="color:var(--amber);font-family:'DM Mono',monospace">${(leg.action==='buy'?leg.theta:-leg.theta).toFixed(2)}</td>
+        <td></td>
+      </tr>`).join('');
+  }
+  
+  // Net premium row - use qty-adjusted for custom
+  let netPrem;
+  if (isCustomMode) {
+    netPrem = pricedLegs.reduce((sum,leg,i)=>{
+      const q=customLegs[i]?.qty||1;
+      return sum+(leg.action==='sell'?leg.premium*q:-leg.premium*q);
+    },0);
+  } else {
+    netPrem = strategyNetPremium(pricedLegs);
+  }
+  const netPremLotAdj = netPrem*lot;
+  const isCredit = netPrem > 0;
+  foot.innerHTML = `<tr class="net-row">
+    <td colspan="5" style="color:var(--text2);font-family:'DM Mono',monospace">Net ${isCredit?'Credit':'Debit'}</td>
+    <td colspan="4" style="color:${isCredit?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace">
+      ₹${Math.abs(netPrem).toFixed(2)}/unit
+      <span class="${isCredit?'credit-tag':'debit-tag'}">(${isCredit?'+':'-'}${fmtRs(Math.abs(netPremLotAdj))} total)</span>
+    </td></tr>`;
+}
+
+// ─── PAYOFF CHART ────────────────────────────────────
+let payoffChartData = null;
+
+function renderPayoffChart(pricedLegs, spot, lot, iv, dte, rf) {
+  const canvas = document.getElementById('payoffCanvas');
+  const isMobile = window.innerWidth < 768;
+  canvas.width = canvas.parentElement.clientWidth - 40;
+  canvas.height = isMobile ? 280 : 420;
+  const ctx = canvas.getContext('2d');
+
+  // Build spot range ±10%
+  const lo = spot*0.88, hi = spot*1.12;
+  const N = 300;
+  const step = (hi-lo)/N;
+  const spotRange = Array.from({length:N+1},(_,i)=>lo+i*step);
+
+  const expiryPnl = payoffAtExpiry(pricedLegs, spotRange, lot);
+  const todayPnl  = payoffAtTime(pricedLegs, spotRange, dte, iv, rf, lot);
+  const ivUpPnl   = payoffAtTime(pricedLegs, spotRange, dte, iv*1.2, rf, lot);
+  const ivDnPnl   = payoffAtTime(pricedLegs, spotRange, dte, iv*0.8, rf, lot);
+
+  payoffChartData = {spotRange, expiryPnl, todayPnl, ivUpPnl, ivDnPnl, spot, lot, iv, dte, rf};
+
+  drawPayoffCanvas(canvas, ctx, payoffChartData, isMobile, null);
+}
+
+function drawPayoffCanvas(canvas, ctx, data, isMobile, hoverX) {
+  const {spotRange, expiryPnl, todayPnl, ivUpPnl, ivDnPnl, spot} = data;
+  const W = canvas.width, H = canvas.height;
+  const PAD = {top:24, right:20, bottom:54, left:72};
+  const plotW = W-PAD.left-PAD.right;
+  const plotH = H-PAD.top-PAD.bottom;
+
+  // Get y range
+  const allPnl = [...expiryPnl,...todayPnl,...(isMobile?[]:[...ivUpPnl,...ivDnPnl])];
+  const yMin = Math.min(...allPnl);
+  const yMax = Math.max(...allPnl);
+  const yPad = (yMax-yMin)*0.12||1000;
+  const yLo = yMin-yPad, yHi = yMax+yPad;
+  const xLo = spotRange[0], xHi = spotRange[spotRange.length-1];
+
+  function xToPixel(s) { return PAD.left+(s-xLo)/(xHi-xLo)*plotW; }
+  function yToPixel(v) { return PAD.top+plotH-(v-yLo)/(yHi-yLo)*plotH; }
+
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle = '#0d0d14';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,0.04)';
+  const ySteps=6;
+  for (let i=0;i<=ySteps;i++) {
+    const y = yLo+(yHi-yLo)*i/ySteps;
+    const py = yToPixel(y);
+    ctx.beginPath(); ctx.moveTo(PAD.left,py); ctx.lineTo(W-PAD.right,py); ctx.stroke();
+    ctx.fillStyle='rgba(180,170,150,0.5)';
+    ctx.font='500 11px DM Mono,monospace';
+    ctx.textAlign='right';
+    const rsLabel = (y>=0?'₹':'-₹') + (Math.abs(y)>=1000?(Math.abs(y)/1000).toFixed(1)+'k':Math.abs(y).toFixed(0));
+    ctx.fillText(rsLabel, PAD.left-8, py+4);
+  }
+  const xSteps=8;
+  for (let i=0;i<=xSteps;i++) {
+    const x = xLo+(xHi-xLo)*i/xSteps;
+    const px = xToPixel(x);
+    ctx.beginPath(); ctx.moveTo(px,PAD.top); ctx.lineTo(px,H-PAD.bottom); ctx.stroke();
+    ctx.fillStyle='rgba(180,170,150,0.5)';
+    ctx.font='500 10px DM Mono,monospace';
+    ctx.textAlign='center';
+    ctx.fillText(Math.round(x).toLocaleString('en-IN'), px, H-PAD.bottom+16);
+  }
+
+  // X axis label
+  ctx.fillStyle='rgba(140,130,110,0.6)';
+  ctx.font='11px Syne,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('Underlying Price', W/2, H-4);
+
+  // Zero line
+  const yZero = yToPixel(0);
+  ctx.lineWidth=1.5; ctx.strokeStyle='rgba(255,255,255,0.12)';
+  ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(PAD.left,yZero); ctx.lineTo(W-PAD.right,yZero); ctx.stroke(); ctx.setLineDash([]);
+
+  // Profit/loss fill
+  function fillBetweenZero(pnlArr, profitColor, lossColor) {
+    for (let i=0;i<spotRange.length-1;i++) {
+      const x1=xToPixel(spotRange[i]), x2=xToPixel(spotRange[i+1]);
+      const y1=yToPixel(pnlArr[i]), y2=yToPixel(pnlArr[i+1]);
+      const yz=yToPixel(0);
+      if (pnlArr[i]>=0 && pnlArr[i+1]>=0) {
+        ctx.fillStyle=profitColor; ctx.fillRect(x1,Math.min(y1,yz),x2-x1,Math.abs(y1-yz));
+      } else if (pnlArr[i]<0 && pnlArr[i+1]<0) {
+        ctx.fillStyle=lossColor; ctx.fillRect(x1,yz,x2-x1,Math.abs(y2-yz));
+      }
+    }
+  }
+  fillBetweenZero(expiryPnl,'rgba(74,184,122,0.07)','rgba(224,92,108,0.07)');
+
+  // Spot line
+  const pxSpot = xToPixel(spot);
+  ctx.lineWidth=1; ctx.strokeStyle='rgba(201,169,110,0.25)';
+  ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(pxSpot,PAD.top); ctx.lineTo(pxSpot,H-PAD.bottom); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(201,169,110,0.7)'; ctx.font='bold 10px DM Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('SPOT', pxSpot, PAD.top+12);
+
+  // Draw lines helper
+  function drawLine(pnlArr, color, lineWidth, dashes, dotted) {
+    ctx.beginPath(); ctx.lineWidth=lineWidth; ctx.strokeStyle=color;
+    if (dashes) ctx.setLineDash(dashes); else ctx.setLineDash([]);
+    let started=false;
+    for (let i=0;i<spotRange.length;i++) {
+      const px=xToPixel(spotRange[i]), py=yToPixel(pnlArr[i]);
+      if (!started) { ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  if (!isMobile) {
+    drawLine(ivDnPnl,'rgba(74,184,122,0.7)',1.5,[3,4]);
+    drawLine(ivUpPnl,'rgba(224,92,108,0.7)',1.5,[3,4]);
+    drawLine(todayPnl,'rgba(74,158,255,0.9)',1.5,[6,4]);
+  } else {
+    drawLine(todayPnl,'rgba(74,158,255,0.9)',1.5,[6,4]);
+  }
+  drawLine(expiryPnl,'#c9a96e',2,null);
+
+  // Breakeven dots
+  const metrics = strategyMetrics(spotRange, expiryPnl);
+  metrics.breakevens.forEach(be=>{
+    const bx=xToPixel(be), by=yToPixel(0);
+    ctx.beginPath(); ctx.arc(bx,by,5,0,2*Math.PI);
+    ctx.fillStyle='#c9a96e'; ctx.fill();
+    ctx.strokeStyle='#09090e'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='rgba(201,169,110,0.9)';
+    ctx.font='bold 10px DM Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText(be.toLocaleString('en-IN'), bx, by-10);
+  });
+
+  // Hover crosshair
+  if (hoverX !== null && hoverX >= PAD.left && hoverX <= W-PAD.right) {
+    const fracX = (hoverX-PAD.left)/plotW;
+    const idx = Math.round(fracX*(spotRange.length-1));
+    const clampIdx = Math.max(0,Math.min(spotRange.length-1,idx));
+    ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,0.2)';
+    ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(hoverX,PAD.top); ctx.lineTo(hoverX,H-PAD.bottom); ctx.stroke();
+    ctx.setLineDash([]);
+    // Dot on expiry line
+    const dotX=xToPixel(spotRange[clampIdx]), dotY=yToPixel(expiryPnl[clampIdx]);
+    ctx.beginPath(); ctx.arc(dotX,dotY,4,0,2*Math.PI);
+    ctx.fillStyle='#c9a96e'; ctx.fill();
+  }
+}
+
+// ─── CANVAS HOVER ────────────────────────────────────
+const payoffCanvas = document.getElementById('payoffCanvas');
+function handlePayoffHover(clientX, clientY) {
+  if (!payoffChartData) return;
+  const rect = payoffCanvas.getBoundingClientRect();
+  const x = clientX-rect.left;
+  const canvas = payoffCanvas;
+  const ctx = canvas.getContext('2d');
+  const isMobile = window.innerWidth<768;
+  drawPayoffCanvas(canvas, ctx, payoffChartData, isMobile, x);
+
+  // Compute index
+  const PAD={left:72,right:20};
+  const plotW=canvas.width-PAD.left-PAD.right;
+  const fracX=(x-PAD.left)/plotW;
+  const {spotRange,expiryPnl,todayPnl,ivUpPnl,ivDnPnl}=payoffChartData;
+  const idx=Math.max(0,Math.min(spotRange.length-1,Math.round(fracX*(spotRange.length-1))));
+  const s=spotRange[idx];
+  const tt=document.getElementById('chartTooltip');
+  tt.style.display='block';
+  tt.style.left=(clientX+16)+'px';
+  tt.style.top=Math.max(10,clientY-80)+'px';
+  document.getElementById('ttPrice').textContent = currentUnderlying + ': ' + Math.round(s).toLocaleString('en-IN');
+  function setTT(id, val) {
+    const el=document.getElementById(id);
+    el.textContent=fmtRs(val);
+    el.className='tt-val '+(val>=0?'pos':'neg');
+  }
+  setTT('ttExpiry', expiryPnl[idx]);
+  setTT('ttToday', todayPnl[idx]);
+  if (!isMobile) {
+    setTT('ttIVUp', ivUpPnl[idx]);
+    setTT('ttIVDn', ivDnPnl[idx]);
+  }
+}
+payoffCanvas.addEventListener('mousemove',e=>handlePayoffHover(e.clientX,e.clientY));
+payoffCanvas.addEventListener('touchmove',e=>{e.preventDefault();handlePayoffHover(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+payoffCanvas.addEventListener('mouseleave',()=>{
+  document.getElementById('chartTooltip').style.display='none';
+  if (payoffChartData) {
+    const canvas=payoffCanvas,ctx=canvas.getContext('2d');
+    drawPayoffCanvas(canvas,ctx,payoffChartData,window.innerWidth<768,null);
+  }
+});
+
+// ─── METRICS ─────────────────────────────────────────
+function renderMetrics(pricedLegs, spot, lot, iv, dte, rf) {
+  const lo=spot*0.88,hi=spot*1.12,N=400;
+  const spotRange=Array.from({length:N+1},(_,i)=>lo+i*(hi-lo)/N);
+  const expiryPnl=payoffAtExpiry(pricedLegs,spotRange,lot);
+  const {maxProfit,maxLoss,breakevens}=strategyMetrics(spotRange,expiryPnl);
+  const netPrem=strategyNetPremium(pricedLegs);
+  const isDebit = netPrem<0;
+
+  // Max profit
+  const mpEl=document.getElementById('mMaxProfit');
+  if (!isFinite(maxProfit)||maxProfit>1e9) { mpEl.textContent='Unlimited'; mpEl.className='metric-val pos mono-num'; document.getElementById('mMaxProfitSub').textContent='Potential gains are theoretically unlimited.'; }
+  else { mpEl.textContent=fmtRs(maxProfit); mpEl.className='metric-val pos mono-num'; document.getElementById('mMaxProfitSub').textContent=`Best case: ${currentUnderlying} expires optimally. Full P&L includes lot-size adjustment.`; }
+
+  // Max loss
+  const mlEl=document.getElementById('mMaxLoss');
+  if (!isFinite(maxLoss)||maxLoss<-1e9) { mlEl.textContent='Unlimited'; mlEl.className='metric-val neg mono-num'; document.getElementById('mMaxLossSub').textContent='Uncapped loss — requires active management and margin monitoring.'; }
+  else { mlEl.textContent=fmtRs(maxLoss); mlEl.className='metric-val neg mono-num'; document.getElementById('mMaxLossSub').textContent=`Maximum possible loss at expiry. Risk is ${isDebit?'the premium paid':'capped by wing strikes'}.`; }
+
+  // Breakevens
+  const beEl=document.getElementById('mBreakeven');
+  if (breakevens.length===0) { beEl.textContent='N/A'; document.getElementById('mBreakevenSub').textContent='No breakeven found in ±12% range.'; }
+  else { beEl.innerHTML=breakevens.map(be=>`<div>${be.toLocaleString('en-IN')}</div>`).join(''); document.getElementById('mBreakevenSub').textContent=`Market must be ${breakevens.length===1?'above/below this':'between these levels'} at expiry for profit.`; }
+
+  // Probability
+  const probEl=document.getElementById('mProb');
+  let probSub='Based on IV & distance from breakeven';
+  if (breakevens.length>0 && dte>0) {
+    const pop=probabilityOfProfit(spot, breakevens, iv, dte, isDebit);
+    if (pop!==null) {
+      probEl.textContent=fmtPct(pop);
+      probSub=pop>0.6?'Favourable odds — but remember IV can change.':pop>0.4?'Roughly even odds at current IV.':'Challenging — needs a significant move to profit.';
+    } else { probEl.textContent='—'; }
+  } else { probEl.textContent='—'; }
+  document.getElementById('mProbSub').textContent=probSub;
+}
+
+// ─── GREEKS ──────────────────────────────────────────
+function renderGreeks(pricedLegs, lot, spot, iv, dte) {
+  const g=strategyGreeks(pricedLegs, lot);
+  document.getElementById('gDelta').textContent=g.delta.toFixed(2);
+  document.getElementById('gDeltaSub').textContent=`Position ${g.delta>=0?'gains':'loses'} ₹${Math.abs(g.delta).toFixed(2)} per 1-point ${currentUnderlying} ${g.delta>=0?'rise':'fall'}.`;
+  document.getElementById('gGamma').textContent=g.gamma.toFixed(4);
+  document.getElementById('gGammaSub').textContent=`Delta changes by ${(g.gamma).toFixed(4)} for every 1-point ${currentUnderlying} move. High gamma = risk accelerates near expiry.`;
+  document.getElementById('gTheta').textContent=fmtRs(g.theta);
+  document.getElementById('gThetaSub').textContent=g.theta<0?`Position loses ${fmtRs(Math.abs(g.theta))} of value every day — time decay working against you.`:`Position gains ${fmtRs(Math.abs(g.theta))} per day from time decay — you're the seller.`;
+  document.getElementById('gVega').textContent=fmtRs(g.vega*100);
+  document.getElementById('gVegaSub').textContent=`If IV changes by 1%, position ${g.vega>=0?'gains':'loses'} ${fmtRs(Math.abs(g.vega*100))}.`;
+  const netPrem=strategyNetPremium(pricedLegs);
+  const netLotAdj=netPrem*lot;
+  document.getElementById('gPremium').textContent=fmtRs(Math.abs(netLotAdj));
+  document.getElementById('gPremiumSub').textContent=netPrem>0?`Net credit received — this is your max profit if strategy expires worthless.`:`Net debit paid — this is the maximum you can lose on this trade.`;
+}
+
+// ─── TIME DECAY CHART ─────────────────────────────────
+function renderDecayChart(pricedLegs, spot, lot, iv, rf, currentDte) {
+  const canvas=document.getElementById('decayCanvas');
+  canvas.width=canvas.parentElement.clientWidth-40;
+  canvas.height=window.innerWidth<768?220:320;
+  const ctx=canvas.getContext('2d');
+
+  const dteSeries=[30,21,14,7,3,0];
+  const colors=['rgba(74,158,255,0.5)','rgba(74,158,255,0.7)','rgba(201,169,110,0.6)','rgba(224,160,74,0.7)','rgba(224,92,108,0.7)','#c9a96e'];
+  const labels=['30 DTE','21 DTE','14 DTE','7 DTE','3 DTE','Expiry'];
+  const lineWidths=[1,1.5,1.5,1.5,1.5,2.5];
+  const dashSets=[[4,4],[4,4],[4,3],[3,3],[3,3],[]];
+
+  // Only include DTEs <= current DTE
+  const activeDtes=dteSeries.filter(d=>d<=currentDte);
+  if (!activeDtes.includes(0)) activeDtes.push(0);
+
+  const lo=spot*0.88,hi=spot*1.12,N=200;
+  const spotRange=Array.from({length:N+1},(_,i)=>lo+i*(hi-lo)/N);
+
+  const seriesData=activeDtes.map(d=>{
+    if (d===0) return payoffAtExpiry(pricedLegs,spotRange,lot);
+    return payoffAtTime(pricedLegs,spotRange,d,iv,rf,lot);
+  });
+
+  const allPnl=seriesData.flat();
+  const yMin=Math.min(...allPnl),yMax=Math.max(...allPnl);
+  const yPad=(yMax-yMin)*0.12||500;
+  const yLo=yMin-yPad,yHi=yMax+yPad;
+  const xLo=spotRange[0],xHi=spotRange[spotRange.length-1];
+  const W=canvas.width,H=canvas.height;
+  const PAD={top:20,right:16,bottom:44,left:70};
+  const plotW=W-PAD.left-PAD.right,plotH=H-PAD.top-PAD.bottom;
+
+  function xp(s){return PAD.left+(s-xLo)/(xHi-xLo)*plotW;}
+  function yp(v){return PAD.top+plotH-(v-yLo)/(yHi-yLo)*plotH;}
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0d0d14'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  for (let i=0;i<=5;i++){
+    const y=yLo+(yHi-yLo)*i/5,py=yp(y);
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PAD.left,py); ctx.lineTo(W-PAD.right,py); ctx.stroke();
+    ctx.fillStyle='rgba(160,150,130,0.5)'; ctx.font='10px DM Mono,monospace'; ctx.textAlign='right';
+    const label=(y>=0?'₹':'-₹')+(Math.abs(y)>=1000?(Math.abs(y)/1000).toFixed(1)+'k':Math.abs(y).toFixed(0));
+    ctx.fillText(label,PAD.left-6,py+4);
+  }
+  for (let i=0;i<=6;i++){
+    const x=xLo+(xHi-xLo)*i/6,px=xp(x);
+    ctx.strokeStyle='rgba(255,255,255,0.03)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(px,PAD.top); ctx.lineTo(px,H-PAD.bottom); ctx.stroke();
+    ctx.fillStyle='rgba(160,150,130,0.5)'; ctx.font='10px DM Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText(Math.round(x).toLocaleString('en-IN'),px,H-PAD.bottom+14);
+  }
+
+  // Zero line
+  const yZero=yp(0);
+  ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(PAD.left,yZero); ctx.lineTo(W-PAD.right,yZero); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Spot line
+  const pxSpot=xp(spot);
+  ctx.strokeStyle='rgba(201,169,110,0.2)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pxSpot,PAD.top); ctx.lineTo(pxSpot,H-PAD.bottom); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw series
+  activeDtes.forEach((d,si)=>{
+    const colorIdx=dteSeries.indexOf(d);
+    const color=colorIdx>=0?colors[colorIdx]:'#c9a96e';
+    const lw=colorIdx>=0?lineWidths[colorIdx]:2.5;
+    const dash=colorIdx>=0?dashSets[colorIdx]:[];
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.setLineDash(dash);
+    seriesData[si].forEach((v,i)=>{
+      if(i===0) ctx.moveTo(xp(spotRange[i]),yp(v));
+      else ctx.lineTo(xp(spotRange[i]),yp(v));
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+  });
+
+  // Legend
+  const legend=document.getElementById('decayLegend');
+  legend.innerHTML=activeDtes.map((d,si)=>{
+    const colorIdx=dteSeries.indexOf(d);
+    const color=colorIdx>=0?colors[colorIdx]:'#c9a96e';
+    const label=colorIdx>=0?labels[colorIdx]:(d+' DTE');
+    const dash=colorIdx>=0?dashSets[colorIdx]:[];
+    const style=dash.length?`border-top:2px dashed ${color};background:none;height:0;margin-top:6px`:`background:${color};height:2px;margin-top:6px`;
+    return `<div class="legend-item"><div style="width:24px;${style};border-radius:2px"></div>${label}</div>`;
+  }).join('');
+}
+
+// ─── MARGIN ──────────────────────────────────────────
+function renderMargin(pricedLegs, spot, lot, iv, dte, rf) {
+  const margin=estimateMargin(pricedLegs,spot,lot);
+  const netPrem=strategyNetPremium(pricedLegs);
+  const netLotAdj=netPrem*lot;
+  const isCredit=netPrem>0;
+  const legs=pricedLegs.length;
+  const brokerage=20*legs*2;
+  const totalCap=isCredit?Math.max(0,margin-Math.max(0,netLotAdj)):margin+Math.abs(netLotAdj);
+
+  const lo=spot*0.88,hi=spot*1.12,N=400;
+  const spotRange=Array.from({length:N+1},(_,i)=>lo+i*(hi-lo)/N);
+  const expiryPnl=payoffAtExpiry(pricedLegs,spotRange,lot);
+  const maxProfit=Math.max(...expiryPnl);
+  const rom=totalCap>0&&isFinite(maxProfit)&&maxProfit>0?(maxProfit/totalCap*100).toFixed(1)+'%':'—';
+
+  document.getElementById('mMargin').textContent=fmtRs(margin);
+  document.getElementById('mNetPrem').textContent=fmtRs(Math.abs(netLotAdj));
+  document.getElementById('mNetPremSub').textContent=isCredit?'Premium received upfront (credit strategy)':'Premium paid to enter (debit strategy)';
+  document.getElementById('mBrokerage').textContent=fmtRs(brokerage);
+  document.getElementById('mTotalCap').textContent=fmtRs(totalCap);
+  document.getElementById('mROM').textContent=rom;
+}
+
+// ─── EDUCATION ───────────────────────────────────────
+function renderEducation() {
+  if (!currentStrategy) return;
+  
+  if (isCustomMode) {
+    // Custom mode: show a summary of the built strategy
+    const legs = currentPricedLegs;
+    const buys = legs.filter(l=>l.action==='buy');
+    const sells = legs.filter(l=>l.action==='sell');
+    const netPrem = strategyNetPremium(legs);
+    document.getElementById('eduCard').innerHTML=`
+      <div class="edu-header">
+        <div class="edu-title playfair">Custom Strategy</div>
+        <span class="complexity-badge badge-advanced">CUSTOM</span>
+        <span class="bias-tag">${sells.length>buys.length?'Net Short':'Net Long'} Volatility</span>
+      </div>
+      <div class="edu-grid">
+        <div class="edu-item">
+          <div class="edu-item-label">Structure</div>
+          <div class="edu-item-text">${legs.length} legs: ${buys.length} buy${buys.length!==1?'s':''}, ${sells.length} sell${sells.length!==1?'s':''}. ${netPrem>0?'Net credit received.':'Net debit paid.'}</div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-item-label">Tip</div>
+          <div class="edu-item-text">Use the payoff diagram to visualise your risk. Ensure you understand the max loss before trading any custom structure.</div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-item-label">Legs</div>
+          <div class="edu-item-text">${legs.map((l,i)=>`Leg ${i+1}: ${l.action.toUpperCase()} ${l.type==='call'?'CE':'PE'} ${l.strike.toLocaleString('en-IN')} (qty ${l.qty||1})`).join(' · ')}</div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-item-label">Margin Note</div>
+          <div class="edu-item-text">Each sell leg requires SPAN margin. More sell legs = higher margin requirement. Check with your broker before trading.</div>
+        </div>
+      </div>
+      <div class="ghost-card">
+        <div class="ghost-label">💡 CUSTOM BUILD</div>
+        <div class="ghost-text">You've built a custom multi-leg structure. The payoff diagram above shows your full risk profile. Read the IV scenario and time decay charts carefully — complex structures can behave unexpectedly as IV or time changes.</div>
+      </div>`;
+    return;
+  }
+  
+  const edu=STRATEGY_EDUCATION[currentStrategy];
+  const meta=STRATEGIES_META[currentStrategy];
+  if (!edu||!meta) return;
+  const complexityClass='badge-'+meta.complexity.toLowerCase();
+  document.getElementById('eduCard').innerHTML=`
+    <div class="edu-header">
+      <div class="edu-title playfair">${currentStrategy}</div>
+      <span class="complexity-badge ${complexityClass}">${meta.complexity.toUpperCase()}</span>
+      <span class="bias-tag">${meta.bias}</span>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-item">
+        <div class="edu-item-label">When to Use</div>
+        <div class="edu-item-text">${edu.when}</div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-item-label">Risk</div>
+        <div class="edu-item-text" style="color:var(--red)">${edu.risk}</div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-item-label">Reward</div>
+        <div class="edu-item-text" style="color:var(--green)">${edu.reward}</div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-item-label">Ideal Market</div>
+        <div class="edu-item-text">${edu.ideal_market}</div>
+      </div>
+    </div>
+    <div class="ghost-card">
+      <div class="ghost-label">💡 PLAIN ENGLISH</div>
+      <div class="ghost-text">${edu.ghost}</div>
+    </div>`;
+}
+
+// ─── STRATEGY FINDER ─────────────────────────────────
+function selectView(view) {
+  finderView=view; finderRisk=null; finderRecommendation=null;
+  document.querySelectorAll('#viewPills .finder-pill').forEach(p=>{
+    p.classList.toggle('selected', p.textContent===view);
+  });
+  // Show step 2
+  const step2=document.getElementById('finderStep2');
+  step2.classList.remove('hidden');
+  document.getElementById('finderResult').classList.add('hidden');
+  const riskOpts=RISK_OPTIONS[view]||[];
+  document.getElementById('riskPills').innerHTML=riskOpts.map(r=>
+    `<button class="finder-pill" onclick="selectRisk('${r}')">${r}</button>`
+  ).join('');
+}
+
+function selectRisk(risk) {
+  finderRisk=risk;
+  document.querySelectorAll('#riskPills .finder-pill').forEach(p=>{
+    p.classList.toggle('selected', p.textContent===risk);
+  });
+  const rec=STRATEGY_FINDER[finderView]?.[risk];
+  if (!rec) return;
+  finderRecommendation=rec.strategy;
+  const meta=STRATEGIES_META[rec.strategy]||{};
+  const complexityClass='badge-'+(meta.complexity||'beginner').toLowerCase();
+  document.getElementById('finderRecName').innerHTML=
+    `${rec.strategy}<span class="complexity-badge ${complexityClass}">${(meta.complexity||'').toUpperCase()}</span>`;
+  document.getElementById('finderRationale').textContent=rec.rationale;
+  document.getElementById('finderResult').classList.remove('hidden');
+}
+
+function buildRecommended() {
+  if (!finderRecommendation) return;
+  selectStrategy(finderRecommendation);
+  setTimeout(()=>{
+    document.getElementById('sec3').scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+
+function resetFinder() {
+  finderView=null; finderRisk=null; finderRecommendation=null;
+  document.querySelectorAll('#viewPills .finder-pill').forEach(p=>p.classList.remove('selected'));
+  document.getElementById('finderStep2').classList.add('hidden');
+  document.getElementById('finderResult').classList.add('hidden');
+}
+
+// ─── INIT & RESIZE ───────────────────────────────────
+// Init sliders
+document.querySelectorAll('input[type=range]').forEach(el=>{
+  const min=parseFloat(el.min),max=parseFloat(el.max),val=parseFloat(el.value);
+  el.style.setProperty('--pct',((val-min)/(max-min)*100).toFixed(1)+'%');
+});
+
+window.addEventListener('resize',()=>{
+  if (currentStrategy) {
+    const {spot,lot,iv,dte,rf}=getParams();
+    if (currentPricedLegs.length>0) {
+      renderPayoffChart(currentPricedLegs,spot,lot,iv,dte,rf);
+      renderDecayChart(currentPricedLegs,spot,lot,iv,rf,dte);
+    }
+  }
+});
+</script>
+</body>
+</html>
