@@ -648,7 +648,7 @@ input[type=range]::-moz-range-thumb{
 
       <div class="market-ctx">
         <div class="ctx-item"><span class="ctx-dot"></span>India VIX ~15 (moderate)</div>
-        <div class="ctx-item"><span class="ctx-dot"></span>Nifty weekly expiry: Every Tuesday</div>
+        <div class="ctx-item"><span class="ctx-dot"></span>NSE weekly expiry: Every Tuesday (Nifty/BankNifty/FinNifty) · BSE weekly expiry: Friday (Sensex)</div>
         <div class="ctx-item"><span class="ctx-dot"></span>Moderate IV — spreads offer better risk-reward than naked buys right now</div>
         <div class="ctx-item" style="color:var(--text3)">Illustrative only · Verify live data before trading</div>
       </div>
@@ -1339,6 +1339,15 @@ function selectUnderlying(el, name) {
   document.getElementById('lotInput').value = u.lot_size;
   document.getElementById('ivSlider').value = u.typical_iv;
   updateSliderUI(document.getElementById('ivSlider'),'ivVal','%');
+  // Reset OTM gap to sensible default per underlying
+  const otmDefaults = {NIFTY:200, BANKNIFTY:500, SENSEX:500, FINNIFTY:200};
+  const otmEl = document.getElementById('otmSlider');
+  otmEl.value = otmDefaults[name]||200;
+  updateSliderUI(otmEl,'otmVal','');
+  // CRITICAL: clear stale strike inputs so they don't override fresh leg builds
+  document.querySelectorAll('.preset-strike-input').forEach(inp=>inp.value='');
+  // Reset custom legs so they reprice with new underlying
+  if (isCustomMode) customLegs = [];
   if (currentStrategy) onParamChange();
 }
 
@@ -1447,10 +1456,14 @@ function onParamChange() {
     rawLegs = customLegs.map(l=>({...l}));
   } else {
     rawLegs = buildStrategy(currentStrategy, spot, otm);
-    // Allow user-edited strikes from table (preset mode only)
+    // Only use user-edited strike inputs if they are plausible for current spot
+    // (prevents stale Nifty strikes contaminating BankNifty/Sensex builds)
     const tableInputs = document.querySelectorAll('.preset-strike-input');
     if (tableInputs.length === rawLegs.length) {
-      rawLegs.forEach((leg,i)=>{ leg.strike = parseFloat(tableInputs[i].value)||leg.strike; });
+      rawLegs.forEach((leg,i)=>{
+        const v = parseFloat(tableInputs[i].value);
+        if (v > spot*0.5 && v < spot*1.5) leg.strike = v;
+      });
     }
   }
   
@@ -1617,8 +1630,7 @@ function drawPayoffCanvas(canvas, ctx, data, isMobile, hoverX) {
     ctx.fillStyle='rgba(180,170,150,0.5)';
     ctx.font='500 11px DM Mono,monospace';
     ctx.textAlign='right';
-    const label = Math.abs(y)<1000 ? y.toFixed(0) : (y/1000).toFixed(1)+'k';
-    const rsLabel = (y>=0?'₹':'-₹') + Math.abs(y>=1000?y/1000:y).toFixed(y>=1000?1:0) + (Math.abs(y)>=1000?'k':'');
+    const rsLabel = (y>=0?'₹':'-₹') + (Math.abs(y)>=1000?(Math.abs(y)/1000).toFixed(1)+'k':Math.abs(y).toFixed(0));
     ctx.fillText(rsLabel, PAD.left-8, py+4);
   }
   const xSteps=8;
@@ -1736,7 +1748,7 @@ function handlePayoffHover(clientX, clientY) {
   tt.style.display='block';
   tt.style.left=(clientX+16)+'px';
   tt.style.top=Math.max(10,clientY-80)+'px';
-  document.getElementById('ttPrice').textContent='Nifty: '+Math.round(s).toLocaleString('en-IN');
+  document.getElementById('ttPrice').textContent = currentUnderlying + ': ' + Math.round(s).toLocaleString('en-IN');
   function setTT(id, val) {
     const el=document.getElementById(id);
     el.textContent=fmtRs(val);
@@ -1771,7 +1783,7 @@ function renderMetrics(pricedLegs, spot, lot, iv, dte, rf) {
   // Max profit
   const mpEl=document.getElementById('mMaxProfit');
   if (!isFinite(maxProfit)||maxProfit>1e9) { mpEl.textContent='Unlimited'; mpEl.className='metric-val pos mono-num'; document.getElementById('mMaxProfitSub').textContent='Potential gains are theoretically unlimited.'; }
-  else { mpEl.textContent=fmtRs(maxProfit); mpEl.className='metric-val pos mono-num'; document.getElementById('mMaxProfitSub').textContent=`Best case: Nifty expires optimally. Full P&L includes lot-size adjustment.`; }
+  else { mpEl.textContent=fmtRs(maxProfit); mpEl.className='metric-val pos mono-num'; document.getElementById('mMaxProfitSub').textContent=`Best case: ${currentUnderlying} expires optimally. Full P&L includes lot-size adjustment.`; }
 
   // Max loss
   const mlEl=document.getElementById('mMaxLoss');
@@ -1800,9 +1812,9 @@ function renderMetrics(pricedLegs, spot, lot, iv, dte, rf) {
 function renderGreeks(pricedLegs, lot, spot, iv, dte) {
   const g=strategyGreeks(pricedLegs, lot);
   document.getElementById('gDelta').textContent=g.delta.toFixed(2);
-  document.getElementById('gDeltaSub').textContent=`Position ${g.delta>=0?'gains':'loses'} ₹${Math.abs(g.delta).toFixed(2)} per 1-point Nifty ${g.delta>=0?'rise':'fall'}.`;
+  document.getElementById('gDeltaSub').textContent=`Position ${g.delta>=0?'gains':'loses'} ₹${Math.abs(g.delta).toFixed(2)} per 1-point ${currentUnderlying} ${g.delta>=0?'rise':'fall'}.`;
   document.getElementById('gGamma').textContent=g.gamma.toFixed(4);
-  document.getElementById('gGammaSub').textContent=`Delta changes by ${(g.gamma).toFixed(4)} for every 1-point Nifty move. High gamma = risk accelerates near expiry.`;
+  document.getElementById('gGammaSub').textContent=`Delta changes by ${(g.gamma).toFixed(4)} for every 1-point ${currentUnderlying} move. High gamma = risk accelerates near expiry.`;
   document.getElementById('gTheta').textContent=fmtRs(g.theta);
   document.getElementById('gThetaSub').textContent=g.theta<0?`Position loses ${fmtRs(Math.abs(g.theta))} of value every day — time decay working against you.`:`Position gains ${fmtRs(Math.abs(g.theta))} per day from time decay — you're the seller.`;
   document.getElementById('gVega').textContent=fmtRs(g.vega*100);
