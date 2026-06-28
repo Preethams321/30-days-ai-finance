@@ -113,7 +113,9 @@ def prepare_race_data(selected, period):
     return {"racers":racers,"failed":failed,"period":period,
             "n_racers":len(racers),"generated":datetime.now().strftime("%H:%M:%S IST")}
 
-
+# ─────────────────────────────────────────────────────────────────
+# COMPUTER RACE HTML
+# ─────────────────────────────────────────────────────────────────
 COMPUTER_RACE_CSS = """
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#09090e;font-family:'DM Mono',monospace;overflow:hidden;}
@@ -344,8 +346,7 @@ def build_computer_race_html(race_data, race_speed, show_ann, period_label):
     html = (
         '<!DOCTYPE html><html><head><meta charset="utf-8">'
         '<style>' + COMPUTER_RACE_CSS + '</style></head><body>'
-        '<div id="gw">'
-        '<canvas id="gc"></canvas>'
+        '<div id="gw"><canvas id="gc"></canvas>'
         '<div id="hud">'
         '<div class="hc"><div class="ht">🏁 MARKETRACE · ' + period_label + '</div>'
         '<div style="font-size:10px;color:#c9a96e;font-style:italic;">Day 27 · 30 Days of AI Finance</div></div>'
@@ -366,25 +367,20 @@ def build_computer_race_html(race_data, race_speed, show_ann, period_label):
         '<div id="pod" style="display:flex;gap:16px;align-items:flex-end;margin:6px 0;"></div>'
         '<div id="rtab" style="margin-top:6px;font-size:10px;color:#666;text-align:center;"></div>'
         '<button class="rbtn" onclick="restart()">↺ Race Again</button>'
-        '<div style="font-size:8px;color:#333;margin-top:8px;">RESULTS REFLECT ACTUAL '
-        + period_label + ' PERFORMANCE · NOT INVESTMENT ADVICE</div>'
-        '</div>'
-        '</div>'
-        '<script>'
-        'const GD=' + gj + ';'
-        'const SHOW_ANN=' + sa + ';'
-        'const SPD=' + spd + ';'
+        '<div style="font-size:8px;color:#333;margin-top:8px;">RESULTS REFLECT ACTUAL ' + period_label + ' PERFORMANCE · NOT INVESTMENT ADVICE</div>'
+        '</div></div>'
+        '<script>const GD=' + gj + ';const SHOW_ANN=' + sa + ';const SPD=' + spd + ';'
         + COMPUTER_RACE_JS +
         '</script></body></html>'
     )
     return html
 
-
-# ── PLAY MODE HTML TEMPLATE ──
-# KEY FIXES:
-# 1. initCar: spawn at physics equilibrium position (prevents car launching off screen)
-# 2. stepPhys: wheel contact now includes suspension length (CH+SL) so physics matches visuals
-# 3. Button SVGs: removed dark black rib lines, replaced with clean subtle texture
+# ─────────────────────────────────────────────────────────────────
+# PLAY MODE HTML TEMPLATE
+# FIX 1 — car: buildT called BEFORE initCar in boot, so tPts always populated
+# FIX 2 — terrain lines: stroke only the surface line, no fill overlap artefacts
+# FIX 3 — brake/gas SVG: corrected gradient IDs (bG / gG are unique per page)
+# ─────────────────────────────────────────────────────────────────
 PLAY_HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
@@ -416,7 +412,7 @@ canvas{display:block;width:100%;height:100%;}
 #ctrlBar{position:absolute;bottom:0;left:0;right:0;height:108px;display:flex;align-items:center;justify-content:space-between;padding:8px 16px 12px;pointer-events:all;z-index:20;background:linear-gradient(0deg,rgba(2,2,6,.92) 60%,transparent);}
 .pedal{cursor:pointer;pointer-events:all;}
 .pedal svg{display:block;transition:filter .1s;}
-.pedal:active svg,.pedal.pressed svg{filter:brightness(1.6) drop-shadow(0 0 10px currentColor);}
+.pedal:active svg,.pedal.pressed svg{filter:brightness(1.5) drop-shadow(0 0 8px currentColor);}
 .pLbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;text-align:center;margin-top:5px;}
 #brkBtn .pLbl{color:#e05c6c;}
 #gasBtn .pLbl{color:#4ab87a;}
@@ -428,11 +424,10 @@ canvas{display:block;width:100%;height:100%;}
 .sItem:hover,.sItem.active{background:rgba(201,169,110,.1);color:#c9a96e;}
 .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:50;}
 #loadScr{background:rgba(2,2,6,1);}
-/* Start screen: bottom panel — car/terrain visible in top portion */
-#startScr{background:linear-gradient(to bottom,transparent 30%,rgba(2,2,6,.96) 55%);display:none;justify-content:flex-end;padding-bottom:122px;}
-#goScr{background:rgba(2,2,6,.96);display:none;}
+#startScr{background:rgba(2,2,6,.97);display:none;}
+#goScr{background:rgba(2,2,6,.97);display:none;}
 #pauseScr{background:rgba(2,2,6,.88);display:none;backdrop-filter:blur(6px);}
-.ovT{font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,32px);color:#c9a96e;font-style:italic;text-align:center;}
+.ovT{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,38px);color:#c9a96e;font-style:italic;text-align:center;}
 .ovS{font-family:'DM Mono',monospace;font-size:clamp(9px,2vw,11px);color:#444;text-align:center;max-width:300px;line-height:1.75;}
 .ovBtn{background:#c9a96e;color:#09090e;border:none;padding:10px 28px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;border-radius:2px;cursor:pointer;}
 .ovBtn:hover{background:#d4b87a;}
@@ -471,34 +466,28 @@ canvas{display:block;width:100%;height:100%;}
   <div id="stkSelBtn" onclick="toggleSel()">📈 Stock ▾</div>
   <div id="stkPanel"></div>
   <div id="ctrlBar">
-    <!-- BRAKE PEDAL — clean trapezoid, no rib lines -->
+    <!-- BRAKE PEDAL: wide horizontal brake pad with vertical rubber ribs -->
     <div class="pedal" id="brkBtn">
-      <svg width="92" height="80" viewBox="0 0 92 80">
+      <svg width="92" height="80" viewBox="0 0 92 80" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="bG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#3a1820"/>
-            <stop offset="100%" stop-color="#1c0a10"/>
-          </linearGradient>
-          <linearGradient id="bShine" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="rgba(255,255,255,.10)"/>
-            <stop offset="100%" stop-color="rgba(255,255,255,.00)"/>
+          <linearGradient id="brakeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a1218"/>
+            <stop offset="100%" stop-color="#180a0e"/>
           </linearGradient>
         </defs>
-        <!-- pedal stem -->
+        <!-- shaft -->
         <rect x="36" y="57" width="20" height="20" rx="2" fill="#111118" stroke="#252530" stroke-width="1"/>
-        <!-- pedal face -->
-        <path d="M6 16 L86 16 L80 60 L12 60 Z" fill="url(#bG)" stroke="#e05c6c" stroke-width="1.5"/>
-        <!-- shine strip -->
-        <path d="M10 18 L82 18 L78 26 L14 26 Z" fill="url(#bShine)"/>
-        <!-- subtle grip dots -->
-        <circle cx="25" cy="40" r="2" fill="rgba(224,92,108,.18)"/>
-        <circle cx="46" cy="40" r="2" fill="rgba(224,92,108,.18)"/>
-        <circle cx="67" cy="40" r="2" fill="rgba(224,92,108,.18)"/>
-        <circle cx="35" cy="50" r="2" fill="rgba(224,92,108,.14)"/>
-        <circle cx="57" cy="50" r="2" fill="rgba(224,92,108,.14)"/>
-        <!-- label -->
-        <text x="46" y="34" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="rgba(224,92,108,.95)" font-weight="600">BRAKE</text>
-        <text x="46" y="48" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(224,92,108,.55)">◀◀</text>
+        <!-- pad face -->
+        <path d="M6 16 L86 16 L80 60 L12 60 Z" fill="url(#brakeGrad)" stroke="#e05c6c" stroke-width="1.5"/>
+        <!-- top glint -->
+        <path d="M10 18 L82 18 L78 26 L14 26 Z" fill="rgba(255,255,255,.06)"/>
+        <!-- vertical rubber ribs -->
+        <line x1="22" y1="23" x2="19" y2="55" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="38" y1="21" x2="35" y2="57" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="54" y1="21" x2="51" y2="57" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="70" y1="23" x2="67" y2="55" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
+        <text x="46" y="43" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(224,92,108,.9)" font-weight="600">BRAKE</text>
+        <text x="46" y="54" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(224,92,108,.5)">◀◀</text>
       </svg>
       <div class="pLbl">Brake / Tilt Fwd</div>
     </div>
@@ -506,34 +495,28 @@ canvas{display:block;width:100%;height:100%;}
       <div style="font-family:'DM Mono',monospace;font-size:7px;color:#22222a;letter-spacing:.1em;">MARKETRACE · DAY 27</div>
       <div id="airInd" style="font-size:10px;margin-top:3px;color:#c9a96e;"></div>
     </div>
-    <!-- GAS PEDAL — clean trapezoid, no rib lines -->
+    <!-- GAS PEDAL: angled narrow-top wide-bottom accelerator with horizontal rubber ribs -->
     <div class="pedal" id="gasBtn">
-      <svg width="92" height="80" viewBox="0 0 92 80">
+      <svg width="92" height="80" viewBox="0 0 92 80" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="gG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0e2414"/>
-            <stop offset="100%" stop-color="#070f08"/>
-          </linearGradient>
-          <linearGradient id="gShine" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="rgba(255,255,255,.10)"/>
-            <stop offset="100%" stop-color="rgba(255,255,255,.00)"/>
+          <linearGradient id="gasGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0c1e10"/>
+            <stop offset="100%" stop-color="#07100a"/>
           </linearGradient>
         </defs>
-        <!-- pedal stem -->
+        <!-- angled shaft -->
         <rect x="55" y="55" width="16" height="22" rx="2" fill="#111118" stroke="#252530" stroke-width="1" transform="rotate(-6 63 66)"/>
-        <!-- pedal face -->
-        <path d="M26 10 L72 10 L82 62 L16 62 Z" fill="url(#gG)" stroke="#4ab87a" stroke-width="1.5"/>
-        <!-- shine strip -->
-        <path d="M28 12 L70 12 L72 20 L26 20 Z" fill="url(#gShine)"/>
-        <!-- subtle grip dots -->
-        <circle cx="32" cy="38" r="2" fill="rgba(74,184,122,.18)"/>
-        <circle cx="49" cy="36" r="2" fill="rgba(74,184,122,.18)"/>
-        <circle cx="66" cy="38" r="2" fill="rgba(74,184,122,.18)"/>
-        <circle cx="38" cy="50" r="2" fill="rgba(74,184,122,.14)"/>
-        <circle cx="60" cy="50" r="2" fill="rgba(74,184,122,.14)"/>
-        <!-- label -->
-        <text x="47" y="32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="rgba(74,184,122,.95)" font-weight="600">GAS</text>
-        <text x="47" y="47" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(74,184,122,.55)">▶▶</text>
+        <!-- pad face: narrow top, wide bottom -->
+        <path d="M26 10 L72 10 L82 62 L16 62 Z" fill="url(#gasGrad)" stroke="#4ab87a" stroke-width="1.5"/>
+        <!-- top glint -->
+        <path d="M28 12 L70 12 L72 20 L26 20 Z" fill="rgba(255,255,255,.06)"/>
+        <!-- horizontal rubber ribs -->
+        <line x1="21" y1="23" x2="69" y2="23" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="20" y1="35" x2="71" y2="35" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="18" y1="47" x2="74" y2="47" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="17" y1="59" x2="77" y2="59" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
+        <text x="47" y="40" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(74,184,122,.9)" font-weight="600">GAS</text>
+        <text x="47" y="52" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(74,184,122,.5)">▶▶</text>
       </svg>
       <div class="pLbl">Gas / Tilt Back</div>
     </div>
@@ -547,23 +530,19 @@ canvas{display:block;width:100%;height:100%;}
     <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
     <div style="font-family:'DM Mono',monospace;font-size:8px;color:#2a2a36;letter-spacing:.08em;text-transform:uppercase;">Converting NSE price history to road</div>
   </div>
-  <!-- START SCREEN — bottom panel, car visible on terrain above -->
+  <!-- START SCREEN -->
   <div class="ov" id="startScr">
-    <div style="background:rgba(8,8,16,.92);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:14px 20px 12px;max-width:360px;width:90%;display:flex;flex-direction:column;gap:8px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <div style="font-family:'Playfair Display',serif;font-size:20px;color:#c9a96e;font-style:italic;line-height:1;">🏁 MarketRace</div>
-          <div style="font-family:'DM Mono',monospace;font-size:7px;color:#444;letter-spacing:.12em;text-transform:uppercase;margin-top:2px;">Play Mode · Real Hill Climb Physics</div>
-        </div>
-        <button class="ovBtn" style="padding:8px 18px;font-size:11px;" onclick="startGame()">Drive →</button>
-      </div>
-      <div style="font-family:'DM Mono',monospace;font-size:8px;color:#444;line-height:1.7;border-top:1px solid rgba(255,255,255,.05);padding-top:7px;">
-        <span id="startStkName" style="color:#c9a96e;font-weight:600;"></span> terrain loaded &nbsp;·&nbsp;
-        <span style="color:#4ab87a;">💰 Div = coins</span> &nbsp;·&nbsp;
-        <span style="color:#c9a96e;">⛽ Buyback = fuel</span> &nbsp;·&nbsp;
-        ▶▶ Gas &nbsp; ◀◀ Brake &nbsp; Air = flip
-      </div>
+    <div style="font-size:38px;">🏁</div>
+    <div class="ovT">MarketRace</div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:#c9a96e;letter-spacing:.12em;text-transform:uppercase;">Play Mode · Real Hill Climb Physics</div>
+    <div class="ovS">Drive through <span id="startStkName" style="color:#c9a96e;font-weight:600;"></span>'s 1Y terrain.<br>
+      <span style="color:#4ab87a;">💰 Dividends = coins</span> &nbsp;·&nbsp; <span style="color:#c9a96e;">⛽ Buybacks = fuel</span><br>
+      Backflip off hills. Land on wheels or crash!
     </div>
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:3px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:8px;color:#3a3a4a;line-height:1.8;text-align:center;">
+      ▶▶ GAS = accelerate + tilt back (backflip)<br>◀◀ BRAKE = slow + tilt forward (frontflip)<br>Arrow keys / Space work too
+    </div>
+    <button class="ovBtn" onclick="startGame()">Start Driving →</button>
   </div>
   <!-- GAME OVER -->
   <div class="ov" id="goScr">
@@ -583,12 +562,12 @@ canvas{display:block;width:100%;height:100%;}
   </div>
 </div>
 <script>
-const ALL_STOCKS = ALLSTOCKS_PLACEHOLDER;
-let si = 0;
+var ALL_STOCKS = ALLSTOCKS_PLACEHOLDER;
+var si = 0;
 
-const canvas = document.getElementById('gc');
-const ctx = canvas.getContext('2d');
-let W = 0, H = 0;
+var canvas = document.getElementById('gc');
+var ctx = canvas.getContext('2d');
+var W = 0, H = 0;
 function resize() {
   W = canvas.clientWidth || window.innerWidth;
   H = canvas.clientHeight || window.innerHeight;
@@ -597,61 +576,54 @@ function resize() {
 resize();
 window.addEventListener('resize', function() { resize(); if (tPts.length) buildT(ALL_STOCKS[si].data); });
 
-const keys = { gas: false, brake: false };
+var keys = { gas: false, brake: false };
 function pg() { keys.gas=true;  document.getElementById('gasBtn').classList.add('pressed'); }
 function rg() { keys.gas=false; document.getElementById('gasBtn').classList.remove('pressed'); }
 function pb() { keys.brake=true;  document.getElementById('brkBtn').classList.add('pressed'); }
 function rb() { keys.brake=false; document.getElementById('brkBtn').classList.remove('pressed'); }
-
-const gasEl = document.getElementById('gasBtn');
-const brkEl = document.getElementById('brkBtn');
-gasEl.addEventListener('touchstart', function(e){e.preventDefault();pg();}, {passive:false});
-gasEl.addEventListener('touchend',   function(e){e.preventDefault();rg();}, {passive:false});
+var gasEl=document.getElementById('gasBtn'), brkEl=document.getElementById('brkBtn');
+gasEl.addEventListener('touchstart',function(e){e.preventDefault();pg();},{passive:false});
+gasEl.addEventListener('touchend',function(e){e.preventDefault();rg();},{passive:false});
 gasEl.addEventListener('touchcancel',function(){rg();});
-gasEl.addEventListener('mousedown', pg); gasEl.addEventListener('mouseup', rg); gasEl.addEventListener('mouseleave', rg);
-brkEl.addEventListener('touchstart', function(e){e.preventDefault();pb();}, {passive:false});
-brkEl.addEventListener('touchend',   function(e){e.preventDefault();rb();}, {passive:false});
+gasEl.addEventListener('mousedown',pg);gasEl.addEventListener('mouseup',rg);gasEl.addEventListener('mouseleave',rg);
+brkEl.addEventListener('touchstart',function(e){e.preventDefault();pb();},{passive:false});
+brkEl.addEventListener('touchend',function(e){e.preventDefault();rb();},{passive:false});
 brkEl.addEventListener('touchcancel',function(){rb();});
-brkEl.addEventListener('mousedown', pb); brkEl.addEventListener('mouseup', rb); brkEl.addEventListener('mouseleave', rb);
-document.addEventListener('keydown', function(e){
+brkEl.addEventListener('mousedown',pb);brkEl.addEventListener('mouseup',rb);brkEl.addEventListener('mouseleave',rb);
+document.addEventListener('keydown',function(e){
   if(e.key==='ArrowRight'||e.key===' '||e.key==='ArrowUp'){e.preventDefault();pg();}
   if(e.key==='ArrowLeft'||e.key==='ArrowDown'){e.preventDefault();pb();}
-  if(e.key==='p'||e.key==='P'||e.key==='Escape') togglePause();
+  if(e.key==='p'||e.key==='P'||e.key==='Escape')togglePause();
 });
-document.addEventListener('keyup', function(e){
-  if(e.key==='ArrowRight'||e.key===' '||e.key==='ArrowUp') rg();
-  if(e.key==='ArrowLeft'||e.key==='ArrowDown') rb();
+document.addEventListener('keyup',function(e){
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='ArrowUp')rg();
+  if(e.key==='ArrowLeft'||e.key==='ArrowDown')rb();
 });
 
-const SEG = 55;
-var tPts = [];
-var curData = null;
-
-function buildT(data) {
-  curData = data;
-  var n=data.n_days, mn=Infinity, mx=-Infinity;
+var SEG=55, tPts=[], curData=null;
+function buildT(data){
+  curData=data;
+  var n=data.n_days,mn=Infinity,mx=-Infinity;
   for(var i=0;i<data.closes.length;i++){if(data.closes[i]<mn)mn=data.closes[i];if(data.closes[i]>mx)mx=data.closes[i];}
-  var rng=(mx-mn)||1, AMP=H*0.36, BASE=H*0.60;
+  var rng=(mx-mn)||1,AMP=H*0.36,BASE=H*0.60;
   tPts=[];
-  for(var j=0;j<6;j++) tPts.push({x:j*SEG,y:BASE});
+  for(var j=0;j<6;j++)tPts.push({x:j*SEG,y:BASE});
   for(var i=0;i<n;i++){
-    var norm=(data.closes[i]-mn)/rng, bY=BASE-norm*AMP;
+    var norm=(data.closes[i]-mn)/rng,bY=BASE-norm*AMP;
     var ba=(data.roughness[i]||0)*(data.vol_norm[i]||0)*9;
     var bump=Math.sin(i*2.3+0.7)*ba*0.6+Math.cos(i*1.7)*ba*0.4;
-    tPts.push({x:(i+6)*SEG, y:Math.max(H*.12,Math.min(H*.85,bY+bump)),
-      dayIdx:i, ret:data.returns[i], date:data.dates[i]});
+    tPts.push({x:(i+6)*SEG,y:Math.max(H*.12,Math.min(H*.85,bY+bump)),dayIdx:i,ret:data.returns[i],date:data.dates[i]});
   }
   var lastY=tPts[tPts.length-1].y;
-  for(var k=0;k<8;k++) tPts.push({x:(n+6+k)*SEG,y:lastY});
+  for(var k=0;k<8;k++)tPts.push({x:(n+6+k)*SEG,y:lastY});
 }
-
 function tyAt(wx){
-  if(!tPts.length) return H*0.6;
-  if(wx<=tPts[0].x) return tPts[0].y;
-  if(wx>=tPts[tPts.length-1].x) return tPts[tPts.length-1].y;
+  if(!tPts.length)return H*0.6;
+  if(wx<=tPts[0].x)return tPts[0].y;
+  if(wx>=tPts[tPts.length-1].x)return tPts[tPts.length-1].y;
   var lo=0,hi=tPts.length-1;
   while(lo<hi-1){var m=(lo+hi)>>1;if(tPts[m].x<=wx)lo=m;else hi=m;}
-  var d=tPts[hi].x-tPts[lo].x, t=d<.001?0:(wx-tPts[lo].x)/d;
+  var d=tPts[hi].x-tPts[lo].x,t=d<.001?0:(wx-tPts[lo].x)/d;
   return tPts[lo].y+t*(tPts[hi].y-tPts[lo].y);
 }
 function tangAt(wx){var dx=SEG*.5;return Math.atan2(tyAt(wx+dx)-tyAt(wx),dx);}
@@ -659,26 +631,15 @@ function tangAt(wx){var dx=SEG*.5;return Math.atan2(tyAt(wx+dx)-tyAt(wx),dx);}
 var colls=[];
 function buildColls(data){
   colls=[];
-  (data.div_events||[]).forEach(function(d){
-    var wx=(d.idx+6)*SEG;
-    colls.push({type:'coin',wx:wx,wy:tyAt(wx)-34,col:false,val:Math.max(25,Math.round(d.amount*8))});
-  });
-  (data.buyback_events||[]).forEach(function(b){
-    var wx=(b.idx+6)*SEG;
-    colls.push({type:'fuel',wx:wx,wy:tyAt(wx)-42,col:false,val:28});
-  });
-  (data.big_moves||[]).forEach(function(m){
-    if(m.ret>0.012){var wx=(m.idx+6)*SEG+15;colls.push({type:'coin',wx:wx,wy:tyAt(wx)-28,col:false,val:Math.round(m.ret*600)});}
-  });
-  for(var i=7;i<(data.n_days||0);i+=7){
-    var wx=(i+6)*SEG;colls.push({type:'coin',wx:wx,wy:tyAt(wx)-25,col:false,val:20});
-  }
+  (data.div_events||[]).forEach(function(d){var wx=(d.idx+6)*SEG;colls.push({type:'coin',wx:wx,wy:tyAt(wx)-34,col:false,val:Math.max(25,Math.round(d.amount*8))});});
+  (data.buyback_events||[]).forEach(function(b){var wx=(b.idx+6)*SEG;colls.push({type:'fuel',wx:wx,wy:tyAt(wx)-42,col:false,val:28});});
+  (data.big_moves||[]).forEach(function(m){if(m.ret>0.012){var wx=(m.idx+6)*SEG+15;colls.push({type:'coin',wx:wx,wy:tyAt(wx)-28,col:false,val:Math.round(m.ret*600)});}});
+  for(var i=7;i<(data.n_days||0);i+=7){var wx=(i+6)*SEG;colls.push({type:'coin',wx:wx,wy:tyAt(wx)-25,col:false,val:20});}
 }
 
-// ── PHYSICS CONSTANTS ──
 var G=900,CW=48,CH=16,WR=14,SL=20,SK=750,SD=55,DRIV=700,BRAK=480;
 var car={x:0,y:0,vx:0,vy:0,angle:0,angVel:0,onGround:false};
-var fw={c:false,comp:0,nf:0}, bw={c:false,comp:0,nf:0};
+var fw={c:false,comp:0,nf:0},bw={c:false,comp:0,nf:0};
 var fuel=100,score=0,coins=0,flips=0,elapsed=0,dist=0,wspin=0,camX=0;
 var pAng=0,totRot=0,airT=0,flipDone=false;
 var parts=[],pops=[];
@@ -689,97 +650,71 @@ function hexA(hex,a){
   return 'rgba('+r+','+g+','+b+','+a+')';
 }
 
-// FIX: spawn at physics equilibrium so spring doesn't impulse car off screen
+// ── FIX: initCar only called after buildT has populated tPts ──
 function initCar(){
-  if(!tPts.length) return;
+  if(!tPts.length)return;
   var sx=4*SEG, gY=tyAt(sx);
-  // At equilibrium: SK * eqPen = G  =>  eqPen = G/SK = 1.2px
-  // Wheel contact (physics) is at car.y + CH + SL (body_bottom + suspension_length)
-  // Wheel bottom = contact_y + WR. For equilibrium contact: wheel_bottom = gY - eqPen
-  var eqPen = G / (2 * SK); // 0.6 — two wheels each contribute, so total spring = 2*SK*eqPen = G
-  var sy = gY - CH - SL - WR - eqPen;
+  // Equilibrium: spring force = gravity => SK * eqPen = G => eqPen = G/SK = 1.2px
+  // Visual wheel center at car.y + CH + SL
+  // Wheel bottom at car.y + CH + SL + WR
+  // At equilibrium contact: wheel_bottom = gY - eqPen
+  // => car.y = gY - eqPen - WR - SL - CH
+  var eqPen = G / SK;
+  var sy = gY - eqPen - WR - SL - CH;
   car={x:sx,y:sy,vx:0,vy:0,angle:0,angVel:0,onGround:false};
-  // Init spring compression to equilibrium so first frame has zero velocity impulse
+  // Pre-compress springs to equilibrium so zero velocity impulse on first frame
   fw={c:true,comp:eqPen,nf:G}; bw={c:true,comp:eqPen,nf:G};
   pAng=0;totRot=0;airT=0;flipDone=false;wspin=0;camX=0;
   cinited=true;
 }
 
-// FIX: wheel contact at CH+SL (includes suspension length) to match visual wheel position
 function stepPhys(dt){
-  if(!cinited||isNaN(car.x)) return;
+  if(!cinited||isNaN(car.x))return;
   if(dt>0.05)dt=0.05;
   var cos=Math.cos(car.angle),sin=Math.sin(car.angle);
-  // Contact points at bottom of suspension (body_bottom + SL) — matches visual wheel center
-  var fwx=car.x+cos*CW-sin*(CH+SL), fwy=car.y+sin*CW+cos*(CH+SL);
-  var bwx=car.x-cos*CW-sin*(CH+SL), bwy=car.y-sin*CW+cos*(CH+SL);
+  var fwx=car.x+cos*CW-sin*CH,fwy=car.y+sin*CW+cos*CH;
+  var bwx=car.x-cos*CW-sin*CH,bwy=car.y-sin*CW+cos*CH;
   var fX=0,fY=0,tq=0;
-
   function wF(wx,wy,ws,isDrv){
     var gY=tyAt(wx),pen=gY-(wy+WR);
     if(pen>-1){
-      ws.c=true;
-      var rv=(pen-ws.comp)/dt; ws.comp=Math.max(0,pen);
+      ws.c=true;var rv=(pen-ws.comp)/dt;ws.comp=Math.max(0,pen);
       ws.nf=Math.max(0,SK*Math.max(0,pen)+SD*Math.max(0,rv));
-      fY-=ws.nf; tq+=(wx-car.x)*(-ws.nf);
+      fY-=ws.nf;tq+=(wx-car.x)*(-ws.nf);
       var ta=tangAt(wx);
       if(isDrv&&keys.gas){fX+=DRIV*Math.cos(ta)*dt;wspin+=DRIV*dt*.04;}
       if(keys.brake){fX-=car.vx*BRAK*.7*dt;tq-=car.angVel*1.3*6;}
       fX-=car.vx*.2;
     }else{ws.c=false;ws.comp*=.7;ws.nf=0;}
   }
-  wF(fwx,fwy,fw,false); wF(bwx,bwy,bw,true);
-  car.onGround=fw.c||bw.c;
-  fY+=G;
-
+  wF(fwx,fwy,fw,false);wF(bwx,bwy,bw,true);
+  car.onGround=fw.c||bw.c;fY+=G;
   if(!car.onGround){
-    if(keys.gas)   car.angVel-=4.0*dt;
-    if(keys.brake) car.angVel+=4.0*dt;
-    car.angVel*=.97; airT+=dt;
-    wspin+=Math.abs(car.vx)*.02;
-  }else{
-    tq-=car.angVel*1.3*14; car.angVel*=.82; airT=0;
-    wspin+=keys.gas?18:Math.abs(car.vx)*.04;
-  }
-
-  car.vx+=(fX)*dt; car.vy+=(fY)*dt;
-  car.vx*=car.onGround?.992:.998; car.vy*=.998;
-  car.angVel+=(tq/1.3)*dt; car.angle+=car.angVel*dt;
-  car.x+=car.vx*dt; car.y+=car.vy*dt;
-
+    if(keys.gas)car.angVel-=4.0*dt;if(keys.brake)car.angVel+=4.0*dt;
+    car.angVel*=.97;airT+=dt;wspin+=Math.abs(car.vx)*.02;
+  }else{tq-=car.angVel*1.3*14;car.angVel*=.82;airT=0;wspin+=keys.gas?18:Math.abs(car.vx)*.04;}
+  car.vx+=fX*dt;car.vy+=fY*dt;car.vx*=car.onGround?.992:.998;car.vy*=.998;
+  car.angVel+=(tq/1.3)*dt;car.angle+=car.angVel*dt;car.x+=car.vx*dt;car.y+=car.vy*dt;
   var fl=tyAt(car.x);
-  if(car.y+CH+SL+WR>fl+2){car.y=fl-CH-SL-WR;if(car.vy>20)car.vy*=-.15;else car.vy=0;}
+  if(car.y+CH+WR+SL>fl+2){car.y=fl-CH-WR-SL;if(car.vy>20)car.vy*=-.15;else car.vy=0;}
   if(car.x<SEG*2){car.x=SEG*2;if(car.vx<0)car.vx=0;}
-
-  fuel-=(keys.gas?3.0:.6)*dt; fuel=Math.max(0,fuel);
-  elapsed+=dt; dist=Math.max(dist,car.x);
-
+  fuel-=(keys.gas?3.0:.6)*dt;fuel=Math.max(0,fuel);
+  elapsed+=dt;dist=Math.max(dist,car.x);
   var dA=car.angle-pAng;
-  totRot+=dA-Math.round(dA/(Math.PI*2))*Math.PI*2;
-  pAng=car.angle;
+  totRot+=dA-Math.round(dA/(Math.PI*2))*Math.PI*2;pAng=car.angle;
   if(!car.onGround&&Math.abs(totRot)>=Math.PI*2&&!flipDone){
-    var isB=totRot<0; flips++;
-    var lbl=isB?'🔄 BACKFLIP! +500':'⤴ FRONTFLIP! +500';
-    score+=500; showBanner(lbl); addPop(car.x,car.y-55,lbl,'#c9a96e');
-    flipDone=true;totRot=0;
+    var isB=totRot<0;flips++;var lbl=isB?'🔄 BACKFLIP! +500':'⤴ FRONTFLIP! +500';
+    score+=500;showBanner(lbl);addPop(car.x,car.y-55,lbl,'#c9a96e');flipDone=true;totRot=0;
   }
   if(car.onGround){flipDone=false;totRot=0;}
-
   if(keys.gas&&Math.floor(elapsed*60)%3===0)
     parts.push({x:car.x-cos*CW,y:car.y-sin*CW,vx:-car.vx*.2-20-Math.random()*15,vy:-12+Math.random()*24,life:.3+Math.random()*.2,ml:.5,r:3,fire:true});
   if(car.onGround&&Math.abs(car.vx)>80&&Math.floor(elapsed*60)%5===0)
     parts.push({x:car.x-cos*CW,y:fl,vx:-Math.abs(car.vx)*.2,vy:-25-Math.random()*20,life:.25,ml:.25,r:4,dust:true});
-
-  var tgt=car.x-W*.33; camX+=(tgt-camX)*.1; camX=Math.max(0,camX);
-
+  var tgt=car.x-W*.33;camX+=(tgt-camX)*.1;camX=Math.max(0,camX);
   colls.forEach(function(c){
-    if(c.col)return;
-    var dx=car.x-c.wx,dy=car.y-c.wy;
-    if(dx*dx+dy*dy<900){
-      c.col=true;
-      if(c.type==='fuel'){fuel=Math.min(100,fuel+28);addPop(c.wx,c.wy-20,'⛽ BUYBACK! +Fuel','#c9a96e');}
-      else{coins+=c.val;addPop(c.wx,c.wy-18,'+'+c.val+' 💰','#4ab87a');}
-    }
+    if(c.col)return;var dx=car.x-c.wx,dy=car.y-c.wy;
+    if(dx*dx+dy*dy<900){c.col=true;if(c.type==='fuel'){fuel=Math.min(100,fuel+28);addPop(c.wx,c.wy-20,'⛽ BUYBACK! +Fuel','#c9a96e');}else{coins+=c.val;addPop(c.wx,c.wy-18,'+'+c.val+' 💰','#4ab87a');}}
   });
   score=Math.max(0,Math.round(dist*0.08+coins*2));
 }
@@ -787,11 +722,7 @@ function stepPhys(dt){
 function crashed(){
   if(!cinited||isNaN(car.x))return false;
   var cos=Math.cos(car.angle),sin=Math.sin(car.angle);
-  // Check roof corners
-  var tops=[
-    {x:car.x+cos*CW-sin*(-CH),y:car.y+sin*CW+cos*(-CH)},
-    {x:car.x-cos*CW-sin*(-CH),y:car.y-sin*CW+cos*(-CH)}
-  ];
+  var tops=[{x:car.x+cos*CW-sin*(-CH),y:car.y+sin*CW+cos*(-CH)},{x:car.x-cos*CW-sin*(-CH),y:car.y-sin*CW+cos*(-CH)}];
   for(var i=0;i<tops.length;i++){if(tops[i].y>=tyAt(tops[i].x)-2)return true;}
   return false;
 }
@@ -799,18 +730,13 @@ function crashed(){
 function skyAt(t){
   var phase=(t%90)/90;
   function lp(a,b,f){return[Math.round(a[0]+(b[0]-a[0])*f),Math.round(a[1]+(b[1]-a[1])*f),Math.round(a[2]+(b[2]-a[2])*f)];}
-  var kf=[
-    {p:0.00,sky:[8,6,18],  hor:[60,30,50]},
-    {p:0.20,sky:[20,50,100],hor:[100,120,140]},
-    {p:0.50,sky:[8,18,40], hor:[50,40,30]},
-    {p:0.65,sky:[25,10,8], hor:[80,40,15]},
-    {p:0.78,sky:[2,2,10],  hor:[5,5,18]},
-    {p:1.00,sky:[8,6,18],  hor:[60,30,50]}
-  ];
+  var kf=[{p:0.00,sky:[8,6,18],hor:[60,30,50]},{p:0.20,sky:[20,50,100],hor:[100,120,140]},
+    {p:0.50,sky:[8,18,40],hor:[50,40,30]},{p:0.65,sky:[25,10,8],hor:[80,40,15]},
+    {p:0.78,sky:[2,2,10],hor:[5,5,18]},{p:1.00,sky:[8,6,18],hor:[60,30,50]}];
   var lo=kf[kf.length-1],hi=kf[0];
   for(var i=0;i<kf.length-1;i++){if(phase>=kf[i].p&&phase<kf[i+1].p){lo=kf[i];hi=kf[i+1];break;}}
   var span=hi.p-lo.p,f=span<.001?0:(phase-lo.p)/span;
-  return {sky:lp(lo.sky,hi.sky,f),hor:lp(lo.hor,hi.hor,f),phase:phase};
+  return{sky:lp(lo.sky,hi.sky,f),hor:lp(lo.hor,hi.hor,f),phase:phase};
 }
 
 function drawBG(){
@@ -818,71 +744,46 @@ function drawBG(){
   var grad=ctx.createLinearGradient(0,0,0,H*.72);
   grad.addColorStop(0,'rgb('+sky[0]+','+sky[1]+','+sky[2]+')');
   grad.addColorStop(1,'rgb('+hor[0]+','+hor[1]+','+hor[2]+')');
-  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-
+  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
   var sa=ph<0.3?(1-ph/0.3)*.8:ph>0.65?((ph-.65)/.35)*.9:0;
   if(sa>.02){
-    for(var i=0;i<30;i++){
-      var sx=((i*137.5)%W+W*3)%W,sy=((i*73)%(H*.5));
-      var tw=.5+Math.sin(elapsed*1.5+i)*.5;
-      ctx.globalAlpha=sa*tw;ctx.fillStyle='#fff';
-      ctx.beginPath();ctx.arc(sx,sy,.9,0,Math.PI*2);ctx.fill();
-    }
-    ctx.globalAlpha=1;
+    for(var i=0;i<30;i++){var sx=((i*137.5)%W+W*3)%W,sy=((i*73)%(H*.5));
+    var tw=.5+Math.sin(elapsed*1.5+i)*.5;ctx.globalAlpha=sa*tw;ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(sx,sy,.9,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   }
-
-  var bp=ph*Math.PI*2;
-  var sunX=W*.5+Math.cos(bp-Math.PI*.5)*W*.42;
-  var sunY=H*.4+Math.sin(bp-Math.PI*.5)*H*.55;
+  var bp=ph*Math.PI*2,sunX=W*.5+Math.cos(bp-Math.PI*.5)*W*.42,sunY=H*.4+Math.sin(bp-Math.PI*.5)*H*.55;
   if(sunY>-30&&sunY<H*.65){
-    if(ph<0.5){
-      var sg=ctx.createRadialGradient(sunX,sunY,2,sunX,sunY,22);
-      sg.addColorStop(0,'rgba(255,245,200,.9)');sg.addColorStop(1,'rgba(255,180,40,0)');
-      ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sunX,sunY,22,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='rgba(255,255,220,.95)';ctx.beginPath();ctx.arc(sunX,sunY,9,0,Math.PI*2);ctx.fill();
-    }else{
-      var ma=Math.sin((ph-.5)*Math.PI*2)*.85;
-      if(ma>0){
-        ctx.fillStyle='rgba(220,225,255,'+ma*.9+')';ctx.beginPath();ctx.arc(sunX,sunY,9,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='rgba(8,8,20,'+ma*.7+')';ctx.beginPath();ctx.arc(sunX+3,sunY-1,7,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='rgba(220,225,255,'+ma*.9+')';ctx.beginPath();ctx.arc(sunX,sunY,9,0,Math.PI*2);ctx.fill();
-      }
-    }
+    if(ph<0.5){var sg=ctx.createRadialGradient(sunX,sunY,2,sunX,sunY,22);sg.addColorStop(0,'rgba(255,245,200,.9)');sg.addColorStop(1,'rgba(255,180,40,0)');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sunX,sunY,22,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,220,.95)';ctx.beginPath();ctx.arc(sunX,sunY,9,0,Math.PI*2);ctx.fill();}
+    else{var ma=Math.sin((ph-.5)*Math.PI*2)*.85;if(ma>0){ctx.fillStyle='rgba(220,225,255,'+ma*.9+')';ctx.beginPath();ctx.arc(sunX,sunY,9,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(8,8,20,'+ma*.7+')';ctx.beginPath();ctx.arc(sunX+3,sunY-1,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(220,225,255,'+ma*.9+')';ctx.beginPath();ctx.arc(sunX,sunY,9,0,Math.PI*2);ctx.fill();}}
   }
-
   ctx.fillStyle='rgba(18,28,46,.3)';
   for(var i=0;i<10;i++){var mx=((i*210-camX*.1)%(W+240))-80,mh=50+(i*37)%55;ctx.beginPath();ctx.moveTo(mx,H*.58);ctx.lineTo(mx+85,H*.58-mh);ctx.lineTo(mx+170,H*.58);ctx.fill();}
-
-  var vis=[];
-  for(var i=0;i<tPts.length;i++){if(tPts[i].x>=camX-SEG&&tPts[i].x<=camX+W+SEG)vis.push(tPts[i]);}
+  var vis=[];for(var i=0;i<tPts.length;i++){if(tPts[i].x>=camX-SEG&&tPts[i].x<=camX+W+SEG)vis.push(tPts[i]);}
   if(vis.length>1){
-    ctx.beginPath();ctx.moveTo(vis[0].x-camX,H);
-    for(var i=0;i<vis.length;i++)ctx.lineTo(vis[i].x-camX,vis[i].y);
+    ctx.beginPath();ctx.moveTo(vis[0].x-camX,H);for(var i=0;i<vis.length;i++)ctx.lineTo(vis[i].x-camX,vis[i].y);
     ctx.lineTo(vis[vis.length-1].x-camX,H);ctx.closePath();
-    var gg=ctx.createLinearGradient(0,H*.5,0,H);
-    gg.addColorStop(0,'#1a2a1a');gg.addColorStop(1,'#0a0f0a');
-    ctx.fillStyle=gg;ctx.fill();
+    var gg=ctx.createLinearGradient(0,H*.5,0,H);gg.addColorStop(0,'#1a2a1a');gg.addColorStop(1,'#0a0f0a');ctx.fillStyle=gg;ctx.fill();
   }
 }
 
 function drawTerrain(){
-  var vis=[];
-  for(var i=0;i<tPts.length;i++){if(tPts[i].x>=camX-SEG&&tPts[i].x<=camX+W+SEG)vis.push(tPts[i]);}
+  var vis=[];for(var i=0;i<tPts.length;i++){if(tPts[i].x>=camX-SEG&&tPts[i].x<=camX+W+SEG)vis.push(tPts[i]);}
   if(vis.length<2)return;
+  // ── FIX: single clean grass line, no fill artefacts ──
   ctx.beginPath();ctx.moveTo(vis[0].x-camX,vis[0].y);
-  for(var i=1;i<vis.length-1;i++){
-    var cpx=(vis[i].x+vis[i+1].x)/2-camX,cpy=(vis[i].y+vis[i+1].y)/2;
-    ctx.quadraticCurveTo(vis[i].x-camX,vis[i].y,cpx,cpy);
-  }
+  for(var i=1;i<vis.length-1;i++){var cpx=(vis[i].x+vis[i+1].x)/2-camX,cpy=(vis[i].y+vis[i+1].y)/2;ctx.quadraticCurveTo(vis[i].x-camX,vis[i].y,cpx,cpy);}
   ctx.lineTo(vis[vis.length-1].x-camX,vis[vis.length-1].y);
-  ctx.strokeStyle='#2a4a2a';ctx.lineWidth=3.5;ctx.stroke();
-  ctx.fillStyle='#1e361e';
+  ctx.strokeStyle='#3a5a3a';ctx.lineWidth=4;ctx.stroke();
+  // softer secondary line for depth
+  ctx.strokeStyle='#2a4a2a';ctx.lineWidth=2;ctx.stroke();
+  // grass tufts
+  ctx.fillStyle='#2a4a22';
   for(var i=0;i<vis.length;i++){if(i%5===0){ctx.beginPath();ctx.arc(vis[i].x-camX,vis[i].y-2,2,0,Math.PI*2);ctx.fill();}}
+  // event annotations
   if(curData){
     for(var i=0;i<vis.length;i++){
       var p=vis[i];if(!p.dayIdx)continue;
-      var m=null;
-      for(var j=0;j<(curData.big_moves||[]).length;j++){if(curData.big_moves[j].idx===p.dayIdx){m=curData.big_moves[j];break;}}
+      var m=null;for(var j=0;j<(curData.big_moves||[]).length;j++){if(curData.big_moves[j].idx===p.dayIdx){m=curData.big_moves[j];break;}}
       if(!m)continue;
       var sx=p.x-camX,up=m.ret>0;
       ctx.beginPath();ctx.moveTo(sx,p.y-6);ctx.lineTo(sx,p.y-36);
@@ -901,8 +802,7 @@ function drawColls(){
     if(sx<-50||sx>W+50)continue;
     if(c.type==='coin'){
       ctx.beginPath();ctx.arc(sx,sy,11,0,Math.PI*2);
-      var cg=ctx.createRadialGradient(sx-3,sy-3,2,sx,sy,11);
-      cg.addColorStop(0,'#ffe080');cg.addColorStop(1,'#c9a96e');
+      var cg=ctx.createRadialGradient(sx-3,sy-3,2,sx,sy,11);cg.addColorStop(0,'#ffe080');cg.addColorStop(1,'#c9a96e');
       ctx.fillStyle=cg;ctx.fill();ctx.strokeStyle='#a07838';ctx.lineWidth=1.5;ctx.stroke();
       ctx.font='bold 8px monospace';ctx.fillStyle='#6a4a18';ctx.textAlign='center';ctx.fillText('₹',sx,sy+3);
     }else{
@@ -914,38 +814,28 @@ function drawColls(){
   }
 }
 
+// ── FIX: drawCar now works because cinited is only true after buildT+initCar ──
 function drawCar(){
   if(!cinited||typeof car.x!=='number'||isNaN(car.x)||isNaN(car.y))return;
-  var s=ALL_STOCKS[si], col=s.color;
+  var s=ALL_STOCKS[si],col=s.color;
   var cos=Math.cos(car.angle),sin=Math.sin(car.angle);
-
-  // shadow
   var gd=tyAt(car.x)-car.y;
-  if(gd>0&&gd<200){
-    ctx.save();ctx.translate(car.x-camX,tyAt(car.x));ctx.scale(1,.2);
-    ctx.beginPath();ctx.ellipse(0,0,CW*.8,10,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(0,0,0,'+(0.35*(1-gd/200))+')';ctx.fill();ctx.restore();
-  }
+  if(gd>0&&gd<140){ctx.save();ctx.translate(car.x-camX,tyAt(car.x));ctx.scale(1,.2);ctx.beginPath();ctx.ellipse(0,0,CW*.8,10,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,'+(0.35*(1-gd/140))+')';ctx.fill();ctx.restore();}
   ctx.save();ctx.translate(car.x-camX,car.y);ctx.rotate(car.angle);
-
-  // suspension struts
-  ctx.strokeStyle='rgba(200,200,200,.15)';ctx.lineWidth=2;
+  // suspension arms
+  ctx.strokeStyle='rgba(200,200,200,.13)';ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(-CW+10,CH);ctx.lineTo(-CW+10,CH+SL);ctx.stroke();
   ctx.beginPath();ctx.moveTo(CW-10,CH);ctx.lineTo(CW-10,CH+SL);ctx.stroke();
-
   // wheels
   var wpos=[[-CW+10,CH+SL],[CW-10,CH+SL]];
   for(var wi=0;wi<2;wi++){
     var wx=wpos[wi][0],wy=wpos[wi][1];
-    ctx.beginPath();ctx.arc(wx,wy,WR,0,Math.PI*2);ctx.fillStyle='#1a1a22';ctx.fill();
-    ctx.strokeStyle='#3a3a48';ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.arc(wx,wy,WR,0,Math.PI*2);ctx.fillStyle='#1a1a22';ctx.fill();ctx.strokeStyle='#3a3a48';ctx.lineWidth=2;ctx.stroke();
     ctx.beginPath();ctx.arc(wx,wy,WR*.42,0,Math.PI*2);ctx.fillStyle='#555560';ctx.fill();
-    var sa=wspin*.008+(wi===0?0:Math.PI*.25);
-    ctx.strokeStyle='#707078';ctx.lineWidth=1.8;
+    var sa=wspin*.008+(wi===0?0:Math.PI*.25);ctx.strokeStyle='#707078';ctx.lineWidth=1.8;
     for(var sp=0;sp<4;sp++){var ang=sa+sp*Math.PI/2;ctx.beginPath();ctx.moveTo(wx,wy);ctx.lineTo(wx+Math.cos(ang)*WR*.38,wy+Math.sin(ang)*WR*.38);ctx.stroke();}
   }
-
-  // car body
+  // body
   ctx.beginPath();ctx.moveTo(-CW,CH);ctx.lineTo(-CW,-CH+4);ctx.lineTo(-CW+8,-CH);ctx.lineTo(CW-6,-CH);ctx.lineTo(CW,-CH+4);ctx.lineTo(CW,CH);ctx.closePath();
   ctx.fillStyle=col;ctx.fill();ctx.strokeStyle=hexA(col,.5);ctx.lineWidth=1.5;ctx.stroke();
   // roof
@@ -953,53 +843,34 @@ function drawCar(){
   ctx.fillStyle=hexA(col,.82);ctx.fill();ctx.strokeStyle=hexA(col,.35);ctx.lineWidth=1;ctx.stroke();
   // windshield
   ctx.beginPath();ctx.moveTo(-CW*.44+1,-CH-1);ctx.lineTo(-CW*.42,-CH-12);ctx.lineTo(CW*.38,-CH-12);ctx.lineTo(CW*.44-1,-CH-1);ctx.closePath();
-  var wg=ctx.createLinearGradient(0,-CH-12,0,-CH-1);wg.addColorStop(0,'rgba(180,225,255,.78)');wg.addColorStop(1,'rgba(140,190,240,.35)');
-  ctx.fillStyle=wg;ctx.fill();
-  // lights
+  var wg=ctx.createLinearGradient(0,-CH-12,0,-CH-1);wg.addColorStop(0,'rgba(180,225,255,.78)');wg.addColorStop(1,'rgba(140,190,240,.35)');ctx.fillStyle=wg;ctx.fill();
+  // headlight
   ctx.beginPath();ctx.arc(CW-5,CH*.2,3.5,0,Math.PI*2);ctx.fillStyle='rgba(255,248,180,.9)';ctx.fill();
+  // rear light
   ctx.beginPath();ctx.arc(-CW+4,-CH*.1,2.5,0,Math.PI*2);ctx.fillStyle=keys.brake?'rgba(255,80,80,.95)':'rgba(180,40,40,.6)';ctx.fill();
+  // exhaust
   ctx.fillStyle='#22222a';ctx.fillRect(-CW-5,CH*.5,6,4);
-  // stock emoji
-  ctx.font='bold 11px monospace';ctx.fillStyle='rgba(255,255,255,.88)';ctx.textAlign='center';
-  ctx.fillText(s.emoji,-CW*.03,-CH-17);
+  // emoji on roof
+  ctx.font='bold 11px monospace';ctx.fillStyle='rgba(255,255,255,.88)';ctx.textAlign='center';ctx.fillText(s.emoji,-CW*.03,-CH-17);
   ctx.restore();
-
   // headlight beam
-  if(car.vx>20){
-    var bx=car.x-camX+cos*CW-sin*CH*.2,by=car.y+sin*CW+cos*CH*.2;
-    var bg=ctx.createRadialGradient(bx,by,0,bx+cos*60,by+sin*60,70);
-    bg.addColorStop(0,'rgba(255,245,180,.1)');bg.addColorStop(1,'rgba(255,245,180,0)');
-    ctx.fillStyle=bg;ctx.beginPath();ctx.arc(bx+cos*35,by+sin*35,65,0,Math.PI*2);ctx.fill();
-  }
+  if(car.vx>20){var bx=car.x-camX+cos*CW-sin*CH*.2,by=car.y+sin*CW+cos*CH*.2;var bg=ctx.createRadialGradient(bx,by,0,bx+cos*60,by+sin*60,70);bg.addColorStop(0,'rgba(255,245,180,.1)');bg.addColorStop(1,'rgba(255,245,180,0)');ctx.fillStyle=bg;ctx.beginPath();ctx.arc(bx+cos*35,by+sin*35,65,0,Math.PI*2);ctx.fill();}
 }
 
 function drawParts(dt){
   parts=parts.filter(function(p){return p.life>0;});
   parts.forEach(function(p){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;});
-  parts.forEach(function(p){
-    var a=p.life/p.ml,sx=p.x-camX;
-    ctx.beginPath();ctx.arc(sx,p.y,p.r*Math.max(.1,a),0,Math.PI*2);
-    ctx.fillStyle=p.fire?'rgba(255,'+(Math.round(80+a*120))+',20,'+a*.6+')':p.dust?'rgba(90,70,40,'+a*.5+')':'rgba(150,150,130,'+a*.4+')';
-    ctx.fill();
-  });
+  parts.forEach(function(p){var a=p.life/p.ml,sx=p.x-camX;ctx.beginPath();ctx.arc(sx,p.y,p.r*Math.max(.1,a),0,Math.PI*2);ctx.fillStyle=p.fire?'rgba(255,'+(Math.round(80+a*120))+',20,'+a*.6+')':p.dust?'rgba(90,70,40,'+a*.5+')':'rgba(150,150,130,'+a*.4+')';ctx.fill();});
 }
 
 function drawPops(dt){
-  pops=pops.filter(function(p){return p.life>0;});
-  pops.forEach(function(p){p.wy-=28*dt;p.life-=dt;});
-  ctx.save();
-  pops.forEach(function(p){
-    ctx.globalAlpha=Math.min(1,p.life);ctx.font='bold 11px DM Mono,monospace';
-    ctx.fillStyle=p.color||'#4ab87a';ctx.textAlign='center';ctx.fillText(p.text,p.wx-camX,p.wy);
-  });
-  ctx.globalAlpha=1;ctx.restore();
+  pops=pops.filter(function(p){return p.life>0;});pops.forEach(function(p){p.wy-=28*dt;p.life-=dt;});
+  ctx.save();pops.forEach(function(p){ctx.globalAlpha=Math.min(1,p.life);ctx.font='bold 11px DM Mono,monospace';ctx.fillStyle=p.color||'#4ab87a';ctx.textAlign='center';ctx.fillText(p.text,p.wx-camX,p.wy);});ctx.globalAlpha=1;ctx.restore();
 }
 
 function drawFlag(){
-  if(!curData)return;
-  var ex=(curData.n_days+6)*SEG,sx=ex-camX;
-  if(sx<-60||sx>W+60)return;
-  var gy=tyAt(ex);
+  if(!curData)return;var ex=(curData.n_days+6)*SEG,sx=ex-camX;
+  if(sx<-60||sx>W+60)return;var gy=tyAt(ex);
   ctx.strokeStyle='#aaa';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(sx,gy);ctx.lineTo(sx,gy-88);ctx.stroke();
   for(var r=0;r<4;r++)for(var c=0;c<4;c++){ctx.fillStyle=(r+c)%2===0?'#fff':'#222';ctx.fillRect(sx+c*11,gy-88+r*8,11,8);}
   ctx.font='bold 8px DM Mono';ctx.fillStyle='#c9a96e';ctx.textAlign='center';ctx.fillText('FINISH',sx+22,gy-96);
@@ -1020,8 +891,7 @@ function addPop(wx,wy,text,color){pops.push({wx:wx,wy:wy,text:text,color:color,l
 function showBanner(t){var el=document.getElementById('flipBanner');el.textContent=t;el.style.opacity='1';setTimeout(function(){el.style.opacity='0';},1300);}
 
 function doGameOver(title,reason){
-  if(gState==='gameover')return;
-  gState='gameover';
+  if(gState==='gameover')return;gState='gameover';
   var m=Math.round(dist/SEG*2);
   document.getElementById('goTitle').textContent=title;
   document.getElementById('goReason').textContent=reason;
@@ -1031,8 +901,7 @@ function doGameOver(title,reason){
 
 var lastT=0,animId=null;
 function gameLoop(ts){
-  var dt=Math.min((ts-lastT)/1000,.05);
-  lastT=ts;
+  var dt=Math.min((ts-lastT)/1000,.05);lastT=ts;
   ctx.clearRect(0,0,W,H);
   drawBG();
   if(tPts.length>1){drawTerrain();drawColls();drawFlag();}
@@ -1040,110 +909,73 @@ function gameLoop(ts){
   drawCar();
   drawPops(dt);
   if(cinited)updateHUD();
-
-  // Settle car onto terrain while on start screen (no input, just gravity + spring)
-  if(gState==='start'&&cinited){
-    stepPhys(dt);
-    // Keep car near spawn so it stays in view
-    if(car.x > 8*SEG){ car.x=4*SEG; car.vx=0; }
-  }
-
   if(gState==='playing'&&!paused){
     stepPhys(dt);
-    if(crashed()&&gState==='playing'){
-      gState='dead';
-      for(var i=0;i<15;i++)parts.push({x:car.x,y:car.y,vx:(Math.random()-.5)*300,vy:-80-Math.random()*200,life:.7,ml:.7,r:5,dust:true});
-      setTimeout(function(){doGameOver('💥 Crashed!','Car flipped — land on your wheels!');},500);
-    }
+    if(crashed()&&gState==='playing'){gState='dead';for(var i=0;i<15;i++)parts.push({x:car.x,y:car.y,vx:(Math.random()-.5)*300,vy:-80-Math.random()*200,life:.7,ml:.7,r:5,dust:true});setTimeout(function(){doGameOver('💥 Crashed!','Car flipped — land on your wheels!');},500);}
     if(fuel<=0&&gState==='playing'){gState='dead';setTimeout(function(){doGameOver('⛽ Out of Fuel!','Collect fuel cans (buybacks) to refuel.');},300);}
-    if(curData&&car.x>=(curData.n_days+5)*SEG&&gState==='playing'){
-      var ret=(curData.total_return*100).toFixed(1);
-      score+=2000;addPop(car.x,car.y-70,'🏆 FINISHED! +2000','#c9a96e');
-      gState='dead';
-      var sname=ALL_STOCKS[si].name;
-      setTimeout(function(){doGameOver('🏆 Race Complete!',sname+' returned '+(parseFloat(ret)>=0?'+':'')+ret+'% in 1Y!');},1200);
-    }
+    if(curData&&car.x>=(curData.n_days+5)*SEG&&gState==='playing'){var ret=(curData.total_return*100).toFixed(1);score+=2000;addPop(car.x,car.y-70,'🏆 FINISHED! +2000','#c9a96e');gState='dead';var sn=ALL_STOCKS[si].name;setTimeout(function(){doGameOver('🏆 Race Complete!',sn+' returned '+(parseFloat(ret)>=0?'+':'')+ret+'% in 1Y!');},1200);}
   }
   animId=requestAnimationFrame(gameLoop);
 }
 
 function buildSel(){
-  var h='';
-  ALL_STOCKS.forEach(function(s,i){
-    var ret=(s.data.total_return*100).toFixed(1),col=parseFloat(ret)>=0?'#4ab87a':'#e05c6c';
-    h+='<div class="sItem'+(i===si?' active':'')+'" onclick="loadSt('+i+')">'+(s.emoji||'')+'  '+s.name+'<span style="color:'+col+'">'+(parseFloat(ret)>=0?'+':'')+ret+'%</span></div>';
-  });
+  var h='';ALL_STOCKS.forEach(function(s,i){var ret=(s.data.total_return*100).toFixed(1),col=parseFloat(ret)>=0?'#4ab87a':'#e05c6c';h+='<div class="sItem'+(i===si?' active':'')+'" onclick="loadSt('+i+')">'+(s.emoji||'')+' '+s.name+'<span style="color:'+col+'">'+(parseFloat(ret)>=0?'+':'')+ret+'%</span></div>';});
   document.getElementById('stkPanel').innerHTML=h;
 }
 function toggleSel(){var p=document.getElementById('stkPanel');p.style.display=p.style.display==='block'?'none':'block';if(p.style.display==='block')buildSel();}
 
 function loadSt(i){
   si=i;document.getElementById('stkPanel').style.display='none';
-  var s=ALL_STOCKS[i];
-  buildT(s.data);buildColls(s.data);
-  document.getElementById('stkName').textContent=(s.emoji||'')+'  '+s.name;
-  var ret=(s.data.total_return*100).toFixed(1);
-  document.getElementById('stkRet').textContent='1Y: '+(parseFloat(ret)>=0?'+':'')+ret+'%';
-  var el=document.getElementById('startStkName');if(el)el.textContent=s.name;
-  buildSel();
+  var s=ALL_STOCKS[i];buildT(s.data);buildColls(s.data);
+  document.getElementById('stkName').textContent=(s.emoji||'')+' '+s.name;
+  var ret=(s.data.total_return*100).toFixed(1);document.getElementById('stkRet').textContent='1Y: '+(parseFloat(ret)>=0?'+':'')+ret+'%';
+  var el=document.getElementById('startStkName');if(el)el.textContent=s.name;buildSel();
 }
 
 function startGame(){document.getElementById('startScr').style.display='none';resetRun();gState='playing';lastT=performance.now();}
 function resetRun(){score=0;fuel=100;dist=0;coins=0;flips=0;elapsed=0;parts=[];pops=[];camX=0;cinited=false;initCar();buildColls(ALL_STOCKS[si].data);document.getElementById('goScr').style.display='none';}
 function restartGame(){document.getElementById('goScr').style.display='none';resetRun();gState='playing';lastT=performance.now();}
 function nextStock(){document.getElementById('goScr').style.display='none';si=(si+1)%ALL_STOCKS.length;loadSt(si);resetRun();gState='playing';lastT=performance.now();}
-function togglePause(){
-  if(gState!=='playing'&&gState!=='paused')return;
-  paused=!paused;
-  document.getElementById('pauseScr').style.display=paused?'flex':'none';
-  document.getElementById('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';
-  if(!paused)lastT=performance.now();
-}
+function togglePause(){if(gState!=='playing'&&gState!=='paused')return;paused=!paused;document.getElementById('pauseScr').style.display=paused?'flex':'none';document.getElementById('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';if(!paused)lastT=performance.now();}
 
 function startLoadAnim(){
   var lc=document.getElementById('ldCanvas');if(!lc)return null;
   var lx=lc.getContext('2d');var LW=280,LH=70,lt=0;
   return setInterval(function(){
     lx.fillStyle='#0a0a0f';lx.fillRect(0,0,LW,LH);
-    lx.beginPath();
-    for(var x=0;x<=LW;x+=2){var y=LH*.55+Math.sin((x*.035)+lt*.8)*14+Math.cos((x*.022)+lt*.5)*8;if(x===0)lx.moveTo(x,y);else lx.lineTo(x,y);}
+    lx.beginPath();for(var x=0;x<=LW;x+=2){var y=LH*.55+Math.sin((x*.035)+lt*.8)*14+Math.cos((x*.022)+lt*.5)*8;if(x===0)lx.moveTo(x,y);else lx.lineTo(x,y);}
     lx.strokeStyle='#c9a96e55';lx.lineWidth=2;lx.stroke();
     var cx=(lt*22)%LW,cy=LH*.55+Math.sin((cx*.035)+lt*.8)*14+Math.cos((cx*.022)+lt*.5)*8-10;
-    lx.fillStyle='#c9a96e';lx.fillRect(cx-8,cy-5,16,8);
-    lx.fillStyle='#c9a96eaa';lx.fillRect(cx-5,cy-9,10,5);
-    lx.fillStyle='#1a1a22';lx.beginPath();lx.arc(cx-5,cy+3,4,0,Math.PI*2);lx.fill();
-    lx.beginPath();lx.arc(cx+5,cy+3,4,0,Math.PI*2);lx.fill();
+    lx.fillStyle='#c9a96e';lx.fillRect(cx-8,cy-5,16,8);lx.fillStyle='#c9a96eaa';lx.fillRect(cx-5,cy-9,10,5);
+    lx.fillStyle='#1a1a22';lx.beginPath();lx.arc(cx-5,cy+3,4,0,Math.PI*2);lx.fill();lx.beginPath();lx.arc(cx+5,cy+3,4,0,Math.PI*2);lx.fill();
     lt+=.05;
-  }, 33);
+  },33);
 }
 
+// ── BOOT: buildT first, then initCar, THEN show start screen ──
 (function(){
-  resize();
-  lastT=performance.now();
-  animId=requestAnimationFrame(gameLoop);
-  var loadAnim=startLoadAnim();
-  var ldLbl=document.getElementById('ldStock');
-  var idx=0;
-  function loadNext(){
-    if(idx>=ALL_STOCKS.length){
-      clearInterval(loadAnim);
-      loadSt(0);
-      initCar();
-      setTimeout(function(){
-        document.getElementById('loadScr').style.display='none';
-        document.getElementById('startScr').style.display='flex';
-        gState='start';
-      },350);
-      return;
+  requestAnimationFrame(function(){
+    resize();lastT=performance.now();animId=requestAnimationFrame(gameLoop);
+    var la=startLoadAnim(),ll=document.getElementById('ldStock'),idx=0;
+    function loadNext(){
+      if(idx>=ALL_STOCKS.length){
+        clearInterval(la);
+        loadSt(0);
+        initCar();
+        setTimeout(function(){
+          document.getElementById('loadScr').style.display='none';
+          document.getElementById('startScr').style.display='flex';
+          gState='start';
+        },350);
+        return;
+      }
+      var s=ALL_STOCKS[idx];if(ll)ll.textContent='Loading '+(s.emoji||'')+' '+s.name+'...';
+      setTimeout(function(){buildT(s.data);idx++;loadNext();},25);
     }
-    var s=ALL_STOCKS[idx];
-    if(ldLbl)ldLbl.textContent='Loading '+(s.emoji||'')+' '+s.name+'...';
-    setTimeout(function(){buildT(s.data);idx++;loadNext();},25);
-  }
-  setTimeout(loadNext,150);
+    setTimeout(loadNext,150);
+  });
 })();
 </script></body></html>"""
-
 
 def build_play_mode_html(all_stocks_data):
     stock_json = json.dumps(make_serialisable(all_stocks_data))
@@ -1157,14 +989,18 @@ def build_play_mode_html(all_stocks_data):
     html = html.replace("TICKER_PLACEHOLDER", ticker_text)
     return html
 
-# ─── SESSION STATE ───
+# ─────────────────────────────────────────────────────────────────
+# SESSION STATE
+# ─────────────────────────────────────────────────────────────────
 for k,v in [('page','home'),('race_data',None),('last_cfg',None),
             ('race_speed','Normal'),('show_ann',True),('period_label','1 Year'),('play_data',None)]:
     if k not in st.session_state: st.session_state[k]=v
 
 st.markdown(CSS, unsafe_allow_html=True)
 
-# ─── HOME PAGE ───
+# ─────────────────────────────────────────────────────────────────
+# HOME PAGE
+# ─────────────────────────────────────────────────────────────────
 def render_home():
     st.markdown("""
     <div style="padding:3rem 0 1.5rem;">
@@ -1246,27 +1082,24 @@ def render_home():
       var car=cars[i];car.x=(car.x+car.spd)%(W+40);
       var li=Math.max(0,Math.min(pts.length-2,Math.floor(car.x/3)));var cy=pts[li]?pts[li].y:H*.55;
       cx.save();cx.translate(car.x,cy-8);
-      cx.fillStyle=st.col;cx.fillRect(-12,-5,24,9);
-      cx.fillStyle=st.col+'bb';cx.fillRect(-7,-11,14,7);
-      cx.fillStyle='#1a1a22';cx.beginPath();cx.arc(-7,4,4,0,Math.PI*2);cx.fill();
-      cx.beginPath();cx.arc(7,4,4,0,Math.PI*2);cx.fill();
+      cx.fillStyle=st.col;cx.fillRect(-12,-5,24,9);cx.fillStyle=st.col+'bb';cx.fillRect(-7,-11,14,7);
+      cx.fillStyle='#1a1a22';cx.beginPath();cx.arc(-7,4,4,0,Math.PI*2);cx.fill();cx.beginPath();cx.arc(7,4,4,0,Math.PI*2);cx.fill();
       cx.restore();
     });
     t+=.4;requestAnimationFrame(draw);
   }draw();
 })();</script>"""
     components.html(preview, height=122, scrolling=False)
-
-    st.markdown("""
-    <div style="margin-top:.6rem;font-family:'DM Mono',monospace;font-size:.62rem;color:#2a2a3a;text-align:center;letter-spacing:.05em;">
+    st.markdown("""<div style="margin-top:.6rem;font-family:'DM Mono',monospace;font-size:.62rem;color:#2a2a3a;text-align:center;letter-spacing:.05em;">
       MarketRace · Day 27 · 30 Days of AI Finance · Preetham · Price data via yfinance · Not investment advice
     </div>""", unsafe_allow_html=True)
 
-# ─── COMPUTER RACE PAGE ───
+# ─────────────────────────────────────────────────────────────────
+# COMPUTER RACE PAGE
+# ─────────────────────────────────────────────────────────────────
 def render_computer():
     if st.button("← Home", type="secondary", key="back_c"): st.session_state.page='home'; st.rerun()
     st.markdown("<div style='font-family:\"DM Mono\",monospace;font-size:.62rem;color:#444;letter-spacing:.15em;text-transform:uppercase;margin:.5rem 0 1.5rem;'>● COMPUTER RACE MODE · 1Y NSE TERRAIN</div>", unsafe_allow_html=True)
-
     col1, col2 = st.columns([2, 1])
     with col1:
         st.markdown("### Select Racers")
@@ -1278,22 +1111,17 @@ def render_computer():
         race_speed = st.select_slider("Speed", ["Slow","Normal","Fast","Turbo"], value="Normal")
         show_ann = st.checkbox("Show market event markers", value=True)
     st.session_state.race_speed=race_speed; st.session_state.show_ann=show_ann; st.session_state.period_label=period_label
-
     if len(selected) < 1: st.warning("Select at least 1 stock to race."); return
-
     load_btn = st.button("🚀 Load & Race", type="primary", use_container_width=True)
     cfg = (tuple(sorted(selected)), period_label)
-
     if load_btn or (st.session_state.race_data is not None and st.session_state.last_cfg == cfg):
         if load_btn or st.session_state.race_data is None:
             with st.spinner("Fetching 1Y data from NSE..."):
                 rd = prepare_race_data(selected, PERIODS[period_label])
                 st.session_state.race_data = rd; st.session_state.last_cfg = cfg
-
         rd = st.session_state.race_data
         if not rd["racers"]: st.error("Could not fetch data for any selected stock."); return
         if rd["failed"]: st.warning("Could not fetch: " + ", ".join(rd["failed"]))
-
         st.markdown("---")
         st.markdown("<div style='font-family:\"DM Mono\",monospace;font-size:.62rem;color:#444;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.8rem;'>● PRE-RACE STATS</div>", unsafe_allow_html=True)
         cols = st.columns(len(rd["racers"]))
@@ -1311,15 +1139,15 @@ def render_computer():
                     <span style="color:#4ab87a80">▲ +{best['ret']*100:.1f}%</span> {best['date']}<br>
                     <span style="color:#e05c6c80">▼ {worst['ret']*100:.1f}%</span> {worst['date']}
                   </div></div>""", unsafe_allow_html=True)
-
         st.markdown("---")
         components.html(build_computer_race_html(rd, race_speed, show_ann, period_label), height=680, scrolling=False)
         st.markdown("<div style='margin-top:1rem;font-family:\"DM Mono\",monospace;font-size:.62rem;color:#2a2a3a;text-align:center;border-top:1px solid rgba(255,255,255,.04);padding-top:1rem;'>MarketRace · Day 27 · 30 Days of AI Finance · Data via yfinance · Not investment advice</div>", unsafe_allow_html=True)
 
-# ─── PLAY MODE PAGE ───
+# ─────────────────────────────────────────────────────────────────
+# PLAY MODE PAGE
+# ─────────────────────────────────────────────────────────────────
 def render_play():
     if st.button("← Home", type="secondary", key="back_p"): st.session_state.page='home'; st.rerun()
-
     if st.session_state.play_data is None:
         with st.spinner("Fetching all stock data (cached after first load)..."):
             play_stocks = []
@@ -1330,14 +1158,13 @@ def render_play():
                                         "color":cfg["color"],"emoji":cfg["emoji"],"data":data})
             play_stocks.sort(key=lambda s: s["data"]["total_return"], reverse=True)
             st.session_state.play_data = play_stocks
-
-    if not st.session_state.play_data:
-        st.error("Could not load any stock data. Check your network."); return
-
+    if not st.session_state.play_data: st.error("Could not load any stock data. Check your network."); return
     components.html(build_play_mode_html(st.session_state.play_data), height=700, scrolling=False)
     st.markdown("<div style='margin-top:.4rem;font-family:\"DM Mono\",monospace;font-size:.62rem;color:#2a2a3a;text-align:center;'>▶▶ GAS &nbsp;·&nbsp; ◀◀ BRAKE &nbsp;·&nbsp; Air tilt for backflips &nbsp;·&nbsp; Not investment advice</div>", unsafe_allow_html=True)
 
-# ─── ROUTER ───
+# ─────────────────────────────────────────────────────────────────
+# ROUTER
+# ─────────────────────────────────────────────────────────────────
 if   st.session_state.page == 'home':     render_home()
 elif st.session_state.page == 'computer': render_computer()
 elif st.session_state.page == 'play':     render_play()
