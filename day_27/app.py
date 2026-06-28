@@ -113,9 +113,7 @@ def prepare_race_data(selected, period):
     return {"racers":racers,"failed":failed,"period":period,
             "n_racers":len(racers),"generated":datetime.now().strftime("%H:%M:%S IST")}
 
-# ─────────────────────────────────────────────────────────────────
-# COMPUTER RACE HTML  —  uses string concat NOT f-string for JSON
-# ─────────────────────────────────────────────────────────────────
+
 COMPUTER_RACE_CSS = """
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#09090e;font-family:'DM Mono',monospace;overflow:hidden;}
@@ -213,20 +211,14 @@ function drawCar(v,terrain){
     ctx.strokeStyle=v.color+'30';ctx.lineWidth=2;ctx.stroke();
   }
   ctx.save();ctx.translate(v.x,y-14);ctx.rotate(ang);
-  // shadow
   ctx.beginPath();ctx.ellipse(0,10,18,5,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fill();
-  // body
   ctx.fillStyle=v.color;
   ctx.beginPath();ctx.moveTo(-18,0);ctx.lineTo(-18,10);ctx.lineTo(18,10);ctx.lineTo(18,0);ctx.lineTo(12,-2);ctx.closePath();ctx.fill();
-  // roof
   ctx.fillStyle=v.color+'dd';
   ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(-14,-10);ctx.lineTo(8,-10);ctx.lineTo(12,0);ctx.closePath();ctx.fill();
-  // windshield
   ctx.fillStyle='rgba(180,225,255,.65)';
   ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(-11,-9);ctx.lineTo(7,-9);ctx.lineTo(10,0);ctx.closePath();ctx.fill();
-  // headlight
   ctx.fillStyle='rgba(255,240,140,.9)';ctx.beginPath();ctx.arc(17,4,3,0,Math.PI*2);ctx.fill();
-  // wheels
   [[-11,10],[11,10]].forEach(([wx,wy])=>{
     ctx.beginPath();ctx.arc(wx,wy,6,0,Math.PI*2);ctx.fillStyle='#1a1a22';ctx.fill();
     ctx.beginPath();ctx.arc(wx,wy,2.5,0,Math.PI*2);ctx.fillStyle='#555';ctx.fill();
@@ -349,7 +341,6 @@ def build_computer_race_html(race_data, race_speed, show_ann, period_label):
     gj = json.dumps(make_serialisable(race_data))
     racers_str = " vs ".join(r["name"] for r in race_data["racers"])
     sa = "true" if show_ann else "false"
-    # Use string concatenation for JSON injection — NO f-strings with JSON
     html = (
         '<!DOCTYPE html><html><head><meta charset="utf-8">'
         '<style>' + COMPUTER_RACE_CSS + '</style></head><body>'
@@ -388,10 +379,12 @@ def build_computer_race_html(race_data, race_speed, show_ann, period_label):
     )
     return html
 
-# ─────────────────────────────────────────────────────────────────
-# PLAY MODE  —  full Hill Climb physics game
-# Uses template string replacement, NOT f-string, to avoid JSON issues
-# ─────────────────────────────────────────────────────────────────
+
+# ── PLAY MODE HTML TEMPLATE ──
+# KEY FIXES:
+# 1. initCar: spawn at physics equilibrium position (prevents car launching off screen)
+# 2. stepPhys: wheel contact now includes suspension length (CH+SL) so physics matches visuals
+# 3. Button SVGs: removed dark black rib lines, replaced with clean subtle texture
 PLAY_HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
@@ -405,7 +398,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#020206;}
 @media(orientation:portrait)and(max-width:900px){#lsGate{display:flex;}}
 #wrap{width:100%;height:100vh;position:relative;overflow:hidden;}
 canvas{display:block;width:100%;height:100%;}
-/* HUD */
 #topHud{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:stretch;pointer-events:none;z-index:20;background:rgba(2,2,6,.78);border-bottom:1px solid rgba(255,255,255,.05);}
 .hCell{display:flex;flex-direction:column;justify-content:center;padding:0 12px;border-right:1px solid rgba(255,255,255,.05);}
 .hCell:last-child{border-right:none;}
@@ -417,17 +409,14 @@ canvas{display:block;width:100%;height:100%;}
 #fuelFill{height:100%;width:100%;border-radius:3px;transition:width .12s;}
 #stkName{font-family:'DM Mono',monospace;font-size:9px;color:#c9a96e;font-weight:600;}
 #stkRet{font-family:'DM Mono',monospace;font-size:8px;color:#444;}
-/* FLIP BANNER */
 #flipBanner{position:absolute;top:58px;left:50%;transform:translateX(-50%);font-family:'Playfair Display',serif;font-size:24px;color:#c9a96e;font-style:italic;text-shadow:0 0 20px rgba(201,169,110,.5);opacity:0;transition:opacity .12s;pointer-events:none;z-index:30;white-space:nowrap;}
-/* TICKER */
 #ticker{position:absolute;bottom:108px;left:0;right:0;height:20px;background:rgba(2,2,6,.7);border-top:1px solid rgba(255,255,255,.04);overflow:hidden;display:flex;align-items:center;pointer-events:none;z-index:10;}
 #tickerInner{font-family:'DM Mono',monospace;font-size:8px;color:#444;letter-spacing:.05em;white-space:nowrap;animation:tickA 35s linear infinite;}
 @keyframes tickA{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
-/* CONTROLS */
 #ctrlBar{position:absolute;bottom:0;left:0;right:0;height:108px;display:flex;align-items:center;justify-content:space-between;padding:8px 16px 12px;pointer-events:all;z-index:20;background:linear-gradient(0deg,rgba(2,2,6,.92) 60%,transparent);}
 .pedal{cursor:pointer;pointer-events:all;}
 .pedal svg{display:block;transition:filter .1s;}
-.pedal:active svg,.pedal.pressed svg{filter:brightness(1.5) drop-shadow(0 0 8px currentColor);}
+.pedal:active svg,.pedal.pressed svg{filter:brightness(1.6) drop-shadow(0 0 10px currentColor);}
 .pLbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;text-align:center;margin-top:5px;}
 #brkBtn .pLbl{color:#e05c6c;}
 #gasBtn .pLbl{color:#4ab87a;}
@@ -437,7 +426,6 @@ canvas{display:block;width:100%;height:100%;}
 #stkPanel{display:none;position:absolute;right:10px;top:76px;z-index:26;background:rgba(8,8,14,.97);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:6px;width:170px;max-height:220px;overflow-y:auto;}
 .sItem{font-family:'DM Mono',monospace;font-size:9px;color:#555;padding:4px 8px;cursor:pointer;border-radius:2px;display:flex;justify-content:space-between;}
 .sItem:hover,.sItem.active{background:rgba(201,169,110,.1);color:#c9a96e;}
-/* OVERLAYS */
 .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:50;}
 #loadScr{background:rgba(2,2,6,1);}
 #startScr{background:rgba(2,2,6,.97);display:none;}
@@ -452,7 +440,6 @@ canvas{display:block;width:100%;height:100%;}
 .goCell{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:3px;padding:8px 12px;text-align:center;}
 .goCL{font-size:7px;color:#333;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;font-family:'DM Mono',monospace;}
 .goCV{font-size:18px;color:#e8e4dc;font-family:'Playfair Display',serif;font-style:italic;}
-/* LOAD SCREEN */
 .ldBar{width:220px;height:3px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
 .ldFill{height:100%;background:linear-gradient(90deg,#c9a96e,#4ab87a);border-radius:3px;animation:ldA 1.8s ease-in-out infinite;}
 @keyframes ldA{0%{width:0;margin-left:0}55%{width:70%;margin-left:0}100%{width:0;margin-left:100%}}
@@ -483,19 +470,34 @@ canvas{display:block;width:100%;height:100%;}
   <div id="stkSelBtn" onclick="toggleSel()">📈 Stock ▾</div>
   <div id="stkPanel"></div>
   <div id="ctrlBar">
-    <!-- BRAKE PEDAL — wide horizontal brake pad shape with vertical ribs -->
+    <!-- BRAKE PEDAL — clean trapezoid, no rib lines -->
     <div class="pedal" id="brkBtn">
       <svg width="92" height="80" viewBox="0 0 92 80">
-        <defs><linearGradient id="bG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a1218"/><stop offset="100%" stop-color="#180a0e"/></linearGradient></defs>
+        <defs>
+          <linearGradient id="bG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a1820"/>
+            <stop offset="100%" stop-color="#1c0a10"/>
+          </linearGradient>
+          <linearGradient id="bShine" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,.10)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,.00)"/>
+          </linearGradient>
+        </defs>
+        <!-- pedal stem -->
         <rect x="36" y="57" width="20" height="20" rx="2" fill="#111118" stroke="#252530" stroke-width="1"/>
+        <!-- pedal face -->
         <path d="M6 16 L86 16 L80 60 L12 60 Z" fill="url(#bG)" stroke="#e05c6c" stroke-width="1.5"/>
-        <path d="M10 18 L82 18 L78 26 L14 26 Z" fill="rgba(255,255,255,.06)"/>
-        <line x1="22" y1="23" x2="19" y2="55" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
-        <line x1="38" y1="21" x2="35" y2="57" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
-        <line x1="54" y1="21" x2="51" y2="57" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
-        <line x1="70" y1="23" x2="67" y2="55" stroke="rgba(0,0,0,.45)" stroke-width="5" stroke-linecap="round"/>
-        <text x="46" y="43" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(224,92,108,.9)" font-weight="600">BRAKE</text>
-        <text x="46" y="54" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(224,92,108,.5)">◀◀</text>
+        <!-- shine strip -->
+        <path d="M10 18 L82 18 L78 26 L14 26 Z" fill="url(#bShine)"/>
+        <!-- subtle grip dots -->
+        <circle cx="25" cy="40" r="2" fill="rgba(224,92,108,.18)"/>
+        <circle cx="46" cy="40" r="2" fill="rgba(224,92,108,.18)"/>
+        <circle cx="67" cy="40" r="2" fill="rgba(224,92,108,.18)"/>
+        <circle cx="35" cy="50" r="2" fill="rgba(224,92,108,.14)"/>
+        <circle cx="57" cy="50" r="2" fill="rgba(224,92,108,.14)"/>
+        <!-- label -->
+        <text x="46" y="34" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="rgba(224,92,108,.95)" font-weight="600">BRAKE</text>
+        <text x="46" y="48" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(224,92,108,.55)">◀◀</text>
       </svg>
       <div class="pLbl">Brake / Tilt Fwd</div>
     </div>
@@ -503,24 +505,39 @@ canvas{display:block;width:100%;height:100%;}
       <div style="font-family:'DM Mono',monospace;font-size:7px;color:#22222a;letter-spacing:.1em;">MARKETRACE · DAY 27</div>
       <div id="airInd" style="font-size:10px;margin-top:3px;color:#c9a96e;"></div>
     </div>
-    <!-- GAS PEDAL — angled narrow-top wide-bottom accelerator with horizontal ribs -->
+    <!-- GAS PEDAL — clean trapezoid, no rib lines -->
     <div class="pedal" id="gasBtn">
       <svg width="92" height="80" viewBox="0 0 92 80">
-        <defs><linearGradient id="gG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0c1e10"/><stop offset="100%" stop-color="#07100a"/></linearGradient></defs>
+        <defs>
+          <linearGradient id="gG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0e2414"/>
+            <stop offset="100%" stop-color="#070f08"/>
+          </linearGradient>
+          <linearGradient id="gShine" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,.10)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,.00)"/>
+          </linearGradient>
+        </defs>
+        <!-- pedal stem -->
         <rect x="55" y="55" width="16" height="22" rx="2" fill="#111118" stroke="#252530" stroke-width="1" transform="rotate(-6 63 66)"/>
+        <!-- pedal face -->
         <path d="M26 10 L72 10 L82 62 L16 62 Z" fill="url(#gG)" stroke="#4ab87a" stroke-width="1.5"/>
-        <path d="M28 12 L70 12 L72 20 L26 20 Z" fill="rgba(255,255,255,.06)"/>
-        <line x1="21" y1="23" x2="69" y2="23" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
-        <line x1="20" y1="35" x2="71" y2="35" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
-        <line x1="18" y1="47" x2="74" y2="47" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
-        <line x1="17" y1="59" x2="77" y2="59" stroke="rgba(0,0,0,.45)" stroke-width="4.5" stroke-linecap="round"/>
-        <text x="47" y="40" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(74,184,122,.9)" font-weight="600">GAS</text>
-        <text x="47" y="52" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(74,184,122,.5)">▶▶</text>
+        <!-- shine strip -->
+        <path d="M28 12 L70 12 L72 20 L26 20 Z" fill="url(#gShine)"/>
+        <!-- subtle grip dots -->
+        <circle cx="32" cy="38" r="2" fill="rgba(74,184,122,.18)"/>
+        <circle cx="49" cy="36" r="2" fill="rgba(74,184,122,.18)"/>
+        <circle cx="66" cy="38" r="2" fill="rgba(74,184,122,.18)"/>
+        <circle cx="38" cy="50" r="2" fill="rgba(74,184,122,.14)"/>
+        <circle cx="60" cy="50" r="2" fill="rgba(74,184,122,.14)"/>
+        <!-- label -->
+        <text x="47" y="32" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="rgba(74,184,122,.95)" font-weight="600">GAS</text>
+        <text x="47" y="47" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="rgba(74,184,122,.55)">▶▶</text>
       </svg>
       <div class="pLbl">Gas / Tilt Back</div>
     </div>
   </div>
-  <!-- LOAD SCREEN — visible on start -->
+  <!-- LOAD SCREEN -->
   <div class="ov" id="loadScr">
     <div class="ovT">Building Terrain</div>
     <canvas id="ldCanvas" width="280" height="70" style="border:1px solid rgba(255,255,255,.06);border-radius:4px;"></canvas>
@@ -562,9 +579,8 @@ canvas{display:block;width:100%;height:100%;}
 </div>
 <script>
 const ALL_STOCKS = ALLSTOCKS_PLACEHOLDER;
-let si = 0; // stock index
+let si = 0;
 
-// ── CANVAS ──
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
 let W = 0, H = 0;
@@ -576,7 +592,6 @@ function resize() {
 resize();
 window.addEventListener('resize', function() { resize(); if (tPts.length) buildT(ALL_STOCKS[si].data); });
 
-// ── INPUT ──
 const keys = { gas: false, brake: false };
 function pg() { keys.gas=true;  document.getElementById('gasBtn').classList.add('pressed'); }
 function rg() { keys.gas=false; document.getElementById('gasBtn').classList.remove('pressed'); }
@@ -603,7 +618,6 @@ document.addEventListener('keyup', function(e){
   if(e.key==='ArrowLeft'||e.key==='ArrowDown') rb();
 });
 
-// ── TERRAIN ──
 const SEG = 55;
 var tPts = [];
 var curData = null;
@@ -637,7 +651,6 @@ function tyAt(wx){
 }
 function tangAt(wx){var dx=SEG*.5;return Math.atan2(tyAt(wx+dx)-tyAt(wx),dx);}
 
-// ── COLLECTIBLES ──
 var colls=[];
 function buildColls(data){
   colls=[];
@@ -657,7 +670,7 @@ function buildColls(data){
   }
 }
 
-// ── PHYSICS ──
+// ── PHYSICS CONSTANTS ──
 var G=900,CW=48,CH=16,WR=14,SL=20,SK=750,SD=55,DRIV=700,BRAK=480;
 var car={x:0,y:0,vx:0,vy:0,angle:0,angVel:0,onGround:false};
 var fw={c:false,comp:0,nf:0}, bw={c:false,comp:0,nf:0};
@@ -671,21 +684,30 @@ function hexA(hex,a){
   return 'rgba('+r+','+g+','+b+','+a+')';
 }
 
+// FIX: spawn at physics equilibrium so spring doesn't impulse car off screen
 function initCar(){
   if(!tPts.length) return;
-  var sx=4*SEG, sy=tyAt(sx)-CH-WR-SL-4;
+  var sx=4*SEG, gY=tyAt(sx);
+  // At equilibrium: SK * eqPen = G  =>  eqPen = G/SK = 1.2px
+  // Wheel contact (physics) is at car.y + CH + SL (body_bottom + suspension_length)
+  // Wheel bottom = contact_y + WR. For equilibrium contact: wheel_bottom = gY - eqPen
+  var eqPen = G / SK; // ~1.2
+  var sy = gY - CH - SL - WR - eqPen;
   car={x:sx,y:sy,vx:0,vy:0,angle:0,angVel:0,onGround:false};
-  fw={c:false,comp:0,nf:0}; bw={c:false,comp:0,nf:0};
+  // Init spring compression to equilibrium so first frame has zero velocity impulse
+  fw={c:true,comp:eqPen,nf:G}; bw={c:true,comp:eqPen,nf:G};
   pAng=0;totRot=0;airT=0;flipDone=false;wspin=0;camX=0;
   cinited=true;
 }
 
+// FIX: wheel contact at CH+SL (includes suspension length) to match visual wheel position
 function stepPhys(dt){
   if(!cinited||isNaN(car.x)) return;
   if(dt>0.05)dt=0.05;
   var cos=Math.cos(car.angle),sin=Math.sin(car.angle);
-  var fwx=car.x+cos*CW-sin*CH, fwy=car.y+sin*CW+cos*CH;
-  var bwx=car.x-cos*CW-sin*CH, bwy=car.y-sin*CW+cos*CH;
+  // Contact points at bottom of suspension (body_bottom + SL) — matches visual wheel center
+  var fwx=car.x+cos*CW-sin*(CH+SL), fwy=car.y+sin*CW+cos*(CH+SL);
+  var bwx=car.x-cos*CW-sin*(CH+SL), bwy=car.y-sin*CW+cos*(CH+SL);
   var fX=0,fY=0,tq=0;
 
   function wF(wx,wy,ws,isDrv){
@@ -721,7 +743,7 @@ function stepPhys(dt){
   car.x+=car.vx*dt; car.y+=car.vy*dt;
 
   var fl=tyAt(car.x);
-  if(car.y+CH+WR+SL>fl+2){car.y=fl-CH-WR-SL;if(car.vy>20)car.vy*=-.15;else car.vy=0;}
+  if(car.y+CH+SL+WR>fl+2){car.y=fl-CH-SL-WR;if(car.vy>20)car.vy*=-.15;else car.vy=0;}
   if(car.x<SEG*2){car.x=SEG*2;if(car.vx<0)car.vx=0;}
 
   fuel-=(keys.gas?3.0:.6)*dt; fuel=Math.max(0,fuel);
@@ -760,6 +782,7 @@ function stepPhys(dt){
 function crashed(){
   if(!cinited||isNaN(car.x))return false;
   var cos=Math.cos(car.angle),sin=Math.sin(car.angle);
+  // Check roof corners
   var tops=[
     {x:car.x+cos*CW-sin*(-CH),y:car.y+sin*CW+cos*(-CH)},
     {x:car.x-cos*CW-sin*(-CH),y:car.y-sin*CW+cos*(-CH)}
@@ -768,7 +791,6 @@ function crashed(){
   return false;
 }
 
-// ── DAY/NIGHT (90s cycle driven by elapsed time) ──
 function skyAt(t){
   var phase=(t%90)/90;
   function lp(a,b,f){return[Math.round(a[0]+(b[0]-a[0])*f),Math.round(a[1]+(b[1]-a[1])*f),Math.round(a[2]+(b[2]-a[2])*f)];}
@@ -793,7 +815,6 @@ function drawBG(){
   grad.addColorStop(1,'rgb('+hor[0]+','+hor[1]+','+hor[2]+')');
   ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
 
-  // Stars
   var sa=ph<0.3?(1-ph/0.3)*.8:ph>0.65?((ph-.65)/.35)*.9:0;
   if(sa>.02){
     for(var i=0;i<30;i++){
@@ -805,7 +826,6 @@ function drawBG(){
     ctx.globalAlpha=1;
   }
 
-  // Sun or Moon arc
   var bp=ph*Math.PI*2;
   var sunX=W*.5+Math.cos(bp-Math.PI*.5)*W*.42;
   var sunY=H*.4+Math.sin(bp-Math.PI*.5)*H*.55;
@@ -825,11 +845,9 @@ function drawBG(){
     }
   }
 
-  // Mountains
   ctx.fillStyle='rgba(18,28,46,.3)';
   for(var i=0;i<10;i++){var mx=((i*210-camX*.1)%(W+240))-80,mh=50+(i*37)%55;ctx.beginPath();ctx.moveTo(mx,H*.58);ctx.lineTo(mx+85,H*.58-mh);ctx.lineTo(mx+170,H*.58);ctx.fill();}
 
-  // Ground fill
   var vis=[];
   for(var i=0;i<tPts.length;i++){if(tPts[i].x>=camX-SEG&&tPts[i].x<=camX+W+SEG)vis.push(tPts[i]);}
   if(vis.length>1){
@@ -898,15 +916,15 @@ function drawCar(){
 
   // shadow
   var gd=tyAt(car.x)-car.y;
-  if(gd>0&&gd<140){
+  if(gd>0&&gd<200){
     ctx.save();ctx.translate(car.x-camX,tyAt(car.x));ctx.scale(1,.2);
     ctx.beginPath();ctx.ellipse(0,0,CW*.8,10,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(0,0,0,'+(0.35*(1-gd/140))+')';ctx.fill();ctx.restore();
+    ctx.fillStyle='rgba(0,0,0,'+(0.35*(1-gd/200))+')';ctx.fill();ctx.restore();
   }
   ctx.save();ctx.translate(car.x-camX,car.y);ctx.rotate(car.angle);
 
-  // suspension
-  ctx.strokeStyle='rgba(200,200,200,.13)';ctx.lineWidth=2;
+  // suspension struts
+  ctx.strokeStyle='rgba(200,200,200,.15)';ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(-CW+10,CH);ctx.lineTo(-CW+10,CH+SL);ctx.stroke();
   ctx.beginPath();ctx.moveTo(CW-10,CH);ctx.lineTo(CW-10,CH+SL);ctx.stroke();
 
@@ -922,7 +940,7 @@ function drawCar(){
     for(var sp=0;sp<4;sp++){var ang=sa+sp*Math.PI/2;ctx.beginPath();ctx.moveTo(wx,wy);ctx.lineTo(wx+Math.cos(ang)*WR*.38,wy+Math.sin(ang)*WR*.38);ctx.stroke();}
   }
 
-  // body
+  // car body
   ctx.beginPath();ctx.moveTo(-CW,CH);ctx.lineTo(-CW,-CH+4);ctx.lineTo(-CW+8,-CH);ctx.lineTo(CW-6,-CH);ctx.lineTo(CW,-CH+4);ctx.lineTo(CW,CH);ctx.closePath();
   ctx.fillStyle=col;ctx.fill();ctx.strokeStyle=hexA(col,.5);ctx.lineWidth=1.5;ctx.stroke();
   // roof
@@ -936,7 +954,7 @@ function drawCar(){
   ctx.beginPath();ctx.arc(CW-5,CH*.2,3.5,0,Math.PI*2);ctx.fillStyle='rgba(255,248,180,.9)';ctx.fill();
   ctx.beginPath();ctx.arc(-CW+4,-CH*.1,2.5,0,Math.PI*2);ctx.fillStyle=keys.brake?'rgba(255,80,80,.95)':'rgba(180,40,40,.6)';ctx.fill();
   ctx.fillStyle='#22222a';ctx.fillRect(-CW-5,CH*.5,6,4);
-  // emoji
+  // stock emoji
   ctx.font='bold 11px monospace';ctx.fillStyle='rgba(255,255,255,.88)';ctx.textAlign='center';
   ctx.fillText(s.emoji,-CW*.03,-CH-17);
   ctx.restore();
@@ -1037,7 +1055,6 @@ function gameLoop(ts){
   animId=requestAnimationFrame(gameLoop);
 }
 
-// ── STOCK SELECTOR ──
 function buildSel(){
   var h='';
   ALL_STOCKS.forEach(function(s,i){
@@ -1071,7 +1088,6 @@ function togglePause(){
   if(!paused)lastT=performance.now();
 }
 
-// ── LOAD ANIMATION ──
 function startLoadAnim(){
   var lc=document.getElementById('ldCanvas');if(!lc)return null;
   var lx=lc.getContext('2d');var LW=280,LH=70,lt=0;
@@ -1089,7 +1105,6 @@ function startLoadAnim(){
   }, 33);
 }
 
-// ── BOOT ──
 (function(){
   resize();
   lastT=performance.now();
@@ -1117,6 +1132,7 @@ function startLoadAnim(){
 })();
 </script></body></html>"""
 
+
 def build_play_mode_html(all_stocks_data):
     stock_json = json.dumps(make_serialisable(all_stocks_data))
     ticker_parts = []
@@ -1129,18 +1145,14 @@ def build_play_mode_html(all_stocks_data):
     html = html.replace("TICKER_PLACEHOLDER", ticker_text)
     return html
 
-# ─────────────────────────────────────────────────────────────────
-# SESSION STATE
-# ─────────────────────────────────────────────────────────────────
+# ─── SESSION STATE ───
 for k,v in [('page','home'),('race_data',None),('last_cfg',None),
             ('race_speed','Normal'),('show_ann',True),('period_label','1 Year'),('play_data',None)]:
     if k not in st.session_state: st.session_state[k]=v
 
 st.markdown(CSS, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────────────────────────
-# HOME PAGE
-# ─────────────────────────────────────────────────────────────────
+# ─── HOME PAGE ───
 def render_home():
     st.markdown("""
     <div style="padding:3rem 0 1.5rem;">
@@ -1206,7 +1218,6 @@ def render_home():
         if st.button("→ Play Now", type="primary", use_container_width=True, key="btn_play"):
             st.session_state.page = 'play'; st.rerun()
 
-    # Animated preview strip
     preview = """<div style="background:#0e0e14;border:1px solid rgba(255,255,255,.06);border-radius:6px;overflow:hidden;margin-top:2.5rem;height:112px;">
 <canvas id="pvC" style="width:100%;height:112px;display:block;"></canvas></div>
 <script>(function(){
@@ -1239,9 +1250,7 @@ def render_home():
       MarketRace · Day 27 · 30 Days of AI Finance · Preetham · Price data via yfinance · Not investment advice
     </div>""", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────────────────────────
-# COMPUTER RACE PAGE
-# ─────────────────────────────────────────────────────────────────
+# ─── COMPUTER RACE PAGE ───
 def render_computer():
     if st.button("← Home", type="secondary", key="back_c"): st.session_state.page='home'; st.rerun()
     st.markdown("<div style='font-family:\"DM Mono\",monospace;font-size:.62rem;color:#444;letter-spacing:.15em;text-transform:uppercase;margin:.5rem 0 1.5rem;'>● COMPUTER RACE MODE · 1Y NSE TERRAIN</div>", unsafe_allow_html=True)
@@ -1295,9 +1304,7 @@ def render_computer():
         components.html(build_computer_race_html(rd, race_speed, show_ann, period_label), height=680, scrolling=False)
         st.markdown("<div style='margin-top:1rem;font-family:\"DM Mono\",monospace;font-size:.62rem;color:#2a2a3a;text-align:center;border-top:1px solid rgba(255,255,255,.04);padding-top:1rem;'>MarketRace · Day 27 · 30 Days of AI Finance · Data via yfinance · Not investment advice</div>", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────────────────────────
-# PLAY MODE PAGE
-# ─────────────────────────────────────────────────────────────────
+# ─── PLAY MODE PAGE ───
 def render_play():
     if st.button("← Home", type="secondary", key="back_p"): st.session_state.page='home'; st.rerun()
 
@@ -1318,9 +1325,7 @@ def render_play():
     components.html(build_play_mode_html(st.session_state.play_data), height=700, scrolling=False)
     st.markdown("<div style='margin-top:.4rem;font-family:\"DM Mono\",monospace;font-size:.62rem;color:#2a2a3a;text-align:center;'>▶▶ GAS &nbsp;·&nbsp; ◀◀ BRAKE &nbsp;·&nbsp; Air tilt for backflips &nbsp;·&nbsp; Not investment advice</div>", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────────────────────────
-# ROUTER
-# ─────────────────────────────────────────────────────────────────
+# ─── ROUTER ───
 if   st.session_state.page == 'home':     render_home()
 elif st.session_state.page == 'computer': render_computer()
 elif st.session_state.page == 'play':     render_play()
