@@ -959,22 +959,17 @@ function startLoadAnim(){
   function loadNext(){
     if(idx>=ALL_STOCKS.length){
       clearInterval(la);
-      // ── KEY FIX: buildT stock 0 first, THEN initCar so tPts is populated ──
-      buildT(ALL_STOCKS[0].data);
-      buildColls(ALL_STOCKS[0].data);
-      si=0;
-      initCar();   // tPts now has data, so sy = tyAt(sx) is valid, cinited=true
-      // update HUD labels
-      var s=ALL_STOCKS[0];
-      document.getElementById('stkName').textContent=(s.emoji||'')+' '+s.name;
-      var ret=(s.data.total_return*100).toFixed(1);
-      document.getElementById('stkRet').textContent='1Y: '+(parseFloat(ret)>=0?'+':'')+ret+'%';
-      var el=document.getElementById('startStkName');if(el)el.textContent=s.name;
-      setTimeout(function(){document.getElementById('loadScr').style.display='none';document.getElementById('startScr').style.display='flex';gState='start';},350);
+      loadSt(0);
+      initCar();
+      setTimeout(function(){
+        document.getElementById('loadScr').style.display='none';
+        document.getElementById('startScr').style.display='flex';
+        gState='start';
+      },350);
       return;
     }
     var s=ALL_STOCKS[idx];if(ll)ll.textContent='Loading '+(s.emoji||'')+' '+s.name+'...';
-    setTimeout(function(){idx++;loadNext();},25);
+    setTimeout(function(){buildT(s.data);idx++;loadNext();},25);
   }
   setTimeout(loadNext,150);
 })();
