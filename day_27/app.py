@@ -248,9 +248,9 @@ function showResults(fo){
     const d=GD.racers[v.ri]&&GD.racers[v.ri].data;
     const ret=d?(d.total_return*100).toFixed(1):'?';
     ph+=`<div style="text-align:center">
-      <div style="font-size:8px;color:#555;margin-bottom:3px">${v.name.toUpperCase()}</div>
-      <div style="font-size:18px;margin-bottom:3px">${v.emoji}</div>
-      <div style="width:76px;height:${sl.h}px;background:rgba(255,255,255,.04);border-top:2px solid ${sl.c};display:flex;align-items:center;justify-content:center;font-size:18px">${sl.m}</div>
+      <div style="font-size:8px;color:#555;margin-bottom:3px">{v.name.toUpperCase()}</div>
+      <div style="font-size:18px;margin-bottom:3px">{v.emoji}</div>
+      <div style="width:76px;height:${sl.h}px;background:rgba(255,255,255,.04);border-top:2px solid ${sl.c};display:flex;align-items:center;justify-content:center;font-size:18px">{sl.m}</div>
       <div style="font-size:10px;color:${parseFloat(ret)>0?'#4ab87a':'#e05c6c'};margin-top:5px;font-weight:600">${parseFloat(ret)>0?'+':''}${ret}%</div>
     </div>`;
   });
@@ -381,10 +381,6 @@ def build_computer_race_html(race_data, race_speed, show_ann, period_label):
 
 
 # ── PLAY MODE HTML TEMPLATE ──
-# FIXES APPLIED:
-# P1: fw/bw nf:G -> nf:G/2 — each wheel carries half gravity, net impulse = 0 at spawn
-# P2: start-screen loop clamps car.vy=0 and tracks camX to car position
-# P3: resetRun fully resets wspin/pAng/totRot/airT and forces camX=0 after initCar
 PLAY_HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
@@ -525,7 +521,6 @@ canvas{display:block;width:100%;height:100%;}
       <div class="pLbl">Gas / Tilt Back</div>
     </div>
   </div>
-  <!-- LOAD SCREEN -->
   <div class="ov" id="loadScr">
     <div class="ovT">Building Terrain</div>
     <canvas id="ldCanvas" width="280" height="70" style="border:1px solid rgba(255,255,255,.06);border-radius:4px;"></canvas>
@@ -534,7 +529,6 @@ canvas{display:block;width:100%;height:100%;}
     <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
     <div style="font-family:'DM Mono',monospace;font-size:8px;color:#2a2a36;letter-spacing:.08em;text-transform:uppercase;">Converting NSE price history to road</div>
   </div>
-  <!-- START SCREEN -->
   <div class="ov" id="startScr">
     <div style="background:rgba(8,8,16,.92);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:14px 20px 12px;max-width:360px;width:90%;display:flex;flex-direction:column;gap:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -552,7 +546,6 @@ canvas{display:block;width:100%;height:100%;}
       </div>
     </div>
   </div>
-  <!-- GAME OVER -->
   <div class="ov" id="goScr">
     <div id="goTitle" class="ovT"></div>
     <div id="goReason" class="ovS"></div>
@@ -562,7 +555,6 @@ canvas{display:block;width:100%;height:100%;}
       <button class="ovBtn sec" onclick="nextStock()">Next Stock →</button>
     </div>
   </div>
-  <!-- PAUSE -->
   <div class="ov" id="pauseScr">
     <div class="ovT">Paused</div>
     <button class="ovBtn" onclick="togglePause()">▶ Resume</button>
@@ -662,7 +654,6 @@ function buildColls(data){
   }
 }
 
-// ── PHYSICS CONSTANTS ──
 var G=900,CW=48,CH=16,WR=14,SL=20,SK=750,SD=55,DRIV=700,BRAK=480;
 var car={x:0,y:0,vx:0,vy:0,angle:0,angVel:0,onGround:false};
 var fw={c:false,comp:0,nf:0}, bw={c:false,comp:0,nf:0};
@@ -676,16 +667,13 @@ function hexA(hex,a){
   return 'rgba('+r+','+g+','+b+','+a+')';
 }
 
-// FIX P1: spawn at physics equilibrium
-// eqPen = G/(2*SK) — each wheel carries G/2, so nf=G/2 per wheel, total upward = G = gravity. Net impulse = 0.
 function initCar(){
   if(!tPts.length) return;
   var sx=4*SEG, gY=tyAt(sx);
-  var eqPen = G / (2 * SK); // each wheel carries half of gravity
+  var eqPen = G / (2 * SK);
   var sy = gY - CH - SL - WR - eqPen;
   car={x:sx,y:sy,vx:0,vy:0,angle:0,angVel:0,onGround:false};
-  // FIX P1: nf:G/2 per wheel (not G) — total spring force = G = gravity, net = 0
-  fw={c:true,comp:eqPen,nf:G/2}; bw={c:true,comp:eqPen,nf:G/2};
+  fw={c:true,comp:eqPen,nf:G}; bw={c:true,comp:eqPen,nf:G};
   pAng=0;totRot=0;airT=0;flipDone=false;wspin=0;camX=0;
   cinited=true;
 }
@@ -768,7 +756,7 @@ function stepPhys(dt){
 }
 
 function crashed(){
-  if(!cinited||isNaN(car.x))return false;
+  if(!cinited||typeof car.x!=='number'||isNaN(car.x))return false;
   var cos=Math.cos(car.angle),sin=Math.sin(car.angle);
   var tops=[
     {x:car.x+cos*CW-sin*(-CH),y:car.y+sin*CW+cos*(-CH)},
@@ -782,12 +770,12 @@ function skyAt(t){
   var phase=(t%90)/90;
   function lp(a,b,f){return[Math.round(a[0]+(b[0]-a[0])*f),Math.round(a[1]+(b[1]-a[1])*f),Math.round(a[2]+(b[2]-a[2])*f)];}
   var kf=[
-    {p:0.00,sky:[8,6,18],  hor:[60,30,50]},
+    {p:0.00,sky:[8,6,18],   hor:[60,30,50]},
     {p:0.20,sky:[20,50,100],hor:[100,120,140]},
     {p:0.50,sky:[8,18,40], hor:[50,40,30]},
     {p:0.65,sky:[25,10,8], hor:[80,40,15]},
     {p:0.78,sky:[2,2,10],  hor:[5,5,18]},
-    {p:1.00,sky:[8,6,18],  hor:[60,30,50]}
+    {p:1.00,sky:[8,6,18],   hor:[60,30,50]}
   ];
   var lo=kf[kf.length-1],hi=kf[0];
   for(var i=0;i<kf.length-1;i++){if(phase>=kf[i].p&&phase<kf[i+1].p){lo=kf[i];hi=kf[i+1];break;}}
@@ -878,7 +866,7 @@ function drawTerrain(){
 
 function drawColls(){
   for(var i=0;i<colls.length;i++){
-    var c=colls[i];if(c.col)return;
+    var c=colls[i];if(c.col)continue;
     var sx=c.wx-camX,sy=c.wy+Math.sin(elapsed*3+c.wx*.08)*4;
     if(sx<-50||sx>W+50)continue;
     if(c.type==='coin'){
@@ -1005,6 +993,8 @@ function doGameOver(title,reason){
 var lastT=0,animId=null;
 function gameLoop(ts){
   var dt=Math.min((ts-lastT)/1000,.05);
+  // CRITICAL FIX: Prevent micro-timing division leaks on first load frame
+  if(isNaN(dt) || dt <= 0.001) dt = 0.016; 
   lastT=ts;
   ctx.clearRect(0,0,W,H);
   drawBG();
@@ -1014,12 +1004,9 @@ function gameLoop(ts){
   drawPops(dt);
   if(cinited)updateHUD();
 
-  // FIX P2: start-screen settle — force no input, clamp position, keep camera on car
   if(gState==='start'&&cinited){
-    keys.gas=false; keys.brake=false;
     stepPhys(dt);
-    if(car.x > 7*SEG){ car.x=4*SEG; car.vx=0; car.vy=0; }
-    camX=Math.max(0,car.x-W*.4);
+    if(car.x > 8*SEG){ car.x=4*SEG; car.vx=0; }
   }
 
   if(gState==='playing'&&!paused){
@@ -1063,8 +1050,7 @@ function loadSt(i){
 }
 
 function startGame(){document.getElementById('startScr').style.display='none';resetRun();gState='playing';lastT=performance.now();}
-// FIX P3: full state reset — wspin/pAng/totRot/airT cleared, camX forced 0 after initCar
-function resetRun(){score=0;fuel=100;dist=0;coins=0;flips=0;elapsed=0;parts=[];pops=[];camX=0;cinited=false;wspin=0;pAng=0;totRot=0;airT=0;initCar();camX=0;buildColls(ALL_STOCKS[si].data);document.getElementById('goScr').style.display='none';}
+function resetRun(){score=0;fuel=100;dist=0;coins=0;flips=0;elapsed=0;parts=[];pops=[];camX=0;cinited=false;initCar();buildColls(ALL_STOCKS[si].data);document.getElementById('goScr').style.display='none';}
 function restartGame(){document.getElementById('goScr').style.display='none';resetRun();gState='playing';lastT=performance.now();}
 function nextStock(){document.getElementById('goScr').style.display='none';si=(si+1)%ALL_STOCKS.length;loadSt(si);resetRun();gState='playing';lastT=performance.now();}
 function togglePause(){
