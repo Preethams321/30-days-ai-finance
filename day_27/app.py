@@ -653,9 +653,17 @@ function hexA(hex,a){
 // ── FIX: initCar only called after buildT has populated tPts ──
 function initCar(){
   if(!tPts.length)return;
-  var sx=4*SEG,sy=tyAt(sx)-CH-WR-SL-4;
+  var sx=4*SEG, gY=tyAt(sx);
+  // Equilibrium: spring force = gravity => SK * eqPen = G => eqPen = G/SK = 1.2px
+  // Visual wheel center at car.y + CH + SL
+  // Wheel bottom at car.y + CH + SL + WR
+  // At equilibrium contact: wheel_bottom = gY - eqPen
+  // => car.y = gY - eqPen - WR - SL - CH
+  var eqPen = G / SK;
+  var sy = gY - eqPen - WR - SL - CH;
   car={x:sx,y:sy,vx:0,vy:0,angle:0,angVel:0,onGround:false};
-  fw={c:false,comp:0,nf:0};bw={c:false,comp:0,nf:0};
+  // Pre-compress springs to equilibrium so zero velocity impulse on first frame
+  fw={c:true,comp:eqPen,nf:G}; bw={c:true,comp:eqPen,nf:G};
   pAng=0;totRot=0;airT=0;flipDone=false;wspin=0;camX=0;
   cinited=true;
 }
