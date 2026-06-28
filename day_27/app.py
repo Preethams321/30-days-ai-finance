@@ -248,9 +248,9 @@ function showResults(fo){
     const d=GD.racers[v.ri]&&GD.racers[v.ri].data;
     const ret=d?(d.total_return*100).toFixed(1):'?';
     ph+=`<div style="text-align:center">
-      <div style="font-size:8px;color:#555;margin-bottom:3px">{v.name.toUpperCase()}</div>
-      <div style="font-size:18px;margin-bottom:3px">{v.emoji}</div>
-      <div style="width:76px;height:${sl.h}px;background:rgba(255,255,255,.04);border-top:2px solid ${sl.c};display:flex;align-items:center;justify-content:center;font-size:18px">{sl.m}</div>
+      <div style="font-size:8px;color:#555;margin-bottom:3px">${v.name.toUpperCase()}</div>
+      <div style="font-size:18px;margin-bottom:3px">${v.emoji}</div>
+      <div style="width:76px;height:${sl.h}px;background:rgba(255,255,255,.04);border-top:2px solid ${sl.c};display:flex;align-items:center;justify-content:center;font-size:18px">${sl.m}</div>
       <div style="font-size:10px;color:${parseFloat(ret)>0?'#4ab87a':'#e05c6c'};margin-top:5px;font-weight:600">${parseFloat(ret)>0?'+':''}${ret}%</div>
     </div>`;
   });
@@ -395,7 +395,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#020206;}
 #wrap{width:100%;height:100vh;position:relative;overflow:hidden;}
 canvas{display:block;width:100%;height:100%;}
 #topHud{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:stretch;pointer-events:none;z-index:20;background:rgba(2,2,6,.78);border-bottom:1px solid rgba(255,255,255,.05);}
-.hCell{display:flex;flex-direction:column;justify-content:center;padding:0 12px;border-right:1px solid rgba(255,255,255,.05);}
+.hCell{display:flex;flex-direction:column;justify(content:center;padding:0 12px;border-right:1px solid rgba(255,255,255,.05);}
 .hCell:last-child{border-right:none;}
 .hLbl{font-family:'DM Mono',monospace;font-size:7px;color:#3a3a4a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1px;}
 .hVal{font-family:'Playfair Display',serif;font-size:18px;color:#c9a96e;line-height:1;font-style:italic;}
@@ -993,7 +993,6 @@ function doGameOver(title,reason){
 var lastT=0,animId=null;
 function gameLoop(ts){
   var dt=Math.min((ts-lastT)/1000,.05);
-  // CRITICAL FIX: Prevent micro-timing division leaks on first load frame
   if(isNaN(dt) || dt <= 0.001) dt = 0.016; 
   lastT=ts;
   ctx.clearRect(0,0,W,H);
@@ -1210,7 +1209,7 @@ def render_home():
       cx.fillStyle=st.col;cx.fillRect(-12,-5,24,9);
       cx.fillStyle=st.col+'bb';cx.fillRect(-7,-11,14,7);
       cx.fillStyle='#1a1a22';cx.beginPath();cx.arc(-7,4,4,0,Math.PI*2);cx.fill();
-      cx.beginPath();cx.arc(7,4,4,0,Math.PI*2);cx.fill();
+      cx.beginPath();ctx.arc(7,4,4,0,Math.PI*2);cx.fill();
       cx.restore();
     });
     t+=.4;requestAnimationFrame(draw);
