@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preetham S · Finance & Technology</title>
+<meta name="description" content="B.Com student at SJCC Bengaluru. CFA L1 Candidate. Algo Trader. Built 30 AI finance tools in 30 days.">
+<meta property="og:title" content="Preetham S · Finance & Technology">
+<meta property="og:description" content="30 AI-powered finance tools built in 30 consecutive days. Equity research, macro analysis, valuation models, and derivatives tools.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://preethams321.github.io/30-days-ai-finance">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────
+   RESET
+───────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:#09090e;
+  color:#e8e4dc;
+  font-family:'Syne',sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit;border:none;background:none}
+img{max-width:100%;display:block}
+
+/* ─────────────────────────────────────────────────────────
+   TOKENS  — single source of truth, never override inline
+───────────────────────────────────────────────────────── */
+:root{
+  --bg:        #09090e;
+  --surf:      #0d0d14;
+  --surf2:     #111118;
+  --surf3:     #16161f;
+  --border:    rgba(255,255,255,0.06);
+  --border2:   rgba(255,255,255,0.10);
+  --gold:      #c9a96e;
+  --gold-lt:   #e8ca90;
+  --gold-dim:  rgba(201,169,110,0.10);
+  --gold-glow: rgba(201,169,110,0.18);
+  --blue:      #4a9eff;
+  --amber:     #e0a04a;
+  --green:     #4ab87a;
+  --red:       #e05c6c;
+  --t1:        #e8e4dc;
+  --t2:        #b0ac9f;
+  --t3:        #666060;
+  --t4:        #3a3a42;
+  --w1:        #4a9eff;
+  --w2:        #e0a04a;
+  --w3:        #c9a96e;
+  --w4:        #4ab87a;
+  --nav-h:     60px;
+  --max:       1160px;
+  --gap:       clamp(1rem,3vw,1.5rem);
+}
+
+/* ─────────────────────────────────────────────────────────
+   UTILITY
+───────────────────────────────────────────────────────── */
+.container{max-width:var(--max);margin:0 auto;padding:0 clamp(1rem,4vw,2rem)}
+.eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:.68rem;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.6rem;
+}
+.section-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.7rem,3.5vw,2.8rem);
+  font-weight:700;letter-spacing:-.02em;
+  color:var(--t1);line-height:1.15;
+}
+.section-title em{font-style:italic;color:var(--gold)}
+.section-sub{
+  font-size:.95rem;color:var(--t2);
+  line-height:1.75;margin-top:.75rem;
+  max-width:520px;
+}
+
+/* Fade-up reveal */
+.fu{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
+.fu.in{opacity:1;transform:none}
+
+/* ─────────────────────────────────────────────────────────
+   NAV
+───────────────────────────────────────────────────────── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  border-bottom:1px solid transparent;
+  transition:background .3s,border-color .3s,backdrop-filter .3s;
+}
+#nav.scrolled{
+  background:rgba(9,9,14,.93);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom-color:var(--border);
+}
+.nav-inner{
+  max-width:var(--max);margin:0 auto;
+  padding:0 clamp(1rem,4vw,2rem);
+  height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+.nav-logo{
+  font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;
+  color:var(--t1);letter-spacing:-.02em;flex-shrink:0;
+}
+.nav-logo span{color:var(--gold);font-style:italic}
+.nav-links{display:flex;gap:1.75rem}
+.nav-links a{
+  font-size:.8rem;font-weight:600;color:var(--t3);
+  letter-spacing:.06em;text-transform:uppercase;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--t1)}
+.nav-cta{
+  font-family:'DM Mono',monospace;font-size:.75rem;font-weight:500;
+  color:var(--gold);border:1px solid rgba(201,169,110,.28);
+  padding:.38rem .9rem;border-radius:4px;
+  transition:background .2s,border-color .2s;white-space:nowrap;flex-shrink:0;
+}
+.nav-cta:hover{background:var(--gold-dim);border-color:var(--gold)}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .nav-logo{font-size:1rem}
+}
+
+/* ─────────────────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────────────────── */
+#hero{
+  min-height:100svh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:calc(var(--nav-h) + 3.5rem) clamp(1rem,4vw,2rem) 5rem;
+  position:relative;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse 85% 75% at 50% 50%,black 30%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 85% 75% at 50% 50%,black 30%,transparent 100%);
+}
+.hero-glow{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);
+  width:700px;height:500px;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(201,169,110,.06) 0%,transparent 65%);
+}
+.hero-content{position:relative;z-index:1;max-width:800px;width:100%}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.55rem;
+  font-family:'DM Mono',monospace;font-size:.68rem;font-weight:500;
+  letter-spacing:.14em;color:var(--t3);text-transform:uppercase;
+  margin-bottom:1.75rem;
+}
+.pulse{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(74,184,122,.5);
+  animation:pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(74,184,122,.6)}
+  70%{box-shadow:0 0 0 9px rgba(74,184,122,0)}
+  100%{box-shadow:0 0 0 0 rgba(74,184,122,0)}
+}
+
+.hero-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.5rem,7.5vw,5.4rem);
+  font-weight:700;line-height:1.08;letter-spacing:-.035em;
+  color:var(--t1);margin-bottom:1.4rem;
+}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-title .line-muted{color:var(--t3)}
+
+.hero-sub{
+  font-size:clamp(.88rem,2vw,1rem);color:var(--t2);
+  line-height:1.75;max-width:500px;
+  margin:0 auto 2.5rem;
+}
+
+/* Stats */
+.stats{display:flex;justify-content:center;gap:clamp(1.5rem,4vw,3.5rem);margin-bottom:2.5rem;flex-wrap:wrap}
+.stat-n{
+  font-family:'DM Mono',monospace;font-size:clamp(1.8rem,4vw,2.6rem);
+  font-weight:400;color:var(--gold);line-height:1;display:block;
+}
+.stat-l{font-size:.68rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-top:.3rem}
+
+/* CTAs */
+.hero-ctas{display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.btn-gold{
+  background:var(--gold);color:#09090e;font-weight:700;font-size:.88rem;
+  padding:.72rem 1.65rem;border-radius:4px;
+  transition:background .2s,transform .2s;letter-spacing:.01em;
+}
+.btn-gold:hover{background:var(--gold-lt);transform:translateY(-2px)}
+.btn-ghost{
+  border:1px solid rgba(255,255,255,.11);color:var(--t2);
+  font-weight:600;font-size:.88rem;padding:.72rem 1.65rem;border-radius:4px;
+  transition:border-color .2s,color .2s,transform .2s;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.28);color:var(--t1);transform:translateY(-2px)}
+
+/* Week pills */
+.week-pills{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.wpill{
+  font-family:'DM Mono',monospace;font-size:.65rem;font-weight:500;
+  padding:.28rem .75rem;border-radius:99px;border:1px solid;letter-spacing:.04em;
+}
+.wpill.w1{color:var(--w1);border-color:rgba(74,158,255,.22);background:rgba(74,158,255,.05)}
+.wpill.w2{color:var(--w2);border-color:rgba(224,160,74,.22);background:rgba(224,160,74,.05)}
+.wpill.w3{color:var(--w3);border-color:rgba(201,169,110,.22);background:rgba(201,169,110,.05)}
+.wpill.w4{color:var(--w4);border-color:rgba(74,184,122,.22);background:rgba(74,184,122,.05)}
+
+/* ─────────────────────────────────────────────────────────
+   ABOUT
+───────────────────────────────────────────────────────── */
+#about{padding:clamp(4rem,8vw,8rem) 0}
+.about-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(2rem,4vw,4rem);
+  align-items:start;
+  margin-top:3rem;
+}
+@media(max-width:760px){.about-grid{grid-template-columns:1fr}}
+
+.bio p{font-size:.97rem;color:var(--t2);line-height:1.82;margin-bottom:1rem}
+.bio p strong{color:var(--t1);font-weight:700}
+.bio p:last-child{margin-bottom:0}
+
+/* Experience timeline cards */
+.exp-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem}
+.exp-card{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-left:2px solid var(--accent-c,var(--gold));
+  border-radius:6px;padding:1rem 1.2rem;
+  transition:border-color .2s,background .2s;
+}
+.exp-card:hover{background:var(--surf2);border-color:rgba(255,255,255,.1)}
+.exp-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.4rem;margin-bottom:.25rem}
+.exp-role{font-weight:700;font-size:.88rem;color:var(--t1)}
+.exp-dates{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--t3)}
+.exp-co{font-family:'DM Mono',monospace;font-size:.7rem;margin-bottom:.35rem}
+.exp-detail{font-size:.8rem;color:var(--t2);line-height:1.5}
+
+/* Skills */
+.skills-label{
+  font-family:'DM Mono',monospace;font-size:.65rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:.6rem;
+}
+.skill-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{
+  font-family:'DM Mono',monospace;font-size:.68rem;color:var(--t2);
+  background:var(--surf2);border:1px solid var(--border);
+  padding:.25rem .65rem;border-radius:4px;
+  transition:border-color .2s,color .2s;
+}
+.chip:hover{border-color:rgba(201,169,110,.3);color:var(--gold)}
+
+/* ─────────────────────────────────────────────────────────
+   PROJECTS
+───────────────────────────────────────────────────────── */
+#projects{padding:clamp(3rem,6vw,6rem) 0 clamp(4rem,8vw,8rem)}
+.projects-header{margin-bottom:2.5rem}
+
+/* Filter tabs */
+.filters{
+  display:flex;gap:.4rem;
+  overflow-x:auto;scrollbar-width:none;padding-bottom:2px;
+  margin-bottom:2.5rem;
+}
+.filters::-webkit-scrollbar{display:none}
+.fbtn{
+  font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;
+  color:var(--t3);background:var(--surf);border:1px solid var(--border);
+  padding:.45rem .95rem;border-radius:4px;white-space:nowrap;
+  transition:color .2s,border-color .2s,background .2s;
+  cursor:pointer;
+}
+.fbtn:hover{color:var(--t1);border-color:var(--border2)}
+.fbtn.active{color:var(--gold);border-color:rgba(201,169,110,.38);background:var(--gold-dim)}
+
+/* Week header row */
+.week-head{
+  display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;
+  margin-bottom:1rem;padding-top:.5rem;
+}
+.wk-label{
+  font-family:'DM Mono',monospace;font-size:.68rem;
+  font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+}
+.wk-theme{
+  font-family:'Playfair Display',serif;
+  font-size:1.25rem;font-weight:700;color:var(--t1);letter-spacing:-.01em;
+}
+.wk-days{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--t3);margin-left:auto}
+.week-divider{border:none;border-top:1px solid var(--border);margin-bottom:1.25rem}
+
+/* ── CARD GRID ───────────────────────────────────────── */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));
+  gap:.9rem;
+  margin-bottom:3rem;
+}
+@media(max-width:480px){.card-grid{grid-template-columns:1fr}}
+@media(min-width:900px){.card-grid .card.featured{grid-column:span 2}}
+
+/* ── THE CARD itself ─────────────────────────────────── */
+.card{
+  position:relative;overflow:hidden;
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:8px;
+  display:block;cursor:pointer;
+  /* reveal state */
+  opacity:0;transform:translateY(20px);
+  transition:
+    opacity .45s ease,
+    transform .45s ease,
+    box-shadow .3s ease,
+    border-color .3s ease,
+    background .3s ease;
+}
+.card.in{opacity:1;transform:none}
+.card:hover{
+  transform:translateY(-5px) !important;
+  background:var(--surf2);
+  border-color:rgba(255,255,255,.11);
+  box-shadow:
+    0 24px 48px rgba(0,0,0,.45),
+    0 0 0 1px rgba(255,255,255,.07),
+    inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+/* Colour bar top */
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--wc,var(--gold));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .3s ease;
+}
+.card:hover::before{transform:scaleX(1)}
+
+/* Glow bottom-right on hover */
+.card::after{
+  content:'';position:absolute;
+  bottom:-60px;right:-60px;
+  width:160px;height:160px;
+  border-radius:50%;
+  background:radial-gradient(circle,var(--wc-dim,rgba(201,169,110,.08)) 0%,transparent 70%);
+  opacity:0;transition:opacity .4s ease;
+  pointer-events:none;
+}
+.card:hover::after{opacity:1}
+
+/* Card inner layout */
+.card-inner{padding:1.35rem}
+
+.card-top{
+  display:flex;align-items:center;gap:.45rem;
+  margin-bottom:1rem;flex-wrap:wrap;
+}
+.day-tag{
+  font-family:'DM Mono',monospace;font-size:.6rem;font-weight:500;
+  color:var(--t3);background:var(--surf3);
+  border:1px solid var(--border);
+  padding:.18rem .55rem;border-radius:3px;letter-spacing:.04em;
+  flex-shrink:0;
+}
+.badge-featured{
+  font-family:'DM Mono',monospace;font-size:.58rem;
+  color:var(--gold);background:var(--gold-dim);
+  border:1px solid rgba(201,169,110,.22);
+  padding:.18rem .55rem;border-radius:3px;letter-spacing:.04em;
+}
+.badge-private{
+  font-family:'DM Mono',monospace;font-size:.58rem;
+  color:var(--t3);background:var(--surf3);
+  border:1px solid var(--border);
+  padding:.18rem .55rem;border-radius:3px;letter-spacing:.04em;
+}
+
+.card-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.08rem;font-weight:700;
+  color:var(--t1);letter-spacing:-.015em;line-height:1.25;
+  margin-bottom:.45rem;
+}
+.card.featured .card-name{font-size:1.25rem}
+
+.card-tagline{
+  font-size:.8rem;color:var(--t2);line-height:1.55;
+  margin-bottom:1.1rem;
+}
+
+/* Card footer */
+.card-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:.5rem;border-top:1px solid var(--border);
+  padding-top:.9rem;margin-top:auto;
+}
+.tech-row{display:flex;flex-wrap:wrap;gap:.3rem;min-width:0}
+.tpill{
+  font-family:'DM Mono',monospace;font-size:.6rem;color:var(--t3);
+  background:transparent;border:1px solid rgba(255,255,255,.06);
+  padding:.15rem .48rem;border-radius:3px;white-space:nowrap;
+}
+.card-gh{
+  color:var(--t4);flex-shrink:0;display:flex;align-items:center;
+  padding:.3rem;border-radius:4px;transition:color .2s,background .2s;
+}
+.card-gh:hover{color:var(--t2);background:var(--surf3)}
+.card-no-gh{
+  font-family:'DM Mono',monospace;font-size:.58rem;
+  color:var(--t4);flex-shrink:0;letter-spacing:.04em;
+}
+
+/* ─────────────────────────────────────────────────────────
+   CONTACT
+───────────────────────────────────────────────────────── */
+#contact{
+  padding:clamp(4rem,8vw,8rem) 0;
+  text-align:center;
+}
+.contact-wrap{max-width:520px;margin:0 auto}
+.contact-wrap .section-sub{margin:0 auto 2.5rem;max-width:100%}
+
+.social-row{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.soc{
+  display:flex;align-items:center;justify-content:center;
+  width:50px;height:50px;border-radius:8px;
+  border:1px solid var(--border);background:var(--surf);color:var(--t3);
+  transition:color .22s,border-color .22s,background .22s,transform .22s;
+}
+.soc:hover{transform:translateY(-3px)}
+.soc.li:hover{color:#0A66C2;border-color:rgba(10,102,194,.35);background:rgba(10,102,194,.07)}
+.soc.gh:hover{color:var(--t1);border-color:var(--border2)}
+.soc.wa:hover{color:#25D366;border-color:rgba(37,211,102,.35);background:rgba(37,211,102,.07)}
+.soc.ml:hover{color:var(--gold);border-color:rgba(201,169,110,.35);background:var(--gold-dim)}
+
+/* ─────────────────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);
+  padding:1.75rem clamp(1rem,4vw,2rem);
+  max-width:var(--max);margin:0 auto;
+}
+.foot-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;margin-bottom:1rem;
+}
+.foot-name{font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;color:var(--t1);margin-right:.6rem}
+.foot-sub{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--t3)}
+.foot-link{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--gold);transition:color .2s}
+.foot-link:hover{color:var(--gold-lt)}
+.foot-copy{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--t4);text-align:center;padding-top:1rem;border-top:1px solid var(--border)}
+
+/* ─────────────────────────────────────────────────────────
+   RESPONSIVE FINE-TUNING
+───────────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .hero-title{font-size:clamp(2rem,9vw,3.5rem)}
+  .stats{gap:1.2rem}
+  .week-head{gap:.5rem}
+  .wk-days{display:none}
+  .card-foot{flex-direction:column;align-items:flex-start;gap:.6rem}
+  .social-row{gap:.5rem}
+}
+
+/* ─────────────────────────────────────────────────────────
+   REDUCED MOTION
+───────────────────────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .fu,.card{opacity:1!important;transform:none!important}
+  .pulse{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ NAV ═══════════════════ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo"><span>P</span>reetham S</a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#projects">30 Days</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="https://github.com/Preethams321/30-days-ai-finance" target="_blank" rel="noopener" class="nav-cta">GitHub →</a>
+  </div>
+</nav>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="pulse"></span>
+      30 DAYS OF AI FINANCE · COMPLETE
+    </div>
+    <h1 class="hero-title">
+      Hi, I'm <em>Preetham.</em><br>
+      <span class="line-muted">I built 30 finance</span><br>
+      tools in 30 days.
+    </h1>
+    <p class="hero-sub">
+      B.Com 2nd Year · SJCC Bengaluru · CFA Level 1 Candidate · Algo Trader<br>
+      One AI-powered finance tool per day. Four weeks. Publicly on LinkedIn.
+    </p>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-n" data-target="30">0</span>
+        <div class="stat-l">Tools Built</div>
+      </div>
+      <div class="stat">
+        <span class="stat-n" data-target="4">0</span>
+        <div class="stat-l">Weeks</div>
+      </div>
+      <div class="stat">
+        <span class="stat-n" data-target="4">0</span>
+        <div class="stat-l">Themes</div>
+      </div>
+      <div class="stat">
+        <span class="stat-n" data-target="0">0</span>
+        <div class="stat-l">Days Missed</div>
+      </div>
+    </div>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn-gold">See All 30 Projects ↓</a>
+      <a href="https://www.linkedin.com/in/preetham-s-0153a42a0/" target="_blank" rel="noopener" class="btn-ghost">Follow on LinkedIn</a>
+    </div>
+    <div class="week-pills">
+      <span class="wpill w1">Week 1: Equity Research</span>
+      <span class="wpill w2">Week 2: Macro Analysis</span>
+      <span class="wpill w3">Week 3: Valuation</span>
+      <span class="wpill w4">Week 4: Derivatives</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ ABOUT ═════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="fu">
+      <div class="eyebrow">About</div>
+      <h2 class="section-title">The person behind the tools.</h2>
+    </div>
+    <div class="about-grid">
+      <!-- Bio -->
+      <div class="bio fu">
+        <p>I'm a <strong>B.Com student at St. Joseph's College of Commerce, Bengaluru</strong> — sitting at the intersection of finance, technology, and building things that actually work. Currently preparing for <strong>CFA Level 1</strong> (Feb 2027) while running a live NIFTY options algo trading system on OpenAlgo with Fyers as my broker.</p>
+        <p>Tired of studying finance purely in theory, I launched a public <strong>30-day AI × Finance challenge</strong> — shipping one live, open-source financial tool every single day. Real tools. Real data. Real market insights.</p>
+        <p>Across <strong>4 internships</strong> in fintech, healthtech, community growth, and frontend development, my goal was always the same: understand how each vertical of a business actually operates. I'm a member of the <strong>SJCC Business Team (Finance Vertical)</strong> and represent the college at inter-collegiate business fests.</p>
+        <p>I don't have 10 years of experience. What I have is curiosity that doesn't switch off, a bias for building over talking, and a habit of learning in public.</p>
+      </div>
+      <!-- Right column: exp + skills -->
+      <div class="fu">
+        <div class="exp-list">
+          <div class="exp-card" style="--accent-c:var(--gold)">
+            <div class="exp-head">
+              <span class="exp-role">Marketing Intern</span>
+              <span class="exp-dates">Nov 2025 – Feb 2026</span>
+            </div>
+            <div class="exp-co" style="color:var(--gold)">Firstock · Bengaluru (On-site)</div>
+            <div class="exp-detail">Grew Instagram 4× to 30–50K organic views. Handled partner onboarding, influencer outreach, and brand strategy in India's competitive retail broking ecosystem.</div>
+          </div>
+          <div class="exp-card" style="--accent-c:var(--blue)">
+            <div class="exp-head">
+              <span class="exp-role">Community Manager</span>
+              <span class="exp-dates">Aug 2024 – Jan 2025</span>
+            </div>
+            <div class="exp-co" style="color:var(--blue)">EQ Community · Remote</div>
+            <div class="exp-detail">Grew community 8× in members and 5× in average engagement through structured content strategy and active moderation.</div>
+          </div>
+          <div class="exp-card" style="--accent-c:var(--green)">
+            <div class="exp-head">
+              <span class="exp-role">Finance & Growth Manager</span>
+              <span class="exp-dates">Jun 2023 – Nov 2023</span>
+            </div>
+            <div class="exp-co" style="color:var(--green)">Dochem · Remote</div>
+            <div class="exp-detail">Built pricing frameworks and revenue models for a healthtech startup. Led doctor onboarding, partnerships, and go-to-market strategy.</div>
+          </div>
+          <div class="exp-card" style="--accent-c:var(--t4)">
+            <div class="exp-head">
+              <span class="exp-role">Frontend Developer</span>
+              <span class="exp-dates">Jan 2023 – Aug 2023</span>
+            </div>
+            <div class="exp-co" style="color:var(--t3)">Nagovss · Freelance</div>
+            <div class="exp-detail">Designed and developed performance-optimised websites for multiple clients using UI/UX principles.</div>
+          </div>
+        </div>
+        <div class="skills-label">Tech Stack</div>
+        <div class="skill-chips">
+          <span class="chip">Python</span><span class="chip">Streamlit</span><span class="chip">Plotly</span>
+          <span class="chip">NumPy</span><span class="chip">Pandas</span><span class="chip">SciPy</span>
+          <span class="chip">yfinance</span><span class="chip">Gemini API</span><span class="chip">OpenAlgo</span>
+          <span class="chip">JavaScript</span><span class="chip">HTML/CSS</span><span class="chip">Excel</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ PROJECTS ══════════════ -->
+<section id="projects">
+  <div class="container">
+    <div class="projects-header fu">
+      <div class="eyebrow">30 Days · 30 Tools</div>
+      <h2 class="section-title">The complete suite.</h2>
+      <p class="section-sub">Four weeks. Four themes. Every tool built, deployed, and posted publicly on LinkedIn.</p>
+    </div>
+    <div class="filters">
+      <button class="fbtn active" data-filter="all">All 30</button>
+      <button class="fbtn" data-filter="1">Week 1: Equity</button>
+      <button class="fbtn" data-filter="2">Week 2: Macro</button>
+      <button class="fbtn" data-filter="3">Week 3: Valuation</button>
+      <button class="fbtn" data-filter="4">Week 4: Derivatives</button>
+    </div>
+    <div id="proj-container"></div>
+  </div>
+</section>
+
+<!--
+CERTIFICATIONS — uncomment when ready
+<section id="certifications">
+  <div class="container">
+    <div class="eyebrow">Certifications</div>
+    <h2 class="section-title">Credentials.</h2>
+    <div class="cert-grid">
+      <div class="cert-card">
+        <div class="cert-name">CFA Level 1</div>
+        <div class="cert-body">CFA Institute</div>
+        <div class="cert-date">February 2027</div>
+        <div class="cert-status pursuing">Pursuing</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-name">NISM Series VIII</div>
+        <div class="cert-body">NISM</div>
+        <div class="cert-date">Date here</div>
+        <div class="cert-status">Certified</div>
+      </div>
+    </div>
+  </div>
+</section>
+-->
+
+<!-- ══════════════════ CONTACT ═══════════════ -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-wrap fu">
+      <div class="eyebrow" style="text-align:center">Contact</div>
+      <h2 class="section-title">Let's connect.</h2>
+      <p class="section-sub">Open to internship opportunities, collaborations, and conversations about finance, technology, and building things.</p>
+      <div class="social-row">
+        <!-- LinkedIn -->
+        <a href="https://www.linkedin.com/in/preetham-s-0153a42a0/" class="soc li" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <!-- GitHub -->
+        <a href="https://github.com/Preethams321" class="soc gh" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        </a>
+        <!-- WhatsApp -->
+        <a href="https://wa.me/918310034952" class="soc wa" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </a>
+        <!-- Email -->
+        <a href="mailto:preethams426@gmail.com" class="soc ml" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
+        </a>
+      </div>
+      <a href="https://wa.me/918310034952?text=Hi%20Preetham%2C%20saw%20your%20portfolio%20%E2%80%94%20wanted%20to%20connect!" target="_blank" rel="noopener" class="btn-gold">Message on WhatsApp →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ FOOTER ════════════════ -->
+<footer>
+  <div class="foot-inner">
+    <div>
+      <span class="foot-name">Preetham S</span>
+      <span class="foot-sub">30 Days of AI Finance · 2026</span>
+    </div>
+    <a href="https://github.com/Preethams321/30-days-ai-finance" target="_blank" rel="noopener" class="foot-link">GitHub Repo ↗</a>
+  </div>
+  <div class="foot-copy">Built in 30 days. Deployed on GitHub Pages. Every tool open source.</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   PROJECT DATA
+   — Fill in YOUR actual live URLs before deploying.
+   — github: null  →  shows "Private" instead of GH icon.
+   — private: true →  shows "Private Project" badge.
+═══════════════════════════════════════════════════════ */
+const PROJECTS = [
+
+  // ── WEEK 1: EQUITY RESEARCH (Days 1–7) ────────────
+  { day:1, week:1, name:"Earnings Analyzer", tagline:"AI reads full corporate earnings call transcripts and outputs structured investment data — sentiment, guidance, risks. Demo on BSE Ltd.", url:"https://lnkd.in/gv9UJYtp", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day01", tech:["Python","Streamlit","Gemini API"], featured:false, private:false },
+  { day:2, week:1, name:"EquiCompare",       tagline:"Compare how ₹X invested in any Indian stock would have grown vs Nifty 50 — rebased to a unified timeline, zero distortion.", url:"https://lnkd.in/gfSCaGJE", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day02", tech:["Python","Streamlit","yfinance"], featured:false, private:false },
+  { day:3, week:1, name:"MF Overlap Analyzer", tagline:"See how much of your 'diversified' mutual fund portfolio is actually the same basket of stocks under different fund labels.", url:"https://lnkd.in/g4fAYU-7", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day03", tech:["Python","Streamlit","Plotly"], featured:false, private:false },
+  { day:4, week:1, name:"Annual Report Analyzer", tagline:"Drop any NSE/BSE annual report PDF — AI extracts balance sheet traps, management guidance shifts, and revenue-to-profit trends.", url:"https://lnkd.in/gTrTu-RU", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day04", tech:["Python","Streamlit","Gemini API"], featured:false, private:false },
+  { day:5, week:1, name:"Sector Rotation Map", tagline:"Live institutional rotation quadrant for Indian markets — Leading, Improving, Weakening, Lagging. Multi-window momentum cross-rule.", url:"https://lnkd.in/gEEc4Q7R", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day05", tech:["Python","Streamlit","yfinance"], featured:false, private:false },
+  { day:6, week:1, name:"Build Your Own Focus", tagline:"Saturday build — a personalised Chrome extension with Pomodoro timer, site blocker, YouTube Shorts block, streak tracking.", url:"https://lnkd.in/gMt2NDc4", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day06", tech:["JavaScript","Chrome Extension"], featured:false, private:false },
+  { day:7, week:1, name:"IPODesk",            tagline:"Drop any Red Herring Prospectus — AI auto-populates financials, offer structure, risk factors, GMP, and a full research dashboard.", url:"https://lnkd.in/gBGwzjQn", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day07", tech:["Python","Streamlit","Gemini API"], featured:true, private:false },
+
+  // ── WEEK 2: MACRO ANALYSIS (Days 8–14) ────────────
+  { day:8,  week:2, name:"TerminalOne",   tagline:"Free Bloomberg-lite macro terminal for India — live prices for 20+ instruments, Fear & Greed Index, sector rotation map, cross-asset correlation.", url:"https://lnkd.in/gF6hzsJJ", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day08", tech:["Python","Streamlit","yfinance"], featured:true, private:false },
+  { day:9,  week:2, name:"PolicyPulse",   tagline:"Upload RBI MPC documents — AI auto-populates 13 sections: rate cycle, sector impact, risk radar, and press conference decoded.", url:"https://lnkd.in/gkN77FrK", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day09", tech:["Python","Streamlit","Gemini API"], featured:false, private:false },
+  { day:10, week:2, name:"YieldLab",      tagline:"Drag US 10Y yield from 2% to 6.5% — watch USD/INR, Nifty P/E, FII flows, EMI, gold, and all 9 sector impacts update live.", url:"https://30-days-ai-finance-hwpk3j8aasmreunubktete.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day10", tech:["Python","Streamlit","Plotly"], featured:false, private:false },
+  { day:11, week:2, name:"Real Returns Tracker", tagline:"Nifty nominal vs real returns 2011–2025. ₹1L invested became ₹4.26L nominal — but only ₹1.83L in real purchasing power.", url:"https://30-days-ai-finance-qf9nrcf8gwxmsgjjhel2af.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day11", tech:["Python","Streamlit","Plotly"], featured:false, private:false },
+  { day:12, week:2, name:"MacroPulse",    tagline:"India-first economic calendar — all 6 RBI MPC meetings, monthly data releases, F&O expiry, US Fed FOMC. Auto-computed from today's date.", url:"https://preethams321.github.io/30-days-ai-finance/day_12/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day_12", tech:["JavaScript","HTML/CSS"], featured:false, private:false },
+  { day:13, week:2, name:"FIREscape",     tagline:"Gamified FIRE calculator for India — your Freedom Number, FIRE date, and Escape Speed Score. Cutting expenses beats earning more.", url:"https://preethams321.github.io/30-days-ai-finance/day_13/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day_13", tech:["JavaScript","HTML/CSS"], featured:false, private:false },
+  { day:14, week:2, name:"MacroShock",    tagline:"Pick a shock — Crude, US 10Y, USD/INR, or CPI. Drag one slider and watch 8 sectors, FII flows, Nifty P/E, and real historical scenarios update live.", url:"https://30-days-ai-finance-nzs4hxaabtacydymjfmzmy.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day14", tech:["Python","Streamlit","NumPy"], featured:false, private:false },
+
+  // ── WEEK 3: VALUATION & CORP FIN (Days 15–21) ─────
+  { day:15, week:3, name:"LBOdesk",   tagline:"Interactive LBO model — sources & uses, debt cash sweep, WACC/DCF cross-check, and IRR/MOIC sensitivity grid. Every input is a slider.", url:"https://30-days-ai-finance-242jirjty4rl6ga5etfktx.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day15", tech:["Python","Streamlit","Excel"], featured:true,  private:false },
+  { day:16, week:3, name:"DCFdesk",   tagline:"3-scenario DCF on MCX — bear ₹857, base ₹1,423, bull ₹2,221. Reverse DCF shows what growth the market is pricing in.", url:"https://30-days-ai-finance-cyqymf5dhdyrgy8egftdk3.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day16", tech:["Python","Streamlit","Pandas"], featured:false, private:false },
+  { day:17, week:3, name:"CompeteIQ", tagline:"DuPont deconstruction of India's top 5 banks using real FY25 financials — margin leaders vs leverage engines, moat scorecard, Porter's 5 Forces.", url:"https://30-days-ai-finance-pvhnmydfck2k6zuvzffv7z.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day17", tech:["Python","Streamlit","Gemini API"], featured:false, private:false },
+  { day:18, week:3, name:"DealScout", tagline:"M&A screener across 30 Indian companies — Deal Fit Score (0–100) built on valuation, Rule of 40, leverage, promoter holding, and FCF.", url:"https://30-days-ai-financentlwsvfv5h9xu29smocaye.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day18", tech:["Python","Streamlit","Gemini API"], featured:false, private:false },
+  { day:19, week:3, name:"CompsDesk", tagline:"Indian IT trading comps in 30 seconds — EV/Revenue, EV/EBITDA, P/E, P/BV across 6 verified FY25 peers with a football field valuation chart.", url:"https://ln.run/1F5vq", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day19", tech:["Python","Streamlit","Gemini API"], featured:false, private:false },
+  { day:20, week:3, name:"Dhan MCP",  tagline:"Attended Dhan Dev Meet, Bengaluru — saw Dhan MCP connect Claude directly to live trades, portfolio, and market data. Private build.", url:null, github:null, tech:["Python","MCP","Dhan API"], featured:false, private:true },
+  { day:21, week:3, name:"3FinDesk",  tagline:"Fully linked 3-statement model — Income Statement, Balance Sheet, Cash Flow wired together. CHECK = 0.00 across all 6 periods. 514 formulas.", url:"https://30-days-ai-finance-w9htcnzsueu8orgo5p8vfl.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day21", tech:["Python","Excel","Streamlit"], featured:true,  private:false },
+
+  // ── WEEK 4: DERIVATIVES & AUTO (Days 22–30) ───────
+  { day:22, week:4, name:"StratEdge",    tagline:"Options strategy builder — 12 strategies, live P&L, Greeks dashboard, and Black-Scholes probability of profit.", url:"https://preethams321.github.io/30-days-ai-finance/day_22/index.html", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day_22", tech:["JavaScript","HTML/CSS"], featured:false, private:false },
+  { day:23, week:4, name:"BSDesk",       tagline:"Black-Scholes 3D pricer — all 5 Greeks surfaces, IV back-solver, and P&L simulator for Nifty/BankNifty.", url:"https://30-days-ai-finance-cgw9buhutdvtchxr6ctows.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day23", tech:["Python","Streamlit","Plotly","SciPy"], featured:false, private:false },
+  { day:24, week:4, name:"ChainDesk",    tagline:"NSE-style option chain analyser — OI analysis, PCR gauge, Max Pain, IV smile, across 3 live data modes.", url:null, github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day24", tech:["Python","Streamlit","Pandas"], featured:false, private:false },
+  { day:25, week:4, name:"MonteDesk",    tagline:"Monte Carlo risk engine on NIFTY 50 — 10,000 simulations, 3D visualisation, VaR, CVaR, and options payoff.", url:"https://30-days-ai-finance-mr5fztesa2dz4ggqtqbqfc.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day25", tech:["Python","Streamlit","Plotly","SciPy"], featured:true, private:false },
+  { day:26, week:4, name:"PortDesk",     tagline:"Full Markowitz portfolio optimiser for Indian equities — efficient frontier, 5,000 Monte Carlo simulations, VaR, CVaR.", url:"https://30-days-ai-finance-dkappfwmy9rjfw9ur3onnng.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day26", tech:["Python","Streamlit","SciPy","Plotly"], featured:false, private:false },
+  { day:27, week:4, name:"MarketRace",   tagline:"Hill-climb racing game where real NSE stock price data becomes the terrain. Gainers climb, losers crash.", url:"https://30-days-ai-finance-nf6qjkveh4lbcp9dfzchws.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day27", tech:["Python","Streamlit","yfinance"], featured:false, private:false },
+  { day:28, week:4, name:"SentiDesk",    tagline:"Open-source India Fear & Greed Index — 5 live NSE signals, full methodology transparency, composite score 0–100.", url:"https://30-days-ai-finance-maxk2df9zwwt3wse7hv7a4.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day28", tech:["Python","Streamlit","yfinance"], featured:false, private:false },
+  { day:29, week:4, name:"BondDesk",     tagline:"Fixed income analyser — bond pricer, YTM solver, India G-Sec curve, duration & convexity, credit spreads.", url:"https://30-days-ai-finance-y5cdrprcudwewk8rlytegz.streamlit.app/", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day29", tech:["Python","Streamlit","SciPy","Plotly"], featured:true, private:false },
+  { day:30, week:4, name:"This Portfolio", tagline:"Grand finale — a premium portfolio website showcasing all 30 tools. Built in one shot, deployed on GitHub Pages.", url:"https://preethams321.github.io/30-days-ai-finance", github:"https://github.com/Preethams321/30-days-ai-finance/tree/main/day30", tech:["HTML/CSS","JavaScript"], featured:true, private:false },
+];
+
+const WEEKS = {
+  1:{ label:"Week 1", theme:"Equity Research",      color:"#4a9eff", wcdim:"rgba(74,158,255,.08)",  days:"Days 1–7"  },
+  2:{ label:"Week 2", theme:"Macro Analysis",       color:"#e0a04a", wcdim:"rgba(224,160,74,.08)", days:"Days 8–14" },
+  3:{ label:"Week 3", theme:"Valuation & Corp Fin", color:"#c9a96e", wcdim:"rgba(201,169,110,.08)",days:"Days 15–21"},
+  4:{ label:"Week 4", theme:"Derivatives & Auto",   color:"#4ab87a", wcdim:"rgba(74,184,122,.08)", days:"Days 22–30"},
+};
+
+/* ── RENDER ──────────────────────────────────────────── */
+function render(filter='all'){
+  const cont = document.getElementById('proj-container');
+  cont.innerHTML='';
+  const weeks = filter==='all'?[1,2,3,4]:[parseInt(filter)];
+
+  weeks.forEach(wn=>{
+    const wdata = WEEKS[wn];
+    const projs = PROJECTS.filter(p=>p.week===wn);
+
+    // Week header
+    const hdr = document.createElement('div');
+    hdr.className='week-head fu';
+    hdr.innerHTML=`
+      <span class="wk-label" style="color:${wdata.color}">${wdata.label}</span>
+      <span class="wk-theme">${wdata.theme}</span>
+      <span class="wk-days">${wdata.days}</span>`;
+    cont.appendChild(hdr);
+
+    const hr = document.createElement('hr');
+    hr.className='week-divider';
+    cont.appendChild(hr);
+
+    // Grid
+    const grid = document.createElement('div');
+    grid.className='card-grid';
+
+    projs.forEach(p=>{
+      // Private or no URL → not clickable
+      const isLink = !p.private && p.url && p.url!=='https://YOUR_URL';
+      const el = document.createElement(isLink?'a':'div');
+      if(isLink){ el.href=p.url; el.target='_blank'; el.rel='noopener'; }
+      el.className=`card${p.featured?' featured':''}`;
+      el.style.setProperty('--wc', wdata.color);
+      el.style.setProperty('--wc-dim', wdata.wcdim);
+
+      // GH icon or private label
+      const ghEl = p.private
+        ? `<span class="card-no-gh">Private</span>`
+        : (p.github && p.github!=='https://YOUR_GH'
+            ? `<a href="${p.github}" target="_blank" rel="noopener" class="card-gh" onclick="event.stopPropagation()" title="GitHub">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+               </a>`
+            : `<span class="card-no-gh">—</span>`);
+
+      el.innerHTML=`
+        <div class="card-inner">
+          <div class="card-top">
+            <span class="day-tag">Day ${String(p.day).padStart(2,'0')}</span>
+            ${p.featured ? '<span class="badge-featured">★ Featured</span>':''}
+            ${p.private  ? '<span class="badge-private">🔒 Private</span>':''}
+          </div>
+          <div class="card-name">${p.name}</div>
+          <div class="card-tagline">${p.tagline}</div>
+          <div class="card-foot">
+            <div class="tech-row">${p.tech.slice(0,3).map(t=>`<span class="tpill">${t}</span>`).join('')}</div>
+            ${ghEl}
+          </div>
+        </div>`;
+      grid.appendChild(el);
+    });
+
+    cont.appendChild(grid);
+    setTimeout(()=>observeAll(), 30);
+  });
+}
+
+/* ── INTERSECTION OBSERVER — cards + fade-ups ─────── */
+const revealObs = new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      const delay = e.target.classList.contains('card') ? i*50 : 0;
+      setTimeout(()=>e.target.classList.add('in'), delay);
+      revealObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.07,rootMargin:'0px 0px -35px 0px'});
+
+function observeAll(){
+  document.querySelectorAll('.card:not(.in), .fu:not(.in)').forEach(el=>revealObs.observe(el));
+}
+
+/* ── STAT COUNTER ────────────────────────────────── */
+function counter(el, target, dur=1100){
+  if(target===0){el.textContent='0';return}
+  const t0=performance.now();
+  const tick=now=>{
+    const p=Math.min((now-t0)/dur,1);
+    el.textContent=Math.round((1-Math.pow(1-p,3))*target);
+    if(p<1)requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting){
+    document.querySelectorAll('.stat-n').forEach(el=>counter(el,+el.dataset.target));
+    entries[0].target._obs?.disconnect();
+  }
+},{threshold:.4}).observe(document.getElementById('hero'));
+
+/* ── FILTER BUTTONS ──────────────────────────────── */
+document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  render(b.dataset.filter);
+}));
+
+/* ── NAV SCROLL ──────────────────────────────────── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',scrollY>70);
+},{passive:true});
+
+/* ── INIT ────────────────────────────────────────── */
+render();
+observeAll();
+</script>
+</body>
+</html>
